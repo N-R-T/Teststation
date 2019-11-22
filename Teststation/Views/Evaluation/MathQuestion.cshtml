@@ -1,0 +1,23 @@
+﻿@model Teststation.Models.MathAnswer
+
+<tr>
+    <td>Geforderte Antwort:</td>
+    <td class="antwort"> @Model.Question.CorrectAnswer</td>
+    @if (Model.IsCorrect())
+    {
+        <td rowspan="2" class="antwort">
+            &#128512;
+        </td>
+    }
+    else
+    {
+        <td rowspan="2" class="antwort">
+            &#128533;
+        </td>
+    }
+
+</tr>
+<tr>
+    <td>Deine Antwort:</td>
+    <td class="antwort"> @Model.GivenAnswer</td>
+</tr>

@@ -1,0 +1,57 @@
+﻿@model Teststation.Models.MultipleChoiceEvalutionViewModel
+
+<tr>
+    <td>
+    </td>
+    <td>
+        Gefordert:
+    </td>
+    <td>
+        Deine Antwort:
+    </td>
+    <td>
+    </td>
+</tr>
+@{
+    foreach (var choice in Model.Question.Choices)
+    {
+        var userChecked = Model.GivenAnswers.Any(x => x.ChoiceId == choice.Id);
+        <tr>
+            <td>@choice.Text</td>
+            <td class="antwort">
+                @if (choice.Correct)
+                {
+                    <input type="checkbox" checked="checked" />
+                }
+                else
+                {
+                    <input type="checkbox" />
+                }
+            </td>
+            <td class="antwort">
+                @if (userChecked)
+                {
+                    <input type="checkbox" checked="checked" />
+                }
+                else
+                {
+                    <input type="checkbox" />
+                }
+            </td>
+
+            @if (userChecked && choice.Correct ||
+             !userChecked && !choice.Correct)
+            {
+                <td class="antwort">
+                    &#128512;
+                </td>
+            }
+            else
+            {
+                <td class="antwort">
+                    &#128533;
+                </td>
+            }
+        </tr>
+    }
+}
