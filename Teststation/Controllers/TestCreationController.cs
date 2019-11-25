@@ -256,9 +256,12 @@ namespace Teststation.Controllers
                 .Select(x => x as MultipleChoiceQuestion))
             {
                 _context.Update(question);
-                foreach (var choice in question.Choices)
+                if (question.Choices != null)
                 {
-                    _context.Update(choice);
+                    foreach (var choice in question.Choices)
+                    {
+                        _context.Update(choice);
+                    }
                 }
             }
             foreach (var question in test.Questions
