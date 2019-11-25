@@ -57,34 +57,37 @@ namespace Teststation.Models
             test.Id = viewModel.Id;
             test.Topic = viewModel.Topic;
             test.Questions = new List<Question>();
-            foreach (var question in viewModel.Questions
-                .Where(x => x.Type == "MathQuestion")
-                .ToList())
+            if (viewModel.Questions != null)
             {
-                test.Questions.Add(new MathQuestion
+                foreach (var question in viewModel.Questions
+                  .Where(x => x.Type == "MathQuestion")
+                  .ToList())
                 {
-                    Id = question.Id,
-                    Text = question.Text,
-                    TestId = question.TestId,
-                    Position = question.Position,
-                    Points = question.Points,
-                    CorrectAnswer = question.CorrectAnswer
-                });
-            }
+                    test.Questions.Add(new MathQuestion
+                    {
+                        Id = question.Id,
+                        Text = question.Text,
+                        TestId = question.TestId,
+                        Position = question.Position,
+                        Points = question.Points,
+                        CorrectAnswer = question.CorrectAnswer
+                    });
+                }
 
-            foreach (var question in viewModel.Questions
-               .Where(x => x.Type == "MultipleChoiceQuestion")
-               .ToList())
-            {
-                test.Questions.Add(new MultipleChoiceQuestion
+                foreach (var question in viewModel.Questions
+                   .Where(x => x.Type == "MultipleChoiceQuestion")
+                   .ToList())
                 {
-                    Id = question.Id,
-                    Text = question.Text,
-                    TestId = question.TestId,
-                    Position = question.Position,
-                    Points = question.Points,
-                    Choices = question.Choices
-                });
+                    test.Questions.Add(new MultipleChoiceQuestion
+                    {
+                        Id = question.Id,
+                        Text = question.Text,
+                        TestId = question.TestId,
+                        Position = question.Position,
+                        Points = question.Points,
+                        Choices = question.Choices
+                    });
+                }
             }
 
             return test;

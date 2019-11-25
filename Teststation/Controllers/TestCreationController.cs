@@ -12,6 +12,7 @@ namespace Teststation.Controllers
     public class TestCreationController : Controller
     {
         private readonly Database _context;
+        private static long originalTestId;
 
         public TestCreationController(Database context)
         {
@@ -50,115 +51,267 @@ namespace Teststation.Controllers
             {
                 return NotFound();
             }
+            if (id != Consts.backUpTestId)
+            {
+                originalTestId = (long)id;
+                return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+            }
 
-            var test = await _context.Tests.FindAsync(id);
-            if (test == null)
-            {
-                return NotFound();
-            }
-            test.Questions = await _context.Questions.Where(x=>x.TestId == test.Id).ToListAsync();
-            if (test.Questions == null)
-            {
-                test.Questions = new List<Question>();
-            }
-            foreach (MultipleChoiceQuestion question in test.Questions.Where(x=>x is MultipleChoiceQuestion))
-            {
-                question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
-            }
-            
-            return View(TestCreationTransformer.TransformToTestCreationViewModel(test));
+            var backUpTest = CreateBackUp();
+            return View(TestCreationTransformer.TransformToTestCreationViewModel(backUpTest));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
-            var test = TestCreationTransformer.TransformToTest(model);
-            if (id != test.Id)
-            {
-                return NotFound();
-            }
+            //var test = TestCreationTransformer.TransformToTest(model);
+            //if (id != test.Id)
+            //{
+            //    return NotFound();
+            //}
+            //try
+            //{
+            //    SaveTest(test);
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!TestExists(test.Id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+            //if (ModelState.IsValid)
+            //{
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(test);
-                    foreach (var question in test.Questions
-                        .Where(x => x is MultipleChoiceQuestion)
-                        .Select(x => x as MultipleChoiceQuestion))
-                    {
-                        _context.Update(question);
-                        foreach (var choice in question.Choices)
-                        {
-                            _context.Update(choice);
-                        }
-                    }
-                    foreach (var question in test.Questions
-                        .Where(x => x is MathQuestion)
-                        .Select(x => x as MathQuestion))
-                    {
-                        _context.Update(question);
-                    }
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TestExists(test.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
+            //    return RedirectToAction(nameof(Index));
+            //}
             return View(model);
         }
 
-        public async Task<IActionResult> BackToMainMenu(long id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveChanges(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
+            var test = TestCreationTransformer.TransformToTest(model);
+            test.Id = originalTestId;
+            _context.Questions.RemoveRange(_context.Questions.Where(x => x.TestId == originalTestId));
+            _context.Choices.RemoveRange(_context.Choices
+                .Include(x => x.Question)
+                .Where(x => x.Question.TestId == originalTestId));
+
+            foreach (var question in test.Questions)
+            {
+                question.TestId = test.Id;
+            }
+
+            _context.Update(test);
+
+            _context.SaveChanges();
+            DeleteBackUp();
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> AddMathQuestion(long id)
+        public async Task<IActionResult> BackToMainMenu(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
+            DeleteBackUp();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private Test CreateBackUp()
+        {
+            var backUpTest = new Test();
+            if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
+            {
+                backUpTest = _context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId);
+                backUpTest.Questions = _context.Questions.Where(x => x.TestId == Consts.backUpTestId).ToList();
+                if (backUpTest.Questions == null)
+                {
+                    backUpTest.Questions = new List<Question>();
+                }
+                foreach (MultipleChoiceQuestion question in backUpTest.Questions.Where(x => x is MultipleChoiceQuestion))
+                {
+                    question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
+                }
+                if (backUpTest.Questions == null)
+                {
+                    backUpTest.Questions = new List<Question>();
+                }
+            }
+            else
+            {
+                var test = _context.Tests.FirstOrDefault(x => x.Id == originalTestId);
+                backUpTest = new Test(test);
+                backUpTest.Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
+                if (backUpTest.Questions == null)
+                {
+                    backUpTest.Questions = new List<Question>();
+                }
+                foreach (MultipleChoiceQuestion question in backUpTest.Questions.Where(x => x is MultipleChoiceQuestion))
+                {
+                    question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
+                }
+                if (backUpTest.Questions == null)
+                {
+                    backUpTest.Questions = new List<Question>();
+                }
+                SaveBackUp(backUpTest);
+            }
+
+            return backUpTest;
+        }
+        private void DeleteBackUp()
+        {
+            if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
+            {
+                _context.Tests.Remove(_context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId));
+            }
+            _context.SaveChanges();
+        }
+
+        private void SaveBackUp(Test backUpTest)
+        {
+            if (!_context.Tests.Any(x => x.Id == Consts.backUpTestId))
+            {
+                _context.Tests.Add(backUpTest);
+
+                var multiChoiceQuestions = backUpTest.Questions
+                    .Where(x => x is MultipleChoiceQuestion)
+                    .Select(x => x as MultipleChoiceQuestion)
+                   .ToList();
+                foreach (var question in multiChoiceQuestions)
+                {
+                    var backUpQuestion = new MultipleChoiceQuestion
+                    {
+                        Text = question.Text,
+                        Points = question.Points,
+                        Position = question.Position,
+                        TestId = originalTestId,
+                        Choices = null
+                    };
+                    _context.Questions.Add(backUpQuestion);
+
+                    var choices = question.Choices.ToList();
+                    foreach (var choice in choices)
+                    {
+                        _context.Choices.Add(new Choice
+                        {
+                            Text = choice.Text,
+                            Correct = choice.Correct,
+                            QuestionId = backUpQuestion.Id
+                        });
+                    }
+                }
+
+
+                var mathQuestions = backUpTest.Questions
+                    .Where(x => x is MathQuestion)
+                    .Select(x => x as MathQuestion)
+                    .ToList();
+                foreach (var question in mathQuestions)
+                {
+                    var backUpQuestion = new MathQuestion
+                    {
+                        Text = question.Text,
+                        Points = question.Points,
+                        Position = question.Position,
+                        TestId = originalTestId,
+                        CorrectAnswer = question.CorrectAnswer
+                    };
+                    _context.Questions.Add(backUpQuestion);
+                }
+            }
+            else
+            {
+                _context.Update(backUpTest);
+                foreach (var question in backUpTest.Questions
+                    .Where(x => x is MultipleChoiceQuestion)
+                    .Select(x => x as MultipleChoiceQuestion))
+                {
+                    _context.Update(question);
+                    foreach (var choice in question.Choices)
+                    {
+                        _context.Update(choice);
+                    }
+                }
+                foreach (var question in backUpTest.Questions
+                    .Where(x => x is MathQuestion)
+                    .Select(x => x as MathQuestion))
+                {
+                    _context.Update(question);
+                }
+            }
+            _context.SaveChanges();
+        }
+
+        public async void SaveTest(Test test)
+        {
+            _context.Update(test);
+            foreach (var question in test.Questions
+                .Where(x => x is MultipleChoiceQuestion)
+                .Select(x => x as MultipleChoiceQuestion))
+            {
+                _context.Update(question);
+                foreach (var choice in question.Choices)
+                {
+                    _context.Update(choice);
+                }
+            }
+            foreach (var question in test.Questions
+                .Where(x => x is MathQuestion)
+                .Select(x => x as MathQuestion))
+            {
+                _context.Update(question);
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IActionResult> AddMathQuestion(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
+        {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
             var newQuestion = new MathQuestion();
 
-            newQuestion.TestId = id;
-            newQuestion.Position = _context.Questions.Where(x => x.TestId == id).Count();
+            newQuestion.TestId = Consts.backUpTestId;
+            newQuestion.Position = _context.Questions.Where(x => x.TestId == Consts.backUpTestId).Count();
+            newQuestion.Points = 1;
 
             _context.Add(newQuestion);
             await _context.SaveChangesAsync();
             return RedirectToAction("Edit", new { id });
         }
-        public async Task<IActionResult> AddMultipleChoiceQuestion(long id)
+        public async Task<IActionResult> AddMultipleChoiceQuestion(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
             var newQuestion = new MultipleChoiceQuestion();
 
-            newQuestion.TestId = id;
-            newQuestion.Position = _context.Questions.Where(x => x.TestId == id).Count();
+            newQuestion.TestId = Consts.backUpTestId;
+            newQuestion.Position = _context.Questions.Where(x => x.TestId == Consts.backUpTestId).Count();
+            newQuestion.Points = 1;
 
             _context.Add(newQuestion);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
         }
 
-        public async Task<IActionResult> AddChoice(long id)
+        public async Task<IActionResult> AddChoice(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
             var newChoice = new Choice();
             newChoice.QuestionId = id;
             _context.Add(newChoice);
             await _context.SaveChangesAsync();
 
-            var question = await _context.Questions.FirstOrDefaultAsync(x=>x.Id == id);
-            return RedirectToAction("Edit", new { id = question.TestId });
+            var question = await _context.Questions.FirstOrDefaultAsync(x => x.Id == id);
+            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
         }
 
-        public async Task<IActionResult> DeleteQuestion(long id)
+        public async Task<IActionResult> DeleteQuestion(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
             var oldQuestion = await _context.Questions.FindAsync(id);
             var test = await _context.Tests.FindAsync(oldQuestion.TestId);
             test.Questions = await _context.Questions.Where(x => x.TestId == test.Id).ToListAsync();
@@ -174,17 +327,16 @@ namespace Teststation.Controllers
 
             _context.Remove(oldQuestion);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { test.Id });
+            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
         }
 
-        public async Task<IActionResult> DeleteChoice(long id)
+        public async Task<IActionResult> DeleteChoice(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
             var oldChoice = await _context.Choices.FindAsync(id);
-            var question = await _context.Questions.FindAsync(oldChoice.QuestionId);
-            var test = await _context.Tests.FindAsync(question.TestId); 
             _context.Remove(oldChoice);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = test.Id });
+            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
         }
         #endregion
 

@@ -13,6 +13,18 @@ namespace Teststation.Models
         public List<Question> Questions { get; set; }
         public List<Session> Sessions { get; set; }
 
+        public Test()
+        {
+
+        }
+
+        public Test(Test original)
+        {
+            Id = Consts.backUpTestId;
+            Topic = original.Topic;
+            Questions = new List<Question>();
+        }
+
         public List<Question> GetQuestions()
         {
             return new List<Question>();
