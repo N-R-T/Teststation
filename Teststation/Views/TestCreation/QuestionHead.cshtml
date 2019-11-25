@@ -1,0 +1,42 @@
+﻿@model QuestionCreationViewModel
+<div class="Question-Block">
+    <input name="model.Questions[@(Model.Position)].Id" type="text" value="@Model.Id" hidden />
+    <input name="model.Questions[@(Model.Position)].Type" type="text" value="@Model.Type" hidden />
+    <input name="model.Questions[@(Model.Position)].Position" type="text" value="@Model.Position" hidden />
+
+    <div class="row">
+        <div class="col-sm-1">
+            <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-up inline-buttons" asp-action="PushQuestionUp" asp-route-id="@Model.Id"></button>
+        </div>
+        <div class="col-sm-1">
+            <label class="inline-buttons">@(Model.Position + 1)</label>
+        </div>
+        <div class="col-sm-2">
+            <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-down inline-buttons" asp-action="PushQuestionDown" asp-route-id="@Model.Id"></button>
+        </div>
+        <div class="col-sm-6">
+            <label>Punktzahl:</label>
+            <input name="model.Questions[@(Model.Position)].Points" type="text" class="form-control inline-buttons" value="@Model.Points" />
+        </div>
+        <div class="col-sm-2">
+            <button type="submit" class="btn btn-danger glyphicon glyphicon-remove inline-buttons" asp-action="DeleteQuestion" asp-route-id="@Model.Id"></button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-8">
+            <input name="model.Questions[@(Model.Position)].Text" type="text" class="form-control" value="@Model.Text" />
+        </div>
+        <div class="col-sm-3">
+            @if (Model.Type == "MathQuestion")
+            {
+                <input name="model.Questions[@(Model.Position)].CorrectAnswer" type="text" class="form-control" value="@Model.CorrectAnswer" />
+            }
+        </div>
+    </div>
+    @if (Model.Type == "MultipleChoiceQuestion")
+    {
+        <partial name="MultipleChoiceQuestion" model="@Model" />
+    }
+</div>
+<hr />

@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Test>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h4>Alle Tests</h4>
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Topic)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReleaseStatus)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Topic)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReleaseStatus)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Bearbeiten</a> |
+                    <a asp-action="Release" asp-route-id="@item.Id">Veröffentlichen</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Löschen</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    <a asp-action="Create">Neuer Test</a>
+</p>

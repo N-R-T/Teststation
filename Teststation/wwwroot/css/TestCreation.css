@@ -1,0 +1,10 @@
+﻿.inline-buttons {
+    display: inline !important;
+    max-width: 50px;
+}
+
+.Question-Block, .Choices-Block {
+    width: 80%;
+    margin: 2%;
+}
+
