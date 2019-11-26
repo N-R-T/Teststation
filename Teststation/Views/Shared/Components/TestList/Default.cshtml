@@ -1,0 +1,22 @@
+﻿@model IEnumerable<Teststation.Models.Test>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th colspan="3">Alle Tests</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Topic)
+                    </td>
+                    <td colspan="2">
+                        <button class="btn btn-outline-primary">Test starten</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
