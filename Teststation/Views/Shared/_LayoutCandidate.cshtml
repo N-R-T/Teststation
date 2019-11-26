@@ -18,8 +18,6 @@
               integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/css/TestCreation.css" />
-    <link rel="stylesheet" href="~/css/TestAnswer.css" />
     <link rel="stylesheet" href="~/css/sideNav.css" />
 </head>
 <body>
@@ -42,9 +40,9 @@
         </nav>
     </header>
 
-    <div id="mySidenav" class="sidenav adminMainSidenav">
-        <a href="#">Tests</a>
-        <a href="#">Erproplinge</a>
+    <div id="mySidenav" class="sidenav candidateSidenav">
+        @await Component.InvokeAsync("TestList")
+        <span>Gesamtpunktzahl</span>
     </div>
     <div class="sidenav" id="sideRemnant" onmouseover="toggleNav()">
         <div class="h-100 d-table">
