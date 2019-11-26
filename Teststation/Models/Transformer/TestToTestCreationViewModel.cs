@@ -49,6 +49,11 @@ namespace Teststation.Models
 
             viewModel.Questions = viewModel.Questions.OrderBy(x=>x.Position).ToList();
 
+            foreach (var question in viewModel.Questions)
+            {
+                question.Test = test;
+            }
+
             return viewModel;
         }
         public static Test TransformToTest(TestCreationViewModel viewModel)

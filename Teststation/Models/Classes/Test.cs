@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,7 +9,11 @@ namespace Teststation.Models
     public class Test
     {
         public long Id { get; set; }
+
+        [Display(Name = "Themengebiet")]
         public string Topic { get; set; }
+
+        [Display(Name = "Veröffentlichungsstatus")]
         public TestStatus ReleaseStatus { get; set; }
         public List<Question> Questions { get; set; }
         public List<Session> Sessions { get; set; }

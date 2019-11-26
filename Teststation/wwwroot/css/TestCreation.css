@@ -8,3 +8,47 @@
     margin: 2%;
 }
 
+.ButtonInMainList {
+    width: 100%;
+}
+
+.PositionOfQuestion, .PositionOfQuestion:hover, .PositionOfQuestion:focus, .PositionOfQuestion:active, .PositionOfQuestion:target {
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-weight: 900;
+    color: black !important;
+    font-size: 20px;
+    cursor: default !important;
+    border-radius: 0;
+    padding: 2px !important;
+    background-color: white !important;
+    border-left: none;
+    border-right: none;
+    border-color: rgb(23, 162, 184) !important;
+}
+
+.item-info, .item-info:hover, .item-info:focus, .item-info:active, .item-info:target {
+    width: 100%;
+    cursor: default !important;
+    border-color: #17a2b8 !important;
+    background-color: #17a2b8 !important;
+    color: #fff !important;
+    box-shadow: none;
+}
+
+.input-info, .input-info:hover, .input-info:focus, .input-info:active, .input-info:target {
+    width: 100%;
+    cursor: default !important;
+    border-color: #17a2b8 !important;
+    background-color: #fff !important;
+    color: black !important;
+}
+
+.Choice-Block {
+    margin-bottom: 5px;
+}
+
+.Choice-Checkbox {
+    margin: 0px !important;
+    width: calc(1.5em + 0.75rem + 2px);
+}

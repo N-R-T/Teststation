@@ -23,22 +23,13 @@ namespace Teststation.Controllers
         }
 
         #region Neuen Test erstellen
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Topic")] Test test)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(test);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(test);
+            var test = new Test { Topic = "Neuer Test" };
+            _context.Add(test);
+            await _context.SaveChangesAsync();
+            //test = _context.Tests.Find(test);
+            return RedirectToAction("Edit", new { test.Id });
         }
         #endregion
 
@@ -307,6 +298,32 @@ namespace Teststation.Controllers
             return RedirectToAction("Edit", new { id = Consts.backUpTestId });
         }
 
+        public async Task<IActionResult> PushQuestionUp(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
+        {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
+            var question = await _context.Questions.FindAsync(id);
+            var otherQuestion = await _context.Questions.FirstOrDefaultAsync(x => x.Position == question.Position - 1 && x.TestId == question.TestId);
+            question.Position--;
+            otherQuestion.Position++;
+            _context.Update(question);
+            _context.Update(otherQuestion);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+        }
+
+        public async Task<IActionResult> PushQuestionDown(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
+        {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
+            var question = await _context.Questions.FindAsync(id);
+            var otherQuestion = await _context.Questions.FirstOrDefaultAsync(x => x.Position == question.Position + 1 && x.TestId == question.TestId);
+            question.Position++;
+            otherQuestion.Position--;
+            _context.Update(question);
+            _context.Update(otherQuestion);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+        }
+
         public async Task<IActionResult> DeleteQuestion(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
             SaveTest(TestCreationTransformer.TransformToTest(model));
@@ -339,7 +356,6 @@ namespace Teststation.Controllers
         #endregion
 
         #region Löschen
-        // GET: Tests/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -353,20 +369,10 @@ namespace Teststation.Controllers
             {
                 return NotFound();
             }
-
-            return View(test);
-        }
-
-        // POST: Tests/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
-        {
-            var test = await _context.Tests.FindAsync(id);
             _context.Tests.Remove(test);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
+        }        
         #endregion
 
         private bool TestExists(long id)
@@ -381,6 +387,44 @@ namespace Teststation.Controllers
         public PartialViewResult MultipleChoiceQuestion(QuestionCreationViewModel question)
         {
             return PartialView(question);
+        }
+
+        public async Task<IActionResult> Release(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var test = await _context.Tests
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (test == null)
+            {
+                return NotFound();
+            }
+            test.ReleaseStatus = TestStatus.Public;
+            _context.Tests.Update(test);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Regress(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var test = await _context.Tests
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (test == null)
+            {
+                return NotFound();
+            }
+            test.ReleaseStatus = TestStatus.InProgress;
+            _context.Tests.Update(test);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
     }
 }
