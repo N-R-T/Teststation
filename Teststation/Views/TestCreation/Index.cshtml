@@ -1,0 +1,80 @@
+﻿@model IEnumerable<Test>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h4>Alle Tests</h4>
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th width="35%">
+                @Html.DisplayNameFor(model => model.Topic)
+            </th>
+            <th width="20%">
+                @Html.DisplayNameFor(model => model.ReleaseStatus)
+            </th>
+            <th width="15%"></th>
+            <th width="15%"></th>
+            <th width="15%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Topic)
+                </td>
+                @switch (item.ReleaseStatus)
+                {
+                    case TestStatus.InProgress:
+                        <td>In Bearbeitung</td>
+                        break;
+                    case TestStatus.Public:
+                        <td>Öffentlich</td>
+                        break;
+                    default:
+                        <td>Fehler</td>
+                        break;
+                }
+
+
+                <td>
+                    @if (item.ReleaseStatus == TestStatus.InProgress)
+                    {
+                        <a asp-action="Release" asp-route-id="@item.Id" class="btn btn-success ButtonInMainList">Veröffentlichen</a>
+                    }
+                    else
+                    {
+                        <environment include="Development">
+                            <a asp-action="Regress" asp-route-id="@item.Id" class="btn btn-success ButtonInMainList">Privatisieren</a>
+                        </environment>
+                        <environment exclude="Development">
+                            <button class="btn btn-success ButtonInMainList" disabled>Veröffentlichen</button>
+                        </environment>
+                    }
+                </td>
+                <td>
+                    @if (item.ReleaseStatus == TestStatus.InProgress)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info ButtonInMainList">Bearbeiten</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-info ButtonInMainList" disabled>Bearbeiten</button>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger ButtonInMainList">Löschen</a>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td colspan="5">
+                <a asp-action="Create" class="btn btn-primary ButtonInMainList">Neuen Test erstellen</a>
+            </td>
+        </tr>
+    </tbody>
+</table>

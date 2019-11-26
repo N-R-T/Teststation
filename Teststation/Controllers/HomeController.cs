@@ -10,8 +10,18 @@ namespace Teststation.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly Database _context;
+        public HomeController(Database context)
+        {
+            _context = context;
+        }
         public IActionResult Index()
         {
+            if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
+            {
+                _context.Tests.Remove(_context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId));
+            }
+            _context.SaveChanges();
             return View();
         }
 

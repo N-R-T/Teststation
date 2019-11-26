@@ -1,0 +1,41 @@
+﻿@model Teststation.Models.TestCreationViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" name="model.Id" />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <h3><label asp-for="Topic" class="control-label"></label></h3>
+                    <input asp-for="Topic" name="model.Topic" class="form-control" required />
+                    <span asp-validation-for="Topic" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        
+        
+        <h4>Fragen:</h4>
+        <div class="form-group">
+            @foreach (var question in Model.Questions)
+            {
+                <partial name="QuestionHead" model="@question" />
+            }
+        </div>
+        <div class="form-group">
+            <button asp-action="AddMathQuestion" asp-route-id="@Model.Id" class="btn btn-primary" formnovalidate>Neue Rechen-Frage</button>
+        </div>
+        <div class="form-group">
+            <button asp-action="AddMultipleChoiceQuestion" asp-route-id="@Model.Id" class="btn btn-primary" formnovalidate>Neue Multiple-Choice-Frage</button>
+        </div>
+
+        <div class="form-group">
+            <input asp-action="SaveChanges" type="submit" value="Speichern" class="btn btn-primary" />
+        </div>
+
+        <div class="form-group">
+            <input  asp-action="BackToMainMenu" type="submit" value="Abbrechen" class="btn btn-primary" formnovalidate/>
+        </div>
+    </form>
