@@ -7,9 +7,9 @@ function toggleNav() {
     if (slideDisabled) {
         return;
     }
-    if (document.getElementById("mySidenav").style.width != "250px") {
-        document.getElementById("mySidenav").style.width = "250px";
-        document.getElementById("sideRemnant").style.marginLeft = "250px";
+    if (document.getElementById("mySidenav").style.width < "350px") {
+        document.getElementById("mySidenav").style.width = "350px";
+        document.getElementById("sideRemnant").style.marginLeft = "350px";
         document.getElementById("navArrow").innerHTML = "&#11164;"
     }
     else {
