@@ -29,25 +29,6 @@
                     }
                 </div>
             </div>
-            @*@if (Model.Position == 0)
-                {
-                    <button class="btn btn-info glyphicon glyphicon-arrow-up inline-buttons" disabled></button>
-                }
-                else
-                {
-                    <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-up inline-buttons" asp-action="PushQuestionUp" asp-route-id="@Model.Id" formnovalidate></button>
-                }
-
-                <button class="btn btn-outline-info glyphicon inline-buttons PositionOfQuestion" disabled>@(Model.Position + 1)</button>
-
-                @if (Model.Position == Model.Test.Questions.Count - 1)
-                {
-                    <button class="btn btn-info glyphicon glyphicon-arrow-down inline-buttons" disabled></button>
-                }
-                else
-                {
-                    <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-down inline-buttons" asp-action="PushQuestionDown" asp-route-id="@Model.Id" formnovalidate></button>
-                }*@
         </div>
         <div class="col-sm-1">
         </div>

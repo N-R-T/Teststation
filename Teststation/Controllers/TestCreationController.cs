@@ -28,7 +28,6 @@ namespace Teststation.Controllers
             var test = new Test { Topic = "Neuer Test" };
             _context.Add(test);
             await _context.SaveChangesAsync();
-            //test = _context.Tests.Find(test);
             return RedirectToAction("Edit", new { test.Id });
         }
         #endregion
@@ -372,7 +371,7 @@ namespace Teststation.Controllers
             _context.Tests.Remove(test);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }        
+        }
         #endregion
 
         private bool TestExists(long id)
