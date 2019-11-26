@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Teststation.Models;
 
 namespace Teststation.Controllers
@@ -65,31 +63,30 @@ namespace Teststation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
-            //var test = TestCreationTransformer.TransformToTest(model);
-            //if (id != test.Id)
-            //{
-            //    return NotFound();
-            //}
-            //try
-            //{
-            //    SaveTest(test);
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!TestExists(test.Id))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
-            //if (ModelState.IsValid)
-            //{
-
-            //    return RedirectToAction(nameof(Index));
-            //}
+            var test = TestCreationTransformer.TransformToTest(model);
+            if (id != test.Id)
+            {
+                return NotFound();
+            }
+            try
+            {
+                SaveTest(test);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TestExists(test.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            if (ModelState.IsValid)
+            {
+                return RedirectToAction(nameof(Index));
+            }
             return View(model);
         }
 
@@ -110,7 +107,6 @@ namespace Teststation.Controllers
             }
 
             _context.Update(test);
-
             _context.SaveChanges();
             DeleteBackUp();
             return RedirectToAction(nameof(Index));
@@ -206,7 +202,6 @@ namespace Teststation.Controllers
                         });
                     }
                 }
-
 
                 var mathQuestions = backUpTest.Questions
                     .Where(x => x is MathQuestion)
