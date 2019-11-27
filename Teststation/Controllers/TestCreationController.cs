@@ -282,7 +282,7 @@ namespace Teststation.Controllers
 
             _context.Add(newQuestion);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+            return RedirectToAction("Edit", new { id });
         }
 
         public async Task<IActionResult> AddChoice(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
@@ -294,7 +294,7 @@ namespace Teststation.Controllers
             await _context.SaveChangesAsync();
 
             var question = await _context.Questions.FirstOrDefaultAsync(x => x.Id == id);
-            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+            return RedirectToAction("Edit", new { id });
         }
 
         public async Task<IActionResult> PushQuestionUp(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)

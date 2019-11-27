@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_LayoutEdit.cshtml";
     ViewData["Title"] = "Edit";
 }
-    <form asp-action="Edit">
+    <form asp-action="Edit" id="editForm">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input type="hidden" asp-for="Id" name="model.Id" />
         <div class="row">
@@ -24,6 +24,5 @@
             {
                 <partial name="QuestionHead" model="@question" />
             }
-        </div>
-        
+        </div>        
     </form>
