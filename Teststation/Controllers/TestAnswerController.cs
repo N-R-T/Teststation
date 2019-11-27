@@ -20,17 +20,27 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> Index(long? testId, long? userId)
         {
-            if(testId == null || userId == null)
+            if (testId == null || userId == null)
             {
                 return RedirectToAction("Index", "Home", 0);
             }
-            var session = _context.Sessions.FirstOrDefault(x=>x.TestId == testId && x.CandidateId == userId);
-            if (session.Completed)
+            var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
+            var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == userId);
+
+            if (test.ReleaseStatus == TestStatus.InProgress)
             {
                 return RedirectToAction("Index", "Home", 0);
             }
+            if (session != null)
+            {
+                if (session.Completed)
+                {
+                    return RedirectToAction("Index", "Home", 0);
+                }
+            }
+
             StartTime = DateTime.Now;
-            return View(GetViewModel((long)testId, (long)userId));
+            return View(GetViewModel(test, (long)userId, session));
         }
 
 
@@ -50,9 +60,9 @@ namespace Teststation.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private TestAnswerViewModel GetViewModel(long testId, long userId)
+        private TestAnswerViewModel GetViewModel(Test test, long userId, Session session)
         {
-            var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
+            
             test.Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
             foreach (var question in test.Questions
                .Where(x => x is MultipleChoiceQuestion)
@@ -61,25 +71,29 @@ namespace Teststation.Controllers
             {
                 question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
             }
-            var viewModel = TestAnswerTransformer.TransformToTestAnswerViewModel(test, userId);
-
-            foreach (var question in viewModel.Questions
-                  .Where(x => x.Type == "MathQuestion")
-                  .ToList())
+            var viewModel = TestAnswerTransformer.TransformToTestAnswerViewModel(test, userId, session);
+            
+            if (viewModel.IsStarted)
             {
-                question.GivenAnswer = _context.MathAnswers.FirstOrDefault(x => x.QuestionId == question.Id && x.CandidateId == userId).GivenAnswer;
-            }
-
-            foreach (var question in viewModel.Questions
-                 .Where(x => x.Type == "MultipleChoiceQuestion")
-                 .ToList())
-            {
-                foreach (var answer in question.Choices)
+                foreach (var question in viewModel.Questions
+                      .Where(x => x.Type == "MathQuestion")
+                      .ToList())
                 {
-                    var answerDB = _context.MultipleChoiceAnswers.FirstOrDefault(x => x.ChoiceId == answer.Id && x.CandidateId == userId);
-                    answer.Correct = answerDB != null;
+                    question.GivenAnswer = _context.MathAnswers.FirstOrDefault(x => x.QuestionId == question.Id && x.CandidateId == userId).GivenAnswer;
+                }
+
+                foreach (var question in viewModel.Questions
+                     .Where(x => x.Type == "MultipleChoiceQuestion")
+                     .ToList())
+                {
+                    foreach (var answer in question.Choices)
+                    {
+                        var answerDB = _context.MultipleChoiceAnswers.FirstOrDefault(x => x.ChoiceId == answer.Id && x.CandidateId == userId);
+                        answer.Correct = answerDB != null;
+                    }
                 }
             }
+
             return viewModel;
         }
 

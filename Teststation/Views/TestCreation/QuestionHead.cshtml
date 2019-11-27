@@ -1,5 +1,5 @@
 ﻿@model QuestionCreationViewModel
-<div class="Question-Block">
+<div class="questionBlock">
     <input name="model.Questions[@(Model.Position)].Id" type="text" value="@Model.Id" hidden />
     <input name="model.Questions[@(Model.Position)].Type" type="text" value="@Model.Type" hidden />
     <input name="model.Questions[@(Model.Position)].Position" type="text" value="@Model.Position" hidden />
@@ -17,7 +17,7 @@
                         <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-up inline-buttons" asp-action="PushQuestionUp" asp-route-id="@Model.Id" formnovalidate></button>
                     }
                 </div>
-                <label class="btn btn-outline-info glyphicon inline-buttons PositionOfQuestion" disabled>@(Model.Position + 1)</label>
+                <label class="btn btn-outline-info glyphicon inline-buttons positionOfQuestion" disabled>@(Model.Position + 1)</label>
                 <div class="input-group-append">
                     @if (Model.Position == Model.Test.Questions.Count - 1)
                     {

@@ -16,5 +16,6 @@ namespace Teststation.Models
         public List<QuestionAnswerViewModel> Questions { get; set; }
         public bool Completed { get; set; }
         public TimeSpan Duration { get; set; }
+        public bool IsStarted { get; set; }
     }
 }

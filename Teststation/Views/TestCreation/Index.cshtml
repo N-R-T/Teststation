@@ -44,36 +44,36 @@
                 <td>
                     @if (item.ReleaseStatus == TestStatus.InProgress)
                     {
-                        <a asp-action="Release" asp-route-id="@item.Id" class="btn btn-success ButtonInMainList">Veröffentlichen</a>
+                        <a asp-action="Release" asp-route-id="@item.Id" class="btn btn-success buttonInMainList">Veröffentlichen</a>
                     }
                     else
                     {
                         <environment include="Development">
-                            <a asp-action="Regress" asp-route-id="@item.Id" class="btn btn-success ButtonInMainList">Privatisieren</a>
+                            <a asp-action="Regress" asp-route-id="@item.Id" class="btn btn-success buttonInMainList">Privatisieren</a>
                         </environment>
                         <environment exclude="Development">
-                            <button class="btn btn-success ButtonInMainList" disabled>Veröffentlichen</button>
+                            <button class="btn btn-success buttonInMainList" disabled>Veröffentlichen</button>
                         </environment>
                     }
                 </td>
                 <td>
                     @if (item.ReleaseStatus == TestStatus.InProgress)
                     {
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info ButtonInMainList">Bearbeiten</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info buttonInMainList">Bearbeiten</a>
                     }
                     else
                     {
-                        <button class="btn btn-info ButtonInMainList" disabled>Bearbeiten</button>
+                        <button class="btn btn-info buttonInMainList" disabled>Bearbeiten</button>
                     }
                 </td>
                 <td>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger ButtonInMainList">Löschen</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger buttonInMainList">Löschen</a>
                 </td>
             </tr>
         }
         <tr>
             <td colspan="5">
-                <a asp-action="Create" class="btn btn-primary ButtonInMainList">Neuen Test erstellen</a>
+                <a asp-action="Create" class="btn btn-primary buttonInMainList">Neuen Test erstellen</a>
             </td>
         </tr>
     </tbody>

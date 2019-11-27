@@ -2,25 +2,32 @@
 @{
     ViewData["Title"] = "Index";
 }
-    <form asp-action="Edit">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="TestId" name="model.TestId" />
-        <input type="hidden" asp-for="UserId" name="model.UserId" />
-        <h1>@Model.Topic</h1>
-        @foreach (var question in Model.Questions)
-        {
-            <partial name="QuestionHead" model="@question" />
-        }
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <input asp-action="Break" type="submit" value="Unterbrechen" class="btn btn-primary" formnovalidate />
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <input asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate />
-                </div>
+<form asp-action="Edit">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="TestId" name="model.TestId" />
+    <input type="hidden" asp-for="UserId" name="model.UserId" />
+    <h1>@Model.Topic</h1>
+    @foreach (var question in Model.Questions)
+    {
+        <partial name="QuestionHead" model="@question" />
+    }
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <input asp-action="Break" type="submit" value="Unterbrechen" class="btn btn-primary" formnovalidate />
             </div>
         </div>
-    </form>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <input asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate />
+            </div>
+        </div>
+    </div>
+</form>
+
+@if (!Model.IsStarted)
+{
+    <script>
+        $('.checkboxAnswerJS').prop('checked', false);
+    </script>
+}
