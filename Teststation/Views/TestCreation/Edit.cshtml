@@ -1,6 +1,7 @@
 ﻿@model Teststation.Models.TestCreationViewModel
 
 @{
+    Layout = "~/Views/Shared/_LayoutEdit.cshtml";
     ViewData["Title"] = "Edit";
 }
     <form asp-action="Edit">
@@ -24,18 +25,5 @@
                 <partial name="QuestionHead" model="@question" />
             }
         </div>
-        <div class="form-group">
-            <button asp-action="AddMathQuestion" asp-route-id="@Model.Id" class="btn btn-primary" formnovalidate>Neue Rechen-Frage</button>
-        </div>
-        <div class="form-group">
-            <button asp-action="AddMultipleChoiceQuestion" asp-route-id="@Model.Id" class="btn btn-primary" formnovalidate>Neue Multiple-Choice-Frage</button>
-        </div>
-
-        <div class="form-group">
-            <input asp-action="SaveChanges" type="submit" value="Speichern" class="btn btn-primary" />
-        </div>
-
-        <div class="form-group">
-            <input  asp-action="BackToMainMenu" type="submit" value="Abbrechen" class="btn btn-primary" formnovalidate/>
-        </div>
+        
     </form>
