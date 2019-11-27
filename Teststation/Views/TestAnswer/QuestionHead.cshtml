@@ -6,29 +6,29 @@
 
     <div class="row">
         <div class="col-sm-1">
-            <div class="QuestionText form-control">@(Model.Position + 1).</div>
+            <div class="questionText form-control">@(Model.Position + 1).</div>
         </div>
         <div class="col-sm-3">
         </div>
         <div class="col-sm-2">
             @if (Model.Points == 1)
             {
-                <div class="QuestionText form-control">@Model.Points Punkt</div>
+                <div class="questionText form-control">@Model.Points Punkt</div>
             }
             else
             {
-                <div class="QuestionText form-control">@Model.Points Punkte</div>
+                <div class="questionText form-control">@Model.Points Punkte</div>
             }
         </div>
     </div>
     <div class="row">
         <div class="col-sm-6">
-            <div class="QuestionText form-control">@Model.Text</div>
+            <div class="questionText form-control">@Model.Text</div>
         </div>
         <div class="col-sm-3">
             @if (Model.Type == "MathQuestion")
             {
-                <input name="model.Questions[@(Model.Position)].GivenAnswer" type="text" class="QuestionText form-control" value="@Model.GivenAnswer" placeholder="Deine Antwort" required />
+                <input name="model.Questions[@(Model.Position)].GivenAnswer" type="text" class="questionText form-control" value="@Model.GivenAnswer" placeholder="Deine Antwort" required />
             }
         </div>
     </div>
