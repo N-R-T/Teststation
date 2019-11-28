@@ -57,7 +57,7 @@ namespace Teststation.Controllers
         public async Task<IActionResult> Finish(long id, [Bind("UserId,TestId,SessionId,Questions")] TestAnswerViewModel model)
         {
             SaveSession(model, true);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index","Evaluation", new{ testId = model.TestId, userId = model.UserId});
         }
 
         private TestAnswerViewModel GetViewModel(Test test, long userId, Session session)

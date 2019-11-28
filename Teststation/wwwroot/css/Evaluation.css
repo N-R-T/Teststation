@@ -1,0 +1,60 @@
+﻿.mathAnswerInEvaluation, .mathAnswerInEvaluation:hover, .mathAnswerInEvaluation:focus, .mathAnswerInEvaluation:active, .mathAnswerInEvaluation:target {
+    width: 170px;
+    cursor: default !important;
+    box-shadow: none;
+}
+
+.correctAnswer, .correctAnswer:hover, .correctAnswer:focus, .correctAnswer:active, .correctAnswer:target {
+    border-color: #28a745 !important;
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+.falseAnswer, .falseAnswer:hover, .falseAnswer:focus, .falseAnswer:active, .falseAnswer:target {
+    border-color: #dc3545 !important;
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.multipleAnswerInEvaluation, .multipleAnswerInEvaluation:hover, .multipleAnswerInEvaluation:focus, .multipleAnswerInEvaluation:active, .multipleAnswerInEvaluation:target {
+}
+
+.choiceAnswerInEvaluation, .choiceAnswerInEvaluation:hover, .choiceAnswerInEvaluation:focus, .choiceAnswerInEvaluation:active, .choiceAnswerInEvaluation:target {
+    width: 160px;
+    cursor: default !important;
+    box-shadow: none;
+}
+
+
+.answerTextInEvaluation {
+    text-align: right;
+}
+
+.checkBoxColumn {
+    text-align: center;
+}
+
+.falseAnswerRow {
+    border-color: #e05260 !important;
+    background-color: #e05260 !important;
+    border-radius: 10px;
+    width: 80%;
+    margin: 0px;
+}
+
+.correctAnswerRow {
+    border-color: #5bd778 !important;
+    background-color: #5bd778 !important;
+    border-radius: 10px;
+    width: 80%;
+    margin: 0px;
+}
+
+.multipleChoiceCheckBox {
+    padding-left: 13%;
+}
+
+.choiceCheckboxEvaluation {
+    margin: 0% !important;
+    height: 100%;
+}

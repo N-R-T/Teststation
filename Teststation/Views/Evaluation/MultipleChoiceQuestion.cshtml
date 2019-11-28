@@ -1,57 +1,71 @@
 ﻿@model Teststation.Models.MultipleChoiceEvalutionViewModel
+<div class="row">
+    <div class="col-sm-6">
+        <div class="questionText form-control">@Model.Question.Text</div>
+    </div>
+    <div class="col-sm-3">
+        <div class="input-group-text questionText form-control">Geforderte Antwort</div>
+    </div>
+    <div class="col-sm-3">
+        <div class="input-group-text questionText form-control">Deine Antwort</div>
+    </div>
+</div>
 
-<tr>
-    <td>
-    </td>
-    <td>
-        Gefordert:
-    </td>
-    <td>
-        Deine Antwort:
-    </td>
-    <td>
-    </td>
-</tr>
-@{
-    foreach (var choice in Model.Question.Choices)
+@foreach (var choice in Model.Question.Choices)
+{
+    var userChecked = Model.GivenAnswers.Any(x => x.ChoiceId == choice.Id);
+    var styleOfRow = "falseAnswerRow";
+    @if (userChecked && choice.Correct ||
+        !userChecked && !choice.Correct)
     {
-        var userChecked = Model.GivenAnswers.Any(x => x.ChoiceId == choice.Id);
-        <tr>
-            <td>@choice.Text</td>
-            <td class="antwort">
-                @if (choice.Correct)
-                {
-                    <input type="checkbox" checked="checked" />
-                }
-                else
-                {
-                    <input type="checkbox" />
-                }
-            </td>
-            <td class="antwort">
-                @if (userChecked)
-                {
-                    <input type="checkbox" checked="checked" />
-                }
-                else
-                {
-                    <input type="checkbox" />
-                }
-            </td>
+        styleOfRow = "correctAnswerRow";
+    }
 
+<div class="choiceBlock">
+    <div class="row ">
+        <div class="col-sm-2"></div>
+
+        <div class="col-sm-4">
             @if (userChecked && choice.Correct ||
-             !userChecked && !choice.Correct)
+  !userChecked && !choice.Correct)
             {
-                <td class="antwort">
-                    &#128512;
-                </td>
+                <div class="questionText form-control correctAnswer"> @choice.Text</div>
             }
             else
             {
-                <td class="antwort">
-                    &#128533;
-                </td>
+                <div class="questionText form-control falseAnswer"> @choice.Text</div>
             }
-        </tr>
-    }
+
+        </div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1 @styleOfRow">
+            <div class="multipleChoiceCheckBox">
+                @if (choice.Correct)
+                {
+                    <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" checked="checked" />
+                }
+                else
+                {
+                    <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" />
+                }
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-1 @styleOfRow">
+            <div class="multipleChoiceCheckBox">
+                @if (userChecked)
+                {
+                    <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" checked="checked" />
+                }
+                else
+                {
+                    <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" />
+                }
+            </div>
+        </div>
+        <div class="col-sm-1"></div>
+
+    </div>
+
+</div>
 }

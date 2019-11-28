@@ -1,0 +1,29 @@
+﻿@model Answer
+@*<div class="questionBlock">
+    <div class="row">
+        <div class="col-sm-1">
+            <div class="questionText form-control">@(Model.GetQuestion().Position + 1).</div>
+        </div>
+        <div class="col-sm-3">
+        </div>
+        <div class="col-sm-2">            
+            <div class="questionText form-control">@Model.GetPointsOfQuestion(question) / @Model.GetQuestion().Points</div>            
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="questionText form-control">@Model.Text</div>
+        </div>
+        <div class="col-sm-3">
+            @if (Model.Type == "MathQuestion")
+            {
+                <input name="model.Questions[@(Model.Position)].GivenAnswer" type="text" class="questionText form-control" value="@Model.GivenAnswer" placeholder="Deine Antwort" required />
+            }
+        </div>
+    </div>
+    @if (Model.Type == "MultipleChoiceQuestion")
+    {
+        <partial name="MultipleChoiceQuestion" model="@Model" />
+    }
+</div>
+<hr />*@

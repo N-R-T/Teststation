@@ -7,20 +7,50 @@ namespace Teststation.Models
 {
     public class EvaluationViewModel
     {
-        private readonly Database _context;
-
         public Test Test;
         public User User;
         public List<Question> Questions;
         public List<Answer> Answers;
 
-        public EvaluationViewModel()
-        {
+
+        public EvaluationViewModel(Test test, long userId, Database _context)
+        {            
+            User = _context.Users.FirstOrDefault(x => x.Id == userId);
+            Test = test;
+            
+            Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
+            if (Questions == null)
+            {
+                Questions = new List<Question>();
+            }
+            foreach (var question in Questions
+                .Where(x => x is MultipleChoiceQuestion)
+                .Select(x => x as MultipleChoiceQuestion)
+                .ToList())
+            {
+                question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
+            }
+
+            Answers = new List<Answer>();
+            var mathAnswers = _context.MathAnswers
+                .Where(x => x.CandidateId == userId &&
+                x.Question.TestId == test.Id)
+                .ToList();
+            var multipleChoiceAnswers = _context.MultipleChoiceAnswers
+                .Where(x => x.CandidateId == userId &&
+                x.Choice.Question.TestId == test.Id)
+                .ToList();
+            foreach (var answer in multipleChoiceAnswers)
+            {
+                answer.Choice = _context.Choices.FirstOrDefault(x => x.Id == answer.ChoiceId);
+            }
+            
+            Answers.AddRange(mathAnswers);
+            Answers.AddRange(multipleChoiceAnswers);
         }
 
-        public EvaluationViewModel(long UserId, long TestId)
+        public EvaluationViewModel()
         {
-            Test = _context.Tests.SingleOrDefault(x => x.Id == TestId);
         }
 
         public string GetGrade()
@@ -66,6 +96,8 @@ namespace Teststation.Models
         private int GetPointsOfMathQuestion(MathQuestion question)
         {
             if (Answers
+                .Where(x=>x is MathAnswer)
+                .Select(x=>x as MathAnswer)
                 .SingleOrDefault(x => x.GetQuestion().Id == question.Id)
                 .IsCorrect())
             {

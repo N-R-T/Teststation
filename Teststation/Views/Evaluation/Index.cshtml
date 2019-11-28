@@ -5,37 +5,33 @@
 
     var reachedPoints = Model.GetReachedPoints();
     var allPoints = Model.Test.GetAllPoints();
-    var percentage = ((double)reachedPoints / (double)allPoints * 100);
+    var percentage = Math.Round(((double)reachedPoints / (double)allPoints * 100));
     var progressWidth = percentage.ToString() + "%";
     var grade = Model.GetGrade();
 
 }
-
 <h1>@ViewData["Title"]</h1>
 <h3>Test: @Model.Test.Topic</h3>
 <h3>Erprobling: @Model.User.Name</h3>
 <hr />
-<table>
-
-    @foreach (var question in Model.Questions)
-    {
-        <tr>
-            <td>
-                <h5>@question.Position. @question.Text</h5>
-            </td>
-            <td></td>
-            <td></td>
-            <td>
-                Punkte: @Model.GetPointsOfQuestion(question) / @question.Points
-            </td>
-        </tr>
-
-        if (question is MathQuestion)
+@foreach (var question in Model.Questions)
+{
+    <div class="questionBlock">
+        <div class="row">
+            <div class="col-sm-1">
+                <div class="questionText form-control">@(question.Position + 1).</div>
+            </div>
+            <div class="col-sm-3">
+            </div>
+            <div class="col-sm-2">
+                <div class="questionText form-control answerTextInEvaluation">@Model.GetPointsOfQuestion(question) / @question.Points</div>
+            </div>
+        </div>
+        @if (question is MathQuestion)
         {
             Answer mathAnswer = Model.Answers
-                .SingleOrDefault(x => x.GetQuestion().Id == question.Id) as MathAnswer;
+        .SingleOrDefault(x => x.GetQuestion().Id == question.Id) as MathAnswer;
             <partial name="MathQuestion" model="@mathAnswer" />
-
         }
         else
         {
@@ -46,11 +42,12 @@
                 .Where(z => z.GetQuestion().Id == question.Id)
                 .ToList();
             viewModel.Question = question as MultipleChoiceQuestion;
+
             <partial name="MultipleChoiceQuestion" model="@viewModel" />
         }
-    }
-
-</table>
+    </div>
+    <hr />
+}
 <hr />
 
 
@@ -82,7 +79,10 @@
                         var neededPercentage = (Consts.neededPercentage - percentage);
                         var neededPercentageWidth = neededPercentage + "%";
                         <div class="progress-bar-danger" role="progressbar" aria-valuenow="@neededPercentage.ToString()"
-                             aria-valuemin="0" aria-valuemax="100" style="width:@neededPercentageWidth">
+                             aria-valuemin="0" aria-valuemax="100" style="width:@neededPercentageWidth;opacity:0;">
+                        </div>
+                        <div class="progress-bar-danger" role="progressbar" aria-valuenow="@neededPercentage.ToString()"
+                             aria-valuemin="0" aria-valuemax="100" style="width:4px;">
                         </div>
                     }
                 }
@@ -91,16 +91,9 @@
     </tr>
 </table>
 
-<style>
-    td {
-        min-width: 100px;
-    }
-
-    .antwort {
-        text-align: center;
-    }
-
-    tr {
-        height: 10px;
-    }
-</style>
+<script>
+    $(".choiceCheckbox").on('click', function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+});
+</script>

@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Index";
 }
-<form asp-action="Edit">
+<form asp-action="Edit" id="AnswerForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="TestId" name="model.TestId" />
     <input type="hidden" asp-for="UserId" name="model.UserId" />
@@ -14,12 +14,12 @@
     <div class="row">
         <div class="col-sm-6">
             <div class="form-group">
-                <input asp-action="Break" type="submit" value="Unterbrechen" class="btn btn-primary" formnovalidate />
+                <input asp-action="Break" type="submit" value="Unterbrechen" class="btn btn-primary" formnovalidate onclick="Leaving();"/>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="form-group">
-                <input asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate />
+                <input asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate onclick="Leaving();"/>
             </div>
         </div>
     </div>
@@ -31,3 +31,26 @@
         $('.checkboxAnswerJS').prop('checked', false);
     </script>
 }
+<script>
+    var IsLeavingCorrectly = false;
+
+    function Leaving() {
+        IsLeavingCorrectly = true;
+    }
+
+    window.onbeforeunload = function (e) {
+        if (!IsLeavingCorrectly) {
+            $.ajax
+                ({
+                    type: 'POST',
+                    url: '/TestAnswer/Break',
+                    data: $('#AnswerForm').serialize(),
+                    dataType: 'html',
+                    error: function (xhr, status, error) {
+                    },
+                    success: function () {
+                    }
+                });
+        }
+    };
+</script>
