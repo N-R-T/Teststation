@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Teststation.Models
 {
-    public class Database : DbContext
+    public class Database : IdentityDbContext
     {
         public Database(DbContextOptions<Database> options) : base(options)
         { }
 
         public DbSet<Test> Tests { get; set; }
-        public DbSet<User> Users { get; set; }
+        ////public DbSet<IdentityUser> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
 
         public DbSet<Question> Questions { get; set; }
