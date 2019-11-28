@@ -17,9 +17,6 @@ namespace Teststation.Controllers
 {
     public class HomeController : Controller
     {
-        private SignInManager<User> _signManager;
-        private UserManager<User> _userManager;
-
         public HomeController(UserManager<User> userManager, SignInManager<User> signManager)
         {
             _userManager = userManager;
@@ -30,6 +27,11 @@ namespace Teststation.Controllers
 
         public IActionResult Index()
         {
+            if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
+            {
+                _context.Tests.Remove(_context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId));
+            }
+            _context.SaveChanges();
             if (_signManager.IsSignedIn(User))
             {
                 return View();

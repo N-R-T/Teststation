@@ -1,0 +1,35 @@
+﻿.sidenav {
+    height: 100%;
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    padding-top: 60px;
+    transition: 0.5s;
+}
+
+.adminMainSidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    display: block;
+    transition: 0.3s;
+    color: black;
+}
+
+    .adminMainSidenav a:hover {
+        color: dodgerblue;
+    }
+
+#navArrow {
+    font-size: xx-large;
+    cursor: default;
+    padding-left: 12px;
+}
+
+#mySidenav {
+    background-color: antiquewhite;
+    color: black;
+    width: 0;
+}

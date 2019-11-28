@@ -1,0 +1,28 @@
+﻿@model QuestionCreationViewModel
+@{
+    if (Model.Choices == null)
+    {
+        Model.Choices = new List<Choice>();
+    }
+}
+    <div class="choicesBlock">
+        @for (int i = 0; i < Model.Choices.Count; i++)
+        {
+        <div class="choiceBlock">
+            <input name="model.Questions[@(Model.Position)].Choices[@(i)].Id" type="text" class="form-control" value="@Model.Choices[i].Id" hidden />
+            <input name="model.Questions[@(Model.Position)].Choices[@(i)].QuestionId" type="text" class="form-control" value="@Model.Choices[i].QuestionId" hidden />
+            <div class="row">
+                <div class="col-sm-8">
+                    <input name="model.Questions[@(Model.Position)].Choices[@(i)].Text" type="text" class="form-control" value="@Model.Choices[i].Text" placeholder="Antwortmöglichkeit" required />
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-check-input inline-buttons form-control choiceCheckbox" asp-for="Choices[i].Correct" name="model.Questions[@(Model.Position)].Choices[@(i)].Correct" />
+                </div>
+                <div class="col-sm-1">
+                    <button type="submit" class="btn btn-danger glyphicon glyphicon-remove inline-buttons" asp-action="DeleteChoice" asp-route-id="@Model.Choices[i].Id" formnovalidate></button>
+                </div>
+            </div>
+        </div>
+        }
+        <button asp-action="AddChoice" asp-route-id="@Model.Id" class="btn btn-sm btn-primary" formnovalidate>Antwortmöglichkeit hinzufügen</button>
+    </div>

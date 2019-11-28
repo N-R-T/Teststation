@@ -1,8 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -22,6 +18,7 @@
               integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/sideNav.css" />
     <link rel="stylesheet" href="~/css/TestCreation.css" />
 </head>
 <body>
@@ -38,40 +35,36 @@
                         <li class="nav-item ml-auto">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Abmelden</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TestCreation" asp-action="Create">Neuer Test</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TestCreation" asp-action="Index">Tests</a>
-                        </li>
-                        <li></li>
-                        <ul class="navbar-nav">
-                            @if (SignInManager.IsSignedIn(User))
-                            {
-                                <li class="nav-item">
-                                    <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-                                </li>
-                                <li class="nav-item">
-                                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                        <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-                                    </form>
-                                </li>
-                            }
-                            else
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-                                </li>
-                            }
-                        </ul>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
+    <div id="mySidenav" class="sidenav adminMainSidenav">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group text-center">
+                <button asp-action="AddMathQuestion" asp-route-id="@Model.Id" form="editForm" class="btn btn-primary w-75" formnovalidate>Neue Rechen-Frage</button>
+            </div>
+            <div class="form-group text-center">
+                <button asp-action="AddMultipleChoiceQuestion" asp-route-id="@Model.Id" form="editForm" class="btn btn-primary w-75" formnovalidate>Neue Multiple-Choice-Frage</button>
+            </div>
+            <br /><br /><br /><br />
+            <div class="form-group text-center">
+                <input asp-action="SaveChanges" form="editForm" type="submit" value="Speichern" class="btn btn-primary w-75" />
+            </div>
+            <div class="form-group text-center">
+                <input asp-action="BackToMainMenu" form="editForm" type="submit" value="Abbrechen" class="btn btn-primary w-75" formnovalidate />
+            </div>
+        </form>
+    </div>
+    <div class="sidenav" id="sideRemnant" onmouseover="toggleNav()">
+        <div class="h-100 d-table">
+            <a id="navArrow" class="d-table-cell align-middle">&#11166;</a>
+        </div>
+    </div>
+
     <div class="container">
         <partial name="_CookieConsentPartial" />
         <main role="main" class="pb-3">

@@ -1,0 +1,28 @@
+﻿@model Teststation.Models.TestCreationViewModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutEdit.cshtml";
+    ViewData["Title"] = "Edit";
+}
+    <form asp-action="Edit" id="editForm">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" name="model.Id" />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <h3><label asp-for="Topic" class="control-label"></label></h3>
+                    <input asp-for="Topic" name="model.Topic" class="form-control" required />
+                    <span asp-validation-for="Topic" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        
+        
+        <h4>Fragen:</h4>
+        <div class="form-group">
+            @foreach (var question in Model.Questions)
+            {
+                <partial name="QuestionHead" model="@question" />
+            }
+        </div>        
+    </form>
