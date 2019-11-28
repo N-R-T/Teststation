@@ -3,16 +3,16 @@
     max-width: 50px;
 }
 
-.Question-Block, .Choices-Block {
+.questionBlock, .choicesBlock {
     width: 80%;
     margin: 2%;
 }
 
-.ButtonInMainList {
+.buttonInMainList {
     width: 100%;
 }
 
-.PositionOfQuestion, .PositionOfQuestion:hover, .PositionOfQuestion:focus, .PositionOfQuestion:active, .PositionOfQuestion:target {
+.positionOfQuestion, .positionOfQuestion:hover, .positionOfQuestion:focus, .positionOfQuestion:active, .positionOfQuestion:target {
     width: 100%;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-weight: 900;
@@ -44,11 +44,11 @@
     color: black !important;
 }
 
-.Choice-Block {
+.choiceBlock {
     margin-bottom: 5px;
 }
 
-.Choice-Checkbox {
+.choiceCheckbox {
     margin: 0px !important;
     width: calc(1.5em + 0.75rem + 2px);
 }
