@@ -1,22 +1,81 @@
-﻿@model IEnumerable<Teststation.Models.Test>
+﻿@model IEnumerable<Teststation.Models.TestCandidateViewModel>
+@{
+    var finishedTests = Model.Where(x => x.Completed).ToList();
+    var ammountTests = finishedTests.Count;
+    double resultSum = 0;
+    foreach (var finishedTest in finishedTests)
+    {
+        resultSum += finishedTest.Result;
+    }
+    var wholeResult = resultSum / ammountTests;
 
-    <table class="table">
-        <thead>
+    var resultText = Consts.badGrade;
+    if (wholeResult >= Consts.neededPercentage)
+    {
+        resultText = Consts.goodGrade;
+    }
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th colspan="3">
+                <h3>Alle Tests</h3>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var test in Model)
+        {
             <tr>
-                <th colspan="3">Alle Tests</th>
+                <td>
+                    <h5>
+                        <label>@test.Test.Topic</label>
+                    </h5>
+                </td>
+
+                <td>
+                    <h5>
+                        @if (test.Completed && test.IsStarted)
+                        {
+                            <label>@(test.Result.ToString("P"))</label>
+                        }
+                    </h5>
+                </td>
+                <td>
+                    <h5>
+                        @if (test.Completed && test.IsStarted)
+                        {
+                            <a href="/Evaluation/Index?testId=@test.Test.Id&userId=1" class="btn btn-primary">Details</a>
+                        }
+                        else if (!test.Completed && test.IsStarted)
+                        {
+                            <a href="/TestAnswer/Index?testId=@test.Test.Id&userId=1" class="btn btn-primary">Fortsetzen</a>
+                        }
+                        else if (!test.Completed && !test.IsStarted)
+                        {
+                            <a href="/TestAnswer/Index?testId=@test.Test.Id&userId=1" class="btn btn-primary">Test starten</a>
+                        }
+                    </h5>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Topic)
-                    </td>
-                    <td colspan="2">
-                        <button class="btn btn-outline-primary">Test starten</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2">
+                <h5>
+                    <label>Gesamtpunktzahl:</label>
+                </h5>
+                <h4>
+                    <label>@resultText</label>
+                </h4>
+            </td>
+            <td>
+                <h5>
+                    <label>@(wholeResult.ToString("P"))</label>
+                </h5>
+            </td>
+        </tr>
+    </tfoot>
+</table>

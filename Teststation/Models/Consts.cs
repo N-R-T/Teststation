@@ -9,7 +9,7 @@ namespace Teststation.Models
     {
         public const string goodGrade = "Bestanden";
         public const string badGrade = "Nicht bestanden";
-        public const int neededPercentage = 45;
+        public const int neededPercentage = 60;
         public const long backUpTestId = 10;
     }
 }
