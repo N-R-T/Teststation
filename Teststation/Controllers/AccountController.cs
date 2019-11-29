@@ -50,7 +50,7 @@ namespace Teststation.Controllers
                     };
                     _context.UserInformation.Add(userInformation);
                     _context.SaveChanges();
-                    return RedirectToAction("Index", "Home");                    
+                    return RedirectToAction("CandidateList", "CandidateManagement");                    
                 }                
             }
             return View();
