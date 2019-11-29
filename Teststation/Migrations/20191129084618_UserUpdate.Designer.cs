@@ -9,8 +9,8 @@ using Teststation.Models;
 namespace Teststation.Migrations
 {
     [DbContext(typeof(Database))]
-    [Migration("20191127130444_newMigration")]
-    partial class newMigration
+    [Migration("20191129084618_UserUpdate")]
+    partial class UserUpdate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -277,22 +277,22 @@ namespace Teststation.Migrations
                     b.ToTable("Tests");
                 });
 
-            modelBuilder.Entity("Teststation.Models.User", b =>
+            modelBuilder.Entity("Teststation.Models.UserInformation", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("DayOfLastActivity");
 
-                    b.Property<string>("Name");
-
-                    b.Property<string>("Password");
-
                     b.Property<int>("Role");
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserInformation");
                 });
 
             modelBuilder.Entity("Teststation.Models.MathAnswer", b =>
@@ -382,7 +382,7 @@ namespace Teststation.Migrations
 
             modelBuilder.Entity("Teststation.Models.Answer", b =>
                 {
-                    b.HasOne("Teststation.Models.User", "Candidate")
+                    b.HasOne("Teststation.Models.UserInformation", "Candidate")
                         .WithMany()
                         .HasForeignKey("CandidateId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -406,7 +406,7 @@ namespace Teststation.Migrations
 
             modelBuilder.Entity("Teststation.Models.Session", b =>
                 {
-                    b.HasOne("Teststation.Models.User", "Candidate")
+                    b.HasOne("Teststation.Models.UserInformation", "Candidate")
                         .WithMany("Sessions")
                         .HasForeignKey("CandidateId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -415,6 +415,13 @@ namespace Teststation.Migrations
                         .WithMany("Sessions")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Teststation.Models.UserInformation", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Teststation.Models.MathAnswer", b =>

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Teststation.Migrations
 {
-    public partial class newMigration : Migration
+    public partial class UserUpdate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -58,22 +58,6 @@ namespace Teststation.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tests", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(nullable: true),
-                    Password = table.Column<string>(nullable: true),
-                    Role = table.Column<int>(nullable: false),
-                    DayOfLastActivity = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -183,6 +167,27 @@ namespace Teststation.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserInformation",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<string>(nullable: true),
+                    Role = table.Column<int>(nullable: false),
+                    DayOfLastActivity = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserInformation", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserInformation_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Questions",
                 columns: table => new
                 {
@@ -221,9 +226,9 @@ namespace Teststation.Migrations
                 {
                     table.PrimaryKey("PK_Sessions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Sessions_User_CandidateId",
+                        name: "FK_Sessions_UserInformation_CandidateId",
                         column: x => x.CandidateId,
-                        principalTable: "User",
+                        principalTable: "UserInformation",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -271,9 +276,9 @@ namespace Teststation.Migrations
                 {
                     table.PrimaryKey("PK_Answers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Answers_User_CandidateId",
+                        name: "FK_Answers_UserInformation_CandidateId",
                         column: x => x.CandidateId,
-                        principalTable: "User",
+                        principalTable: "UserInformation",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -361,6 +366,11 @@ namespace Teststation.Migrations
                 name: "IX_Sessions_TestId",
                 table: "Sessions",
                 column: "TestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserInformation_UserId",
+                table: "UserInformation",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -393,13 +403,13 @@ namespace Teststation.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "User");
+                name: "UserInformation");
 
             migrationBuilder.DropTable(
                 name: "Questions");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Tests");

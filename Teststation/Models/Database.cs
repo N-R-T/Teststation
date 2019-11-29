@@ -13,7 +13,7 @@ namespace Teststation.Models
         { }
 
         public DbSet<Test> Tests { get; set; }
-        ////public DbSet<IdentityUser> Users { get; set; }
+        public DbSet<UserInformation> UserInformation { get; set; }
         public DbSet<Session> Sessions { get; set; }
 
         public DbSet<Question> Questions { get; set; }

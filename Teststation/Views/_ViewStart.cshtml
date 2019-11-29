@@ -1,3 +1,19 @@
-﻿@{
-    Layout = "_LayoutCandidate";
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject Database Context
+
+@{
+    if (SignInManager.IsSignedIn(User))
+    {
+        var userId = UserManager.GetUserId(User);
+        var userInformation = Context.UserInformation.FirstOrDefault(x => x.UserId == userId);
+
+        Layout = "_LayoutCandidate";
+
+        if (userInformation.Role == UserRole.Admin)
+        {
+            Layout = "_LayoutAdmin";
+        }
+    }
 }

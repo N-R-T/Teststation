@@ -18,11 +18,13 @@ namespace Teststation.Controllers
     {
         private SignInManager<User> _signManager;
         private UserManager<User> _userManager;
+        private Database _context;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signManager)
+        public AccountController(Database context, UserManager<User> userManager, SignInManager<User> signManager)
         {
             _userManager = userManager;
             _signManager = signManager;
+            _context = context;
         }
 
         [HttpGet]
@@ -40,13 +42,21 @@ namespace Teststation.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    var userInformation = new UserInformation
+                    {
+                        Role = UserRole.Candidate,
+                        UserId = user.Id,
+                        DayOfLastActivity = DateTime.Now,
+                    };
+                    _context.UserInformation.Add(userInformation);
+                    _context.SaveChanges();
                     return RedirectToAction("Index", "Home");                    
                 }                
             }
             return View();
         }        
         
-        [HttpPost]
+       
         public async Task<IActionResult> Logout()
         {
             await _signManager.SignOutAsync();

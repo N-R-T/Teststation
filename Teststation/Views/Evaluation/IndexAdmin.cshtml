@@ -1,5 +1,4 @@
 ﻿@model Teststation.Models.EvaluationViewModel
-
 @{
     ViewData["Title"] = "Auswertung";
     Model.Questions = Model.Questions.OrderBy(x => x.Position).ToList();
@@ -13,7 +12,7 @@
 }
 <h1>@ViewData["Title"]</h1>
 <h3>Test: @Model.Test.Topic</h3>
-
+<h3>Erprobling: @Model.UserName</h3>
 <hr />
 @foreach (var question in Model.Questions)
 {
@@ -96,5 +95,5 @@
     $(".choiceCheckbox").on('click', function (event) {
         event.stopPropagation();
         event.preventDefault();
-    });
+});
 </script>

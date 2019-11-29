@@ -46,15 +46,15 @@
                     <h5>
                         @if (test.Completed && test.IsStarted)
                         {
-                            <a href="/Evaluation/Index?testId=@test.Test.Id&userId=1" class="btn btn-primary">Details</a>
+                            <a href="/Evaluation/Index?testId=@test.Test.Id" class="btn btn-primary">Details</a>
                         }
                         else if (!test.Completed && test.IsStarted)
                         {
-                            <a href="/TestAnswer/Index?testId=@test.Test.Id&userId=1" class="btn btn-primary">Fortsetzen</a>
+                            <a href="/TestAnswer/Index?testId=@test.Test.Id" class="btn btn-primary">Fortsetzen</a>
                         }
                         else if (!test.Completed && !test.IsStarted)
                         {
-                            <a href="/TestAnswer/Index?testId=@test.Test.Id&userId=1" class="btn btn-primary">Test starten</a>
+                            <a href="/TestAnswer/Index?testId=@test.Test.Id" class="btn btn-primary">Test starten</a>
                         }
                     </h5>
                 </td>

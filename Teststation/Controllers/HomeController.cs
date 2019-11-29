@@ -17,13 +17,15 @@ namespace Teststation.Controllers
 {
     public class HomeController : Controller
     {
-        public HomeController(UserManager<User> userManager, SignInManager<User> signManager)
+        private UserManager<User> _userManager;
+        private SignInManager<User> _signManager;
+        private Database _context;
+        public HomeController(Database context, UserManager<User> userManager, SignInManager<User> signManager)
         {
             _userManager = userManager;
             _signManager = signManager;
+            _context = context;
         }
-
-        //private Task<ApplicationUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
 
         public IActionResult Index()
         {

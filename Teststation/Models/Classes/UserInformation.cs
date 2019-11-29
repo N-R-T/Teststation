@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Teststation.Models
 {
-    public class User
+    public class UserInformation
     {
         public long Id { get; set; }
-        public string Name { get; set; }
-        public string Password { get; set; }
+        public string UserId { get; set; }
+        public IdentityUser User { get; set; }
         public UserRole Role { get; set; }
         public List<Session> Sessions { get; set; }
         public DateTime DayOfLastActivity { get; set; }

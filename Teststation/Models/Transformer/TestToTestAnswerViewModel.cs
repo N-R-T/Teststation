@@ -7,11 +7,10 @@ namespace Teststation.Models
 {
     public static class TestAnswerTransformer
     {
-        public static TestAnswerViewModel TransformToTestAnswerViewModel(Test test, long userId, Session session)
+        public static TestAnswerViewModel TransformToTestAnswerViewModel(Test test, Session session)
         {
             var viewModel = new TestAnswerViewModel();
             viewModel.TestId = test.Id;
-            viewModel.UserId = userId;
             viewModel.Topic = test.Topic;
             viewModel.IsStarted = session != null;
             viewModel.Questions = new List<QuestionAnswerViewModel>();

@@ -1,6 +1,9 @@
-﻿@model List<Microsoft.AspNetCore.Identity.IdentityUser>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Home Page";
 }
 
+<h2>Hallo @UserManager.GetUserName(User)!</h2>

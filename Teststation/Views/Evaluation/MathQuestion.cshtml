@@ -9,7 +9,7 @@
                 <span class="input-group-text mathAnswerInEvaluation">Geforderte Antwort:</span>
             </div>
             <div class="questionText form-control answerTextInEvaluation">@Model.Question.CorrectAnswer</div>
-        </div>        
+        </div>
     </div>
 </div>
 <div class="row">
@@ -20,12 +20,12 @@
             <div class="input-group-prepend">
                 @if (Model.IsCorrect())
                 {
-                    <span class="input-group-text correctAnswer mathAnswerInEvaluation">Deine Antwort:</span>
+                    <span class="input-group-text correctAnswer mathAnswerInEvaluation">Gegebene Antwort:</span>
                 }
                 else
                 {
-                    <span class="input-group-text falseAnswer mathAnswerInEvaluation">Deine Antwort:</span>
-                }                
+                    <span class="input-group-text falseAnswer mathAnswerInEvaluation">Gegebene Antwort:</span>
+                }
             </div>
             <div class="questionText form-control answerTextInEvaluation">@Model.GivenAnswer</div>
         </div>

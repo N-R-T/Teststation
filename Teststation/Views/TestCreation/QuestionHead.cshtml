@@ -14,7 +14,7 @@
                     }
                     else
                     {
-                        <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-up inline-buttons" asp-action="PushQuestionUp" asp-route-id="@Model.Id" formnovalidate></button>
+                        <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-up inline-buttons" asp-action="PushQuestionUp" asp-route-id="@Model.Id" formnovalidate onclick="Leaving();"></button>
                     }
                 </div>
                 <label class="btn btn-outline-info glyphicon inline-buttons positionOfQuestion" disabled>@(Model.Position + 1)</label>
@@ -25,7 +25,7 @@
                     }
                     else
                     {
-                        <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-down inline-buttons" asp-action="PushQuestionDown" asp-route-id="@Model.Id" formnovalidate></button>
+                        <button type="submit" class="btn btn-info glyphicon glyphicon-arrow-down inline-buttons" asp-action="PushQuestionDown" asp-route-id="@Model.Id" formnovalidate onclick="Leaving();"></button>
                     }
                 </div>
             </div>

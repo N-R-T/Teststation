@@ -85,16 +85,38 @@ namespace Teststation.Controllers
         public async Task<IActionResult> SaveChanges(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
             var test = TestCreationTransformer.TransformToTest(model);
-            test.Id = originalTestId;
+            test.Id = originalTestId; 
             _context.Questions.RemoveRange(_context.Questions.Where(x => x.TestId == originalTestId));
             _context.Choices.RemoveRange(_context.Choices
                 .Include(x => x.Question)
                 .Where(x => x.Question.TestId == originalTestId));
 
-            foreach (var question in test.Questions)
+            foreach (var question in test.Questions
+                .Where(x => x is MultipleChoiceQuestion)
+                .Select(x => x as MultipleChoiceQuestion)
+                .ToList())
             {
                 question.TestId = test.Id;
+                //_context.Questions.Add(question);
+                if (question.Choices != null)
+                {
+                    foreach (var choice in question.Choices)
+                    {
+                        choice.QuestionId = question.Id;
+                        //_context.Choices.Add(choice);
+                    }
+                }
             }
+
+            foreach (var question in test.Questions
+                .Where(x => x is MathQuestion)
+                .Select(x => x as MathQuestion)
+                .ToList())
+            {
+                question.TestId = test.Id;
+                //_context.Questions.Add(question);
+            }
+
 
             _context.Update(test);
             _context.SaveChanges();
@@ -154,9 +176,13 @@ namespace Teststation.Controllers
         {
             if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
             {
+                _context.Questions.RemoveRange(_context.Questions.Where(x => x.TestId == Consts.backUpTestId));
+                _context.Choices.RemoveRange(_context.Choices
+                    .Include(x => x.Question)
+                    .Where(x => x.Question.TestId == Consts.backUpTestId));
                 _context.Tests.Remove(_context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId));
+                _context.SaveChanges();
             }
-            _context.SaveChanges();
         }
 
         private void SaveBackUp(Test backUpTest)
@@ -294,7 +320,7 @@ namespace Teststation.Controllers
             await _context.SaveChangesAsync();
 
             var question = await _context.Questions.FirstOrDefaultAsync(x => x.Id == id);
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction("Edit", new { id=Consts.backUpTestId});
         }
 
         public async Task<IActionResult> PushQuestionUp(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,22 +11,27 @@ namespace Teststation.Controllers
 {
     public class TestAnswerController : Controller
     {
+        private SignInManager<IdentityUser> _signManager;
+        private UserManager<IdentityUser> _userManager;
         private readonly Database _context;
         private static DateTime StartTime;
 
-        public TestAnswerController(Database context)
+        public TestAnswerController(Database context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signManager)
         {
+            _userManager = userManager;
+            _signManager = signManager;
             _context = context;
         }
 
-        public async Task<IActionResult> Index(long? testId, long? userId)
+        public async Task<IActionResult> Index(long? testId)
         {
-            if (testId == null || userId == null)
+            if (testId == null)
             {
                 return RedirectToAction("Index", "Home", 0);
             }
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
-            var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == userId);
+            var user = _context.UserInformation.FirstOrDefault(x=>x.UserId ==  _userManager.GetUserId(User));
+            var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == user.Id);
 
             if (test.ReleaseStatus == TestStatus.InProgress)
             {
@@ -40,13 +46,13 @@ namespace Teststation.Controllers
             }
 
             StartTime = DateTime.Now;
-            return View(GetViewModel(test, (long)userId, session));
+            return View(GetViewModel(test, session));
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Break(long id, [Bind("UserId,TestId,SessionId,Questions")] TestAnswerViewModel model)
+        public async Task<IActionResult> Break(long id, [Bind("TestId,SessionId,Questions")] TestAnswerViewModel model)
         {
             SaveSession(model, false);
             return RedirectToAction(nameof(Index));
@@ -54,15 +60,15 @@ namespace Teststation.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Finish(long id, [Bind("UserId,TestId,SessionId,Questions")] TestAnswerViewModel model)
+        public async Task<IActionResult> Finish(long id, [Bind("TestId,SessionId,Questions")] TestAnswerViewModel model)
         {
             SaveSession(model, true);
-            return RedirectToAction("Index","Evaluation", new{ testId = model.TestId, userId = model.UserId});
+            return RedirectToAction("Index","Evaluation", new{ testId = model.TestId});
         }
 
-        private TestAnswerViewModel GetViewModel(Test test, long userId, Session session)
+        private TestAnswerViewModel GetViewModel(Test test, Session session)
         {
-            
+            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
             test.Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
             foreach (var question in test.Questions
                .Where(x => x is MultipleChoiceQuestion)
@@ -71,7 +77,7 @@ namespace Teststation.Controllers
             {
                 question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
             }
-            var viewModel = TestAnswerTransformer.TransformToTestAnswerViewModel(test, userId, session);
+            var viewModel = TestAnswerTransformer.TransformToTestAnswerViewModel(test, session);
             
             if (viewModel.IsStarted)
             {
@@ -79,7 +85,7 @@ namespace Teststation.Controllers
                       .Where(x => x.Type == "MathQuestion")
                       .ToList())
                 {
-                    question.GivenAnswer = _context.MathAnswers.FirstOrDefault(x => x.QuestionId == question.Id && x.CandidateId == userId).GivenAnswer;
+                    question.GivenAnswer = _context.MathAnswers.FirstOrDefault(x => x.QuestionId == question.Id && x.CandidateId == user.Id).GivenAnswer;
                 }
 
                 foreach (var question in viewModel.Questions
@@ -88,7 +94,7 @@ namespace Teststation.Controllers
                 {
                     foreach (var answer in question.Choices)
                     {
-                        var answerDB = _context.MultipleChoiceAnswers.FirstOrDefault(x => x.ChoiceId == answer.Id && x.CandidateId == userId);
+                        var answerDB = _context.MultipleChoiceAnswers.FirstOrDefault(x => x.ChoiceId == answer.Id && x.CandidateId == user.Id);
                         answer.Correct = answerDB != null;
                     }
                 }
@@ -99,16 +105,17 @@ namespace Teststation.Controllers
 
         private void SaveSession(TestAnswerViewModel model, bool Completed)
         {
+            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
             foreach (var question in model.Questions
                   .Where(x => x.Type == "MathQuestion")
                   .ToList())
             {
                 var answerDB = _context.MathAnswers
-                              .FirstOrDefault(x => x.CandidateId == model.UserId &&
+                              .FirstOrDefault(x => x.CandidateId == user.Id &&
                                    x.QuestionId == question.Id);
                 if (answerDB == null)
                 {
-                    _context.Answers.Add(new MathAnswer { CandidateId = model.UserId, QuestionId = question.Id, GivenAnswer = question.GivenAnswer });
+                    _context.Answers.Add(new MathAnswer { CandidateId = user.Id, QuestionId = question.Id, GivenAnswer = question.GivenAnswer });
                 }
                 else
                 {
@@ -123,13 +130,13 @@ namespace Teststation.Controllers
                 foreach (var answer in question.Choices)
                 {
                     var answerDB = _context.MultipleChoiceAnswers
-                              .FirstOrDefault(x => x.CandidateId == model.UserId &&
+                              .FirstOrDefault(x => x.CandidateId == user.Id &&
                                    x.ChoiceId == answer.Id);
                     if (answer.Correct)
                     {
                         if (answerDB == null)
                         {
-                            _context.Answers.Add(new MultipleChoiceAnswer { CandidateId = model.UserId, ChoiceId = answer.Id });
+                            _context.Answers.Add(new MultipleChoiceAnswer { CandidateId = user.Id, ChoiceId = answer.Id });
                         }
                     }
                     else
@@ -142,11 +149,11 @@ namespace Teststation.Controllers
                 }
             }
             var session = _context.Sessions
-                              .FirstOrDefault(x => x.CandidateId == model.UserId &&
+                              .FirstOrDefault(x => x.CandidateId == user.Id &&
                                    x.TestId == model.TestId);
             if (session == null)
             {
-                _context.Sessions.Add(new Session { CandidateId = model.UserId, TestId = model.TestId, Completed = Completed, Duration = new System.TimeSpan() });
+                _context.Sessions.Add(new Session { CandidateId = user.Id, TestId = model.TestId, Completed = Completed, Duration = new System.TimeSpan() });
             }
             else
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,14 @@ namespace Teststation.ViewComponents
 {
     public class TestListViewComponent : ViewComponent
     {
+        private SignInManager<IdentityUser> _signManager;
+        private UserManager<IdentityUser> _userManager;
         private readonly Database _context;
 
-        public TestListViewComponent(Database context)
+        public TestListViewComponent(Database context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signManager)
         {
+            _userManager = userManager;
+            _signManager = signManager;
             _context = context;
         }
 
@@ -21,10 +26,11 @@ namespace Teststation.ViewComponents
         {
             var testList = new List<TestCandidateViewModel>();
             var tests = await _context.Tests.Where(x => x.ReleaseStatus == TestStatus.Public).ToListAsync();
+            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(UserClaimsPrincipal));
 
             foreach (var test in tests)
             {
-                var session = await _context.Sessions.FirstOrDefaultAsync(x => x.TestId == test.Id && x.CandidateId == 1);
+                var session = await _context.Sessions.FirstOrDefaultAsync(x => x.TestId == test.Id && x.CandidateId == user.Id);
                 var testRow = new TestCandidateViewModel();
 
                 testRow.Test = test;
@@ -32,7 +38,7 @@ namespace Teststation.ViewComponents
                 
                 if (testRow.IsStarted)
                 {
-                    testRow.Result = new EvaluationViewModel(test, 1, _context).GetPercentage();
+                    testRow.Result = new EvaluationViewModel(test, user.Id, _context).GetPercentage();
                     testRow.Completed = session.Completed;
                 }
                 else

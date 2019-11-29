@@ -8,7 +8,6 @@ namespace Teststation.Models
 {
     public class TestAnswerViewModel
     {
-        public long UserId { get; set; }
         public long TestId { get; set; }
 
         [Display(Name = "Themengebiet")]
