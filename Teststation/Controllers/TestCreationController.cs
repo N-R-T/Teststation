@@ -394,6 +394,40 @@ namespace Teststation.Controllers
             {
                 return NotFound();
             }
+            var mathQuestions = _context.MathQuestions
+                .Where(x => x.TestId == test.Id)
+                .ToList();
+            var multipleChoiceQuestions = _context.MultipleChoiceQuestions
+                .Where(x => x.TestId == test.Id)
+                .Include(x => x.Choices)
+                .ToList();
+            var mathAnswers = _context.MathAnswers
+                .Where(x => x.Question.TestId == test.Id)
+                .ToList();
+            var multipleChoiceAnswers = _context.MultipleChoiceAnswers
+                .Where(x => x.Choice.Question.TestId == test.Id)
+                .ToList();
+
+            if (mathQuestions.Count != 0)
+            {
+                _context.MathQuestions.RemoveRange(mathQuestions);
+            }
+
+            if (multipleChoiceQuestions.Count != 0)
+            {
+                _context.MultipleChoiceQuestions.RemoveRange(multipleChoiceQuestions);
+            }
+
+            if (mathAnswers.Count != 0)
+            {
+                _context.MathAnswers.RemoveRange(mathAnswers);
+            }
+
+            if (multipleChoiceAnswers.Count != 0)
+            {
+                _context.MultipleChoiceAnswers.RemoveRange(multipleChoiceAnswers);
+            }
+
             _context.Tests.Remove(test);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -414,7 +448,7 @@ namespace Teststation.Controllers
             return PartialView(question);
         }
 
-        public async Task<IActionResult> Release(long? id)
+        public async Task<IActionResult> ReleaseTest(long? id)
         {
             if (id == null)
             {
@@ -433,6 +467,25 @@ namespace Teststation.Controllers
                 return RedirectToAction(nameof(Index));
             }
             test.ReleaseStatus = TestStatus.Public;
+            _context.Tests.Update(test);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> CloseTest(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var test = await _context.Tests
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (test == null)
+            {
+                return NotFound();
+            }
+            test.ReleaseStatus = TestStatus.Closed;
             _context.Tests.Update(test);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

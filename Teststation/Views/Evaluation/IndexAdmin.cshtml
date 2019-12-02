@@ -97,4 +97,10 @@
         event.stopPropagation();
         event.preventDefault();
     });
+
+        $('textarea').each(function () {
+        var el = this;
+            el.style.cssText = 'height:auto; padding:8px;';
+            el.style.cssText = 'height:' + el.scrollHeight + 'px';
+    });
 </script>

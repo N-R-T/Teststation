@@ -36,7 +36,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var test in Model.Tests)
+        @foreach (var test in Model.Tests.Where(x => x.Completed))
         {
             <tr>
                 <td>

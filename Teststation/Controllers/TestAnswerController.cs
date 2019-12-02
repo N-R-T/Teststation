@@ -151,7 +151,7 @@ namespace Teststation.Controllers
                                    x.TestId == model.TestId);
             if (session == null)
             {
-                _context.Sessions.Add(new Session { CandidateId = user.Id, TestId = model.TestId, Completed = Completed, Duration = new System.TimeSpan() });
+                _context.Sessions.Add(new Session { CandidateId = user.Id, TestId = model.TestId, Completed = Completed, Duration = (DateTime.Now - StartTime) });
             }
             else
             {

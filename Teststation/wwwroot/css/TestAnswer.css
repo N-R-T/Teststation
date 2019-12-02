@@ -1,3 +1,5 @@
-﻿.questionText{
+﻿.questionText {
     margin-bottom: 2px;
+    background-color: #fff !important;
+    resize: none;
 }

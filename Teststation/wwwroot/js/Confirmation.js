@@ -10,6 +10,10 @@ function ConfirmReleaseTest(name) {
     return ConfirmFunction('Sind Sie sicher, dass Sie den Test "' + name + '" veröffentlichen wollen? Sie können den Test danach nicht mehr bearbeiten!');
 };
 
+function ConfirmCloseTest(name) {
+    return ConfirmFunction('Sind Sie sicher, dass Sie den Test "' + name + '" sperren wollen? Der Test kann danach nicht mehr beantwortet werden!');
+};
+
 function ConfirmFinishTestAnswer() {
     return ConfirmFunction('Sind Sie sicher, dass Sie Ihre Beantwortung beenden wollen? Sie können Ihre Antworten danach nicht mehr verändern!');
 };
