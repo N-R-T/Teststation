@@ -48,7 +48,6 @@
     </div>
     <hr />
 }
-<hr />
 
 
 <table>
@@ -91,9 +90,11 @@
     </tr>
 </table>
 
+<a href="/CandidateManagement/CandidateDetails?id=@Model.User.UserId" class="btn btn-primary">Zurück</a>
+
 <script>
     $(".choiceCheckbox").on('click', function (event) {
         event.stopPropagation();
         event.preventDefault();
-});
+    });
 </script>

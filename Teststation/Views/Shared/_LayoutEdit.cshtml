@@ -52,10 +52,10 @@
             </div>
             <br /><br /><br /><br />
             <div class="form-group text-center">
-                <input asp-action="SaveChanges" form="editForm" type="submit" value="Speichern" class="btn btn-primary w-75" onclick="Leaving();"/>
+                <input asp-action="SaveChanges" form="editForm" type="submit" value="Speichern" class="btn btn-primary w-75" onclick="Leaving();" />
             </div>
             <div class="form-group text-center">
-                <input asp-action="BackToMainMenu" form="editForm" type="submit" value="Abbrechen" class="btn btn-primary w-75" formnovalidate onclick="Leaving();"/>
+                <input asp-action="BackToMainMenu" form="editForm" type="submit" value="Abbrechen" class="btn btn-primary w-75" formnovalidate onclick="Leaving();" />
             </div>
         </form>
     </div>
@@ -97,6 +97,7 @@
         </script>
     </environment>
     <script src="~/js/sideNav.js" asp-append-version="true"></script>
+    <script src="~/js/Confirmation.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

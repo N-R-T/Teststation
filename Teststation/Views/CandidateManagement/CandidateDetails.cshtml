@@ -1,7 +1,93 @@
-﻿
+﻿@model Teststation.Models.CandidateSessionViewModel
 @{
+    var finishedTests = Model.Tests.Where(x => x.Completed).ToList();
+    var ammountTests = finishedTests.Count;
+    double resultSum = 0;
+    foreach (var finishedTest in finishedTests)
+    {
+        resultSum += finishedTest.Result;
+    }
+    var wholeResult = (double)resultSum / (double)ammountTests;
+
+    var resultText = Consts.badGrade;
+    if (wholeResult * 100 >= Consts.neededPercentage)
+    {
+        resultText = Consts.goodGrade;
+    }
     ViewData["Title"] = "CandidateDetails";
 }
 
-<h1>CandidateDetails</h1>
+<h1>Details zu @Model.UserInformation.User.UserName</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Testname
+            </th>
+            <th>
+                Ergebnis
+            </th>
+            <th>
+                Dauer
+            </th>
+            <th>
 
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var test in Model.Tests)
+        {
+            <tr>
+                <td>
+                    @test.Test.Topic
+                </td>
+                <td>
+                    @if (test.Result == Consts.resultIfEvaluationHasErrors)
+                    {
+                        <span>fehlerhafte Beantwortung</span>
+                    }
+                    else
+                    {
+                        @test.Result.ToString("P")
+                    }
+                </td>
+                <td>
+                    @test.Duration.Hours Stunden @test.Duration.Minutes Minuten @test.Duration.Seconds Sekunden
+                </td>
+                <td>
+                    @if (test.Result == Consts.resultIfEvaluationHasErrors)
+                    {
+                        <a href="/CandidateManagement/DeleteSession?testId=@test.Test.Id&userId=@Model.UserInformation.UserId"
+                           class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteSession();">fehlerhafte Beantwortung löschen</a>
+                    }
+                    else if (!test.Completed)
+                    {
+                        <button class="btn btn-primary buttonInMainList" disabled>Auswerten</button>
+                    }
+                    else
+                    {
+                        <a href="/Evaluation/IndexAdmin?testId=@test.Test.Id&userId=@Model.UserInformation.Id" class="btn btn-primary buttonInMainList">Auswerten</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        @if (!Model.Tests.Any(x => x.Result == Consts.resultIfEvaluationHasErrors))
+        {
+            <tr>
+                <td colspan="4">
+                    <h5>
+                        <label>Gesamtpunktzahl: @(wholeResult.ToString("P"))</label>
+                    </h5>
+                    <h4>
+                        <label>@resultText</label>
+                    </h4>
+                </td>
+            </tr>
+        }
+    </tfoot>
+</table>
+
+<a class="btn btn-primary" asp-action="CandidateList" asp-controller="CandidateManagement">Zurück</a>

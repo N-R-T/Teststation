@@ -18,7 +18,7 @@
         </div>
         <div class="col-sm-6">
             <div class="form-group">
-                <input asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate onclick="Leaving();"/>
+                <input asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate onclick="if (ConfirmFinishTestAnswer()) { Leaving(); return true; } else { return false; }" />
             </div>
         </div>
     </div>
@@ -31,25 +31,18 @@
     </script>
 }
 <script>
-    var IsLeavingCorrectly = false;
-
-    function Leaving() {
-        IsLeavingCorrectly = true;
-    }
 
     window.onbeforeunload = function (e) {
-        if (!IsLeavingCorrectly) {
-            $.ajax
-                ({
-                    type: 'POST',
-                    url: '/TestAnswer/Break',
-                    data: $('#AnswerForm').serialize(),
-                    dataType: 'html',
-                    error: function (xhr, status, error) {
-                    },
-                    success: function () {
-                    }
-                });
-        }
+        $.ajax
+            ({
+                type: 'POST',
+                url: '/TestAnswer/Break',
+                data: $('#AnswerForm').serialize(),
+                dataType: 'html',
+                error: function (xhr, status, error) {
+                },
+                success: function () {
+                }
+            });
     };
 </script>

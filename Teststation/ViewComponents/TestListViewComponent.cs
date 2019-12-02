@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ namespace Teststation.ViewComponents
 
                 testRow.Test = test;
                 testRow.IsStarted = session != null;
-                
+
                 if (testRow.IsStarted)
                 {
                     testRow.Result = new EvaluationViewModel(test, user.Id, _context).GetPercentage();

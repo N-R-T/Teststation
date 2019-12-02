@@ -5,8 +5,7 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h4>Alle Tests</h4>
-<hr />
+<h1>Alle Tests</h1>
 <table class="table">
     <thead>
         <tr>
@@ -24,53 +23,61 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Topic)
-                </td>
-                @switch (item.ReleaseStatus)
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Topic)
+            </td>
+            @switch (item.ReleaseStatus)
+            {
+                case TestStatus.InProgress:
+                    <td>In Bearbeitung</td>
+                    break;
+                case TestStatus.Public:
+                    <td>Öffentlich</td>
+                    break;
+                default:
+                    <td>Fehler</td>
+                    break;
+            }
+
+
+            <td>
+                @if (item.ReleaseStatus == TestStatus.InProgress)
                 {
-                    case TestStatus.InProgress:
-                        <td>In Bearbeitung</td>
-                        break;
-                    case TestStatus.Public:
-                        <td>Öffentlich</td>
-                        break;
-                    default:
-                        <td>Fehler</td>
-                        break;
+                    <a asp-action="Release" asp-route-id="@item.Id" class="btn btn-success buttonInMainList" onclick="return ConfirmReleaseTest('@item.Topic')">Veröffentlichen</a>
                 }
-
-
-                <td>
-                    @if (item.ReleaseStatus == TestStatus.InProgress)
-                    {
-                        <a asp-action="Release" asp-route-id="@item.Id" class="btn btn-success buttonInMainList">Veröffentlichen</a>
-                    }
-                    else
-                    {
-                        <environment include="Development">
-                            <a asp-action="Regress" asp-route-id="@item.Id" class="btn btn-success buttonInMainList">Privatisieren</a>
-                        </environment>
-                        <environment exclude="Development">
-                            <button class="btn btn-success buttonInMainList" disabled>Veröffentlichen</button>
-                        </environment>
-                    }
-                </td>
-                <td>
-                    @if (item.ReleaseStatus == TestStatus.InProgress)
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info buttonInMainList">Bearbeiten</a>
-                    }
-                    else
-                    {
-                        <button class="btn btn-info buttonInMainList" disabled>Bearbeiten</button>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger buttonInMainList">Löschen</a>
-                </td>
-            </tr>
+                else
+                {
+                    <environment include="Development">
+                        <a asp-action="Regress" asp-route-id="@item.Id" class="btn btn-success buttonInMainList">Privatisieren</a>
+                    </environment>
+                    <environment exclude="Development">
+                        <button class="btn btn-success buttonInMainList" disabled>Veröffentlichen</button>
+                    </environment>
+                }
+            </td>
+            <td>
+                @if (item.ReleaseStatus == TestStatus.InProgress)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info buttonInMainList">Bearbeiten</a>
+                }
+                else
+                {
+                    <button class="btn btn-info buttonInMainList" disabled>Bearbeiten</button>
+                }
+            </td>
+            <td>
+                @if (item.ReleaseStatus == TestStatus.InProgress)
+                {
+                    <a asp-action="Delete" asp-route-id="@item.Id"
+                       class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteTest('@item.Topic');">Löschen</a>
+                }
+                else
+                {
+                    <button class="btn btn-danger buttonInMainList" disabled>Löschen</button>
+                }
+            </td>
+        </tr>
         }
         <tr>
             <td colspan="5">

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
+using System;
+using System.Linq;
 using Teststation.Models;
-using Teststation.Models.ViewModels;
 using User = Microsoft.AspNetCore.Identity.IdentityUser;
-using Microsoft.AspNetCore.Authorization;
 
 
 namespace Teststation.Controllers
@@ -29,16 +22,39 @@ namespace Teststation.Controllers
 
         public IActionResult Index()
         {
-            if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
-            {
-                _context.Tests.Remove(_context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId));
-            }
-            _context.SaveChanges();
+            DeleteBackUpTest();
+            DeleteOldAccounts();
             if (_signManager.IsSignedIn(User))
             {
                 return View();
             }
             return RedirectToAction("Login", "Account");
+        }
+
+        private void DeleteBackUpTest()
+        {
+            if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
+            {
+                _context.Tests.Remove(_context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId));
+            }
+            _context.SaveChanges();
+        }
+        private void DeleteOldAccounts()
+        {
+            var oldAccounts = _context.UserInformation.Where(x => x.Role == UserRole.Candidate && x.DayOfLastActivity.AddYears(1) <= DateTime.Now);
+            foreach (var userInformation in oldAccounts)
+            {
+                userInformation.Role = UserRole.Deleted;
+                var user = _context.Users.FirstOrDefault(x => x.Id == userInformation.UserId);
+                user.UserName =
+                user.NormalizedUserName =
+                user.Email =
+                user.NormalizedEmail =
+                user.PasswordHash = null;
+                _context.Users.Update(user);
+                _context.UserInformation.Update(userInformation);
+            }
+            _context.SaveChanges();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Teststation.Controllers
         #region Neuen Test erstellen
         public async Task<IActionResult> Create()
         {
-            var test = new Test { Topic = "Neuer Test" };
+            var test = new Test { Topic = Consts.fillerNameForNewTest };
             _context.Add(test);
             await _context.SaveChangesAsync();
             return RedirectToAction("Edit", new { test.Id });
@@ -85,7 +85,7 @@ namespace Teststation.Controllers
         public async Task<IActionResult> SaveChanges(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
             var test = TestCreationTransformer.TransformToTest(model);
-            test.Id = originalTestId; 
+            test.Id = originalTestId;
             _context.Questions.RemoveRange(_context.Questions.Where(x => x.TestId == originalTestId));
             _context.Choices.RemoveRange(_context.Choices
                 .Include(x => x.Question)
@@ -320,7 +320,7 @@ namespace Teststation.Controllers
             await _context.SaveChangesAsync();
 
             var question = await _context.Questions.FirstOrDefaultAsync(x => x.Id == id);
-            return RedirectToAction("Edit", new { id=Consts.backUpTestId});
+            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
         }
 
         public async Task<IActionResult> PushQuestionUp(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
@@ -427,6 +427,11 @@ namespace Teststation.Controllers
             {
                 return NotFound();
             }
+
+            if (TestIsNotValid(test))
+            {
+                return RedirectToAction(nameof(Index));
+            }
             test.ReleaseStatus = TestStatus.Public;
             _context.Tests.Update(test);
             await _context.SaveChangesAsync();
@@ -450,6 +455,65 @@ namespace Teststation.Controllers
             _context.Tests.Update(test);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool TestIsNotValid(Test test)
+        {
+            if (_context.Tests.Any(x => x.Id != test.Id && x.Topic == test.Topic && x.ReleaseStatus == TestStatus.Public))
+            {
+                return true;//Ein öffentlicher Test mit dem gleichen Namen existiert schon.
+            }
+            if (test.Topic == Consts.fillerNameForNewTest)
+            {
+                return true;//Der Name wurde nicht verändert.
+            }
+            if (test.Topic == null)
+            {
+                return true;//Der Name ist leer.
+            }
+
+            var allQuestions = _context.Questions
+                .Where(x => x.TestId == test.Id)
+                .ToList();
+
+            if (allQuestions.Count == 0)
+            {
+                return true;//Der Test hat keine Fragen.
+            }
+            if (allQuestions.Any(x => x.Text == null))
+            {
+                return true;//Die Frage hat keinen Text.
+            }
+            if (allQuestions.Any(x => x.Points == 0))
+            {
+                return true;//Die Frage gibt keine Punkte.
+            }
+
+            var mathQuestions = _context.MathQuestions
+                .Where(x => x.TestId == test.Id)
+                .ToList();
+
+            if (mathQuestions.Any(x => x.CorrectAnswer == null))
+            {
+                return true;//Die Frage hat keine richtige Antwort.
+            }
+
+            var multipleChoiceQuestions = _context.MultipleChoiceQuestions
+                .Where(x => x.TestId == test.Id)
+                .Include(x => x.Choices)
+                .ToList();
+
+            if (multipleChoiceQuestions.Any(x => x.Choices.Count == 0))
+            {
+                return true;//Die Frage hat keine Antwortmöglichkeiten.
+            }
+
+            if (multipleChoiceQuestions.Any(x => x.Choices.Any(y => y.Text == null)))
+            {
+                return true;//Die Antwortmöglichkeit hat keinen Text.
+            }
+
+            return false;
         }
     }
 }

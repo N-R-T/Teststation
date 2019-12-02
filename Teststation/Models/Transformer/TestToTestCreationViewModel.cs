@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Teststation.Models
 {
@@ -47,7 +45,7 @@ namespace Teststation.Models
                 });
             }
 
-            viewModel.Questions = viewModel.Questions.OrderBy(x=>x.Position).ToList();
+            viewModel.Questions = viewModel.Questions.OrderBy(x => x.Position).ToList();
 
             foreach (var question in viewModel.Questions)
             {

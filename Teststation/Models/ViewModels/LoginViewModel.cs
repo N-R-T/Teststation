@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Teststation.Models.ViewModels
 {
     public class LoginViewModel
     {
+        [Required, Display(Name = "Name")]
         public string Username { get; set; }
 
-        [DataType(DataType.Password)]
+        [DataType(DataType.Password), Display(Name = "Passwort")]
         public string Password { get; set; }
 
         [Display(Name = "Remember Me")]

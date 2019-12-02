@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Teststation.Models
+﻿namespace Teststation.Models
 {
     public static class Consts
     {
@@ -11,5 +6,7 @@ namespace Teststation.Models
         public const string badGrade = "Nicht bestanden";
         public const int neededPercentage = 60;
         public const long backUpTestId = 10;
+        public const string fillerNameForNewTest = "Neuer Test";
+        public const double resultIfEvaluationHasErrors = 666.66;
     }
 }

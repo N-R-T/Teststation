@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 
 namespace Teststation.Models
 {
@@ -15,7 +13,7 @@ namespace Teststation.Models
         public string UserName;
 
         public EvaluationViewModel(Test test, long userId, Database _context)
-        {            
+        {
             User = _context.UserInformation.FirstOrDefault(x => x.Id == userId);
             Test = test;
             UserName = _context.Users.FirstOrDefault(x => x.Id == User.UserId).UserName;
@@ -46,7 +44,7 @@ namespace Teststation.Models
             {
                 answer.Choice = _context.Choices.FirstOrDefault(x => x.Id == answer.ChoiceId);
             }
-            
+
             Answers.AddRange(mathAnswers);
             Answers.AddRange(multipleChoiceAnswers);
         }
@@ -98,8 +96,8 @@ namespace Teststation.Models
         private int GetPointsOfMathQuestion(MathQuestion question)
         {
             if (Answers
-                .Where(x=>x is MathAnswer)
-                .Select(x=>x as MathAnswer)
+                .Where(x => x is MathAnswer)
+                .Select(x => x as MathAnswer)
                 .SingleOrDefault(x => x.GetQuestion().Id == question.Id)
                 .IsCorrect())
             {

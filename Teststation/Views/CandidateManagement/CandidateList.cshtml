@@ -1,52 +1,51 @@
 ﻿@model List<Teststation.Models.ViewModels.CandidateListEntryViewModel>
 @{
     ViewData["Title"] = "CandidateList";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h1>CandidateList</h1>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Name
-            </th>
-            <th>
-                Zeit bis zur Löschung
-            </th>
-            <th>
-
-            </th>
-            <th>
-
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
+<h1>Liste aller Testkandidaten</h1>
+<form>
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @user.Name
-                </td>
-                <td>
-                    Zeit
-                </td>
-                <td>
-                    <button type="submit" class="btn btn-danger" asp-action="CandidateDetails" asp-route-id="@user.UserId" formnovalidate>Details</button>
-                    <a href="/CandidateManagement/CandidateDetails?id=@user.UserId" class="btn btn-primary">Details</a>
-                </td>
-                <td>
-                    <button type="submit" class="btn btn-danger" asp-action="DeleteCandidate" asp-route-id="@user.UserId" formnovalidate>Löschen</button>
+                <th width="35%">
+                    Name
+                </th>
+                <th width="25%">
+                    Löschungsdatum
+                </th>
+                <th width="15%"></th>
+                <th width="15%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                var dateOfDeletion = user.UserInformation.DayOfLastActivity.AddYears(1);
+
+                <tr>
+                    <td>
+                        @user.Name
+                    </td>
+                    <td>
+                        @dateOfDeletion.ToString("dd/MM/yyyy")
+                    </td>
+                    <td>
+                        <a href="/CandidateManagement/CandidateDetails?id=@user.UserId" class="btn btn-info buttonInMainList">Details</a>
+                    </td>
+                    <td>
+                        <button type="submit" asp-action="DeleteCandidate" asp-route-id="@user.UserId" class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteCandidate('@user.Name');">Löschen</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">
+                    <a href="/Account/Register" class="btn btn-primary buttonInMainList" formnovalidate>Neuen Testkandidat hinzufügen</a>
                 </td>
             </tr>
-        }
-    </tbody>
-    <tfoot>
-        <tr>
-            <td colspan="4">
-                <button type="submit" class="btn btn-danger" asp-action="Register" asp-controller="Account" formnovalidate>Neuen Testkandidat hinzufügen</button>
-            </td>
-        </tr>
-    </tfoot>
-</table>
+        </tfoot>
+    </table>
+</form>

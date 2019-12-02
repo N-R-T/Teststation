@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teststation.Models;
@@ -30,7 +28,7 @@ namespace Teststation.Controllers
                 return RedirectToAction("Index", "Home", 0);
             }
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
-            var user = _context.UserInformation.FirstOrDefault(x=>x.UserId ==  _userManager.GetUserId(User));
+            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
             var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == user.Id);
 
             if (test.ReleaseStatus == TestStatus.InProgress)
@@ -63,7 +61,7 @@ namespace Teststation.Controllers
         public async Task<IActionResult> Finish(long id, [Bind("TestId,SessionId,Questions")] TestAnswerViewModel model)
         {
             SaveSession(model, true);
-            return RedirectToAction("Index","Evaluation", new{ testId = model.TestId});
+            return RedirectToAction("Index", "Evaluation", new { testId = model.TestId });
         }
 
         private TestAnswerViewModel GetViewModel(Test test, Session session)
@@ -78,7 +76,7 @@ namespace Teststation.Controllers
                 question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
             }
             var viewModel = TestAnswerTransformer.TransformToTestAnswerViewModel(test, session);
-            
+
             if (viewModel.IsStarted)
             {
                 foreach (var question in viewModel.Questions
