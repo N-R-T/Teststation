@@ -1,0 +1,18 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+<footer class="border-top footer text-muted">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <div class="container">
+            &copy; 2019 - Teststation - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a style="float:right; color:white" asp-area="" asp-controller="Home" asp-action="EasterEggs">Easter Eggs</a>
+        </div>
+    }
+    else
+    {
+        <div class="container">
+            &copy; 2019 - Teststation
+        </div>
+    }
+</footer>

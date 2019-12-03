@@ -24,11 +24,21 @@ namespace Teststation.Controllers
         {
             DeleteBackUpTest();
             DeleteOldAccounts();
-            if (_signManager.IsSignedIn(User))
+            if (!_signManager.IsSignedIn(User))
             {
-                return View();
+                return RedirectToAction("Login", "Account");
             }
-            return RedirectToAction("Login", "Account");
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult EasterEggs()
+        {
+            return View();
         }
 
         private void DeleteBackUpTest()

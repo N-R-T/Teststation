@@ -1,24 +1,27 @@
 ﻿@model Teststation.Models.MultipleChoiceEvalutionViewModel
 <div class="row">
     <div class="col-sm-6">
-        <textarea class="questionText form-control">@Model.Question.Text</textarea>
+        <textarea class="form-control questionText " readonly>@Model.Question.Text</textarea>
     </div>
     <div class="col-sm-3">
-        <div class="input-group-text questionText form-control">Geforderte Antwort</div>
+        <div class="input-group-text  form-control questionText">Geforderte Antwort</div>
     </div>
     <div class="col-sm-3">
-        <div class="input-group-text questionText form-control">Gegebene Antwort</div>
+        <div class="input-group-text form-control questionText">Gegebene Antwort</div>
     </div>
 </div>
 
 @foreach (var choice in Model.Question.Choices)
 {
     var userChecked = Model.GivenAnswers.Any(x => x.ChoiceId == choice.Id);
-    var styleOfRow = "falseAnswerRow";
-    @if (userChecked && choice.Correct ||
-        !userChecked && !choice.Correct)
+    var styleOfRow = "nonRelevantAnswerRow";
+    @if (userChecked && choice.Correct)
     {
         styleOfRow = "correctAnswerRow";
+    }
+    else if(userChecked && !choice.Correct || !userChecked && choice.Correct)
+    {
+        styleOfRow = "falseAnswerRow";
     }
 
 <div class="choiceBlock">
@@ -26,16 +29,18 @@
         <div class="col-sm-2"></div>
 
         <div class="col-sm-4">
-            @if (userChecked && choice.Correct ||
-  !userChecked && !choice.Correct)
+            @if (userChecked && choice.Correct)
             {
                 <div class="questionText form-control correctAnswer"> @choice.Text</div>
             }
-            else
+            else if (!userChecked && choice.Correct || userChecked && !choice.Correct)
             {
                 <div class="questionText form-control falseAnswer"> @choice.Text</div>
             }
-
+            else if (!userChecked && !choice.Correct)
+            {
+                <div class="questionText form-control nonRelevantAnswer"> @choice.Text</div>
+            }
         </div>
         <div class="col-sm-1"></div>
         <div class="col-sm-1 @styleOfRow">

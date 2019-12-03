@@ -16,6 +16,13 @@
     color: #fff !important;
 }
 
+
+.nonRelevantAnswer, .nonRelevantAnswer:hover, .nonRelevantAnswer:focus, .nonRelevantAnswer:active, .nonRelevantAnswer:target {
+    border-color: #eee !important;
+    background-color: #eee !important;
+    color: #000 !important;
+}
+
 .multipleAnswerInEvaluation, .multipleAnswerInEvaluation:hover, .multipleAnswerInEvaluation:focus, .multipleAnswerInEvaluation:active, .multipleAnswerInEvaluation:target {
 }
 
@@ -23,6 +30,11 @@
     width: 160px;
     cursor: default !important;
     box-shadow: none;
+}
+
+.questionPointsText {
+    float: right;
+    width: 70% !important;
 }
 
 
@@ -45,6 +57,14 @@
 .correctAnswerRow {
     border-color: #5bd778 !important;
     background-color: #5bd778 !important;
+    border-radius: 10px;
+    width: 80%;
+    margin: 0px;
+}
+
+.nonRelevantAnswerRow {
+    border-color: #eee !important;
+    background-color: #eee !important;
     border-radius: 10px;
     width: 80%;
     margin: 0px;

@@ -3,102 +3,12 @@
 @{
     ViewData["Title"] = "Auswertung";
     Model.Questions = Model.Questions.OrderBy(x => x.Position).ToList();
-
-    var reachedPoints = Model.GetReachedPoints();
-    var allPoints = Model.Test.GetAllPoints();
-    var percentage = Math.Round(((double)reachedPoints / (double)allPoints * 100));
-    var progressWidth = percentage.ToString() + "%";
-    var grade = Model.GetGrade();
-
 }
 <h1>@ViewData["Title"]</h1>
 <h3>Test: @Model.Test.Topic</h3>
-
 <hr />
-@foreach (var question in Model.Questions)
-{
-    <div class="questionBlock">
-        <div class="row">
-            <div class="col-sm-1">
-                <div class="questionText form-control">@(question.Position + 1).</div>
-            </div>
-            <div class="col-sm-3">
-            </div>
-            <div class="col-sm-2">
-                <div class="questionText form-control answerTextInEvaluation">@Model.GetPointsOfQuestion(question) / @question.Points</div>
-            </div>
-        </div>
-        @if (question is MathQuestion)
-        {
-            Answer mathAnswer = Model.Answers
-        .SingleOrDefault(x => x.GetQuestion().Id == question.Id) as MathAnswer;
-            <partial name="MathQuestion" model="@mathAnswer" />
-        }
-        else
-        {
-            var viewModel = new MultipleChoiceEvalutionViewModel();
-            viewModel.GivenAnswers = Model.Answers
-                .Where(x => x is MultipleChoiceAnswer)
-                .Select(y => y as MultipleChoiceAnswer)
-                .Where(z => z.GetQuestion().Id == question.Id)
-                .ToList();
-            viewModel.Question = question as MultipleChoiceQuestion;
+<partial name="_QuestionsPartial" model="@Model" />
+<partial name="_ResultPartial" model="@Model" />
 
-            <partial name="MultipleChoiceQuestion" model="@viewModel" />
-        }
-    </div>
-    <hr />
-}
-
-<table>
-    <tr>
-        <td width="150">Erreichte Punkte:</td>
-        <td width="150">@reachedPoints</td>
-        <td rowspan="3">
-            <h1>@grade</h1>
-        </td>
-    </tr>
-    <tr>
-        <td>Gesamtpunktzahl:</td>
-        <td>@allPoints</td>
-    </tr>
-    <tr>
-        <td>Ergebnis:</td>
-        <td>@Model.GetResult()</td>
-    </tr>
-    <tr>
-        <td colspan="3">
-            <div class="progress" style="height: 25px;">
-                <div class="progress-bar-success" role="progressbar" aria-valuenow="@percentage.ToString()"
-                     aria-valuemin="0" aria-valuemax="100" style="width:@progressWidth">
-                </div>
-                @{
-                    if (grade == Consts.badGrade)
-                    {
-                        var neededPercentage = (Consts.neededPercentage - percentage);
-                        var neededPercentageWidth = neededPercentage + "%";
-                        <div class="progress-bar-danger" role="progressbar" aria-valuenow="@neededPercentage.ToString()"
-                             aria-valuemin="0" aria-valuemax="100" style="width:@neededPercentageWidth;opacity:0;">
-                        </div>
-                        <div class="progress-bar-danger" role="progressbar" aria-valuenow="@neededPercentage.ToString()"
-                             aria-valuemin="0" aria-valuemax="100" style="width:4px;">
-                        </div>
-                    }
-                }
-            </div>
-        </td>
-    </tr>
-</table>
-
-<script>
-    $(".choiceCheckbox").on('click', function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    });
-
-        $('textarea').each(function () {
-        var el = this;
-            el.style.cssText = 'height:auto; padding:8px;';
-            el.style.cssText = 'height:' + el.scrollHeight + 'px';
-    });
-</script>
+<script src="~/js/Evaluation.js" asp-append-version="true"></script>
+<script src="~/js/ResizeTextareas.js" asp-append-version="true"></script>

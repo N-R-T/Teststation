@@ -72,9 +72,9 @@ namespace Teststation.Models
             return (double)GetReachedPoints() / (double)Test.GetAllPoints();
         }
 
-        public int GetReachedPoints()
+        public double GetReachedPoints()
         {
-            var result = 0;
+            double result = 0;
 
             foreach (var question in Questions)
             {
@@ -84,7 +84,7 @@ namespace Teststation.Models
             return result;
         }
 
-        public int GetPointsOfQuestion(Question question)
+        public double GetPointsOfQuestion(Question question)
         {
             if (question is MathQuestion)
             {
@@ -93,7 +93,7 @@ namespace Teststation.Models
             return GetPointsOfMultipleChoiceQuestion(question as MultipleChoiceQuestion);
         }
 
-        private int GetPointsOfMathQuestion(MathQuestion question)
+        private double GetPointsOfMathQuestion(MathQuestion question)
         {
             if (Answers
                 .Where(x => x is MathAnswer)
@@ -107,26 +107,56 @@ namespace Teststation.Models
             return 0;
         }
 
-        private int GetPointsOfMultipleChoiceQuestion(MultipleChoiceQuestion question)
+        private double GetPointsOfMultipleChoiceQuestion(MultipleChoiceQuestion question)
         {
             var answers = Answers
-                .Where(x => x is MultipleChoiceAnswer)
-                .Select(y => y as MultipleChoiceAnswer)
-                .Where(z => z.GetQuestion().Id == question.Id)
-                .ToList();
-            var rightChoices = 0;
-            double pointsPerRightChoice = (double)question.Points / (double)question.Choices.Count;
+           .Where(x => x is MultipleChoiceAnswer)
+           .Select(y => y as MultipleChoiceAnswer)
+           .Where(z => z.GetQuestion().Id == question.Id)
+           .ToList();
+            return CalculatePointsExactly(question, answers);       
+        }
 
+        private double CalculatePointsExactly(MultipleChoiceQuestion question, List<MultipleChoiceAnswer> answers)
+        {
+            var rightUserChoices = 0;
+            var correctChoices = question.Choices.Where(x => x.Correct);
             foreach (var choice in question.Choices)
             {
                 var userChecked = answers.Any(x => x.ChoiceId == choice.Id);
-                if (userChecked && choice.Correct ||
-                   !userChecked && !choice.Correct)
+                if (userChecked && choice.Correct)
                 {
-                    rightChoices++;
+                    rightUserChoices++;
+                }
+                else if (userChecked && !choice.Correct)
+                {
+                    rightUserChoices--;
                 }
             }
-            return (int)Math.Ceiling(rightChoices * pointsPerRightChoice);
+            double pointsPerRightChoice = (double)question.Points / (double)correctChoices.Count();
+            double allPoints = (double)rightUserChoices * (double)pointsPerRightChoice;
+            double wholePoints = Math.Floor(allPoints);
+            double commaPortion = allPoints - wholePoints;
+            double points = wholePoints;
+
+            if (commaPortion > 0 && commaPortion <= 0.5)
+            {
+                points += 0.5;
+            }
+            else if (commaPortion > 0.5 && commaPortion <= 1.0)
+            {
+                points += 1.0;
+            }
+
+            if (points > question.Points)
+            {
+                return question.Points;
+            }
+            if (points < 0)
+            {
+                return 0;
+            }
+            return points;
         }
-    }
+}
 }

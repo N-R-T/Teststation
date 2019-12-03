@@ -1,6 +1,6 @@
 ﻿@model TestAnswerViewModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Beantwortung";
 }
 <form asp-action="Edit" id="AnswerForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -52,11 +52,5 @@
                 });
         }
     };
-
-    $('textarea').each(function () {
-        var el = this;
-            el.style.cssText = 'height:auto; padding:8px;';
-            el.style.cssText = 'height:' + el.scrollHeight + 'px';
-    });
-
 </script>
+<script src="~/js/ResizeTextareas.js" asp-append-version="true"></script>

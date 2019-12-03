@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +10,34 @@ namespace Teststation.Controllers
 {
     public class TestCreationController : Controller
     {
+        private SignInManager<IdentityUser> _signManager;
         private readonly Database _context;
         private static long originalTestId;
 
-        public TestCreationController(Database context)
+        public TestCreationController(Database context, SignInManager<IdentityUser> signManager)
         {
+            _signManager = signManager;
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(long? errorTestId)
         {
-            return View(await _context.Tests.ToListAsync());
+            if (!_signManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            var viewModel = new List<TestEntryViewModel>();
+            var tests = await _context.Tests.ToListAsync();
+            foreach (var testItem in tests)
+            {
+                var entry = new TestEntryViewModel { Test = testItem };
+                if (testItem.Id == errorTestId)
+                {
+                    entry.Errors = ErrorsOfTest(testItem);
+                }
+                viewModel.Add(entry);
+            }
+            return View(viewModel);
         }
 
         #region Neuen Test erstellen
@@ -35,10 +53,26 @@ namespace Teststation.Controllers
         #region Test bearbeiten
         public async Task<IActionResult> Edit(long? id)
         {
+            if (!_signManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Login", "Account");
+            }
             if (id == null)
             {
                 return NotFound();
             }
+            if (_context.Tests.Any(x => x.Id == id))
+            {
+                if (_context.Tests.FirstOrDefault(x => x.Id == id).ReleaseStatus != TestStatus.InProgress)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            else if (id != Consts.backUpTestId)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             if (id != Consts.backUpTestId)
             {
                 originalTestId = (long)id;
@@ -97,13 +131,11 @@ namespace Teststation.Controllers
                 .ToList())
             {
                 question.TestId = test.Id;
-                //_context.Questions.Add(question);
                 if (question.Choices != null)
                 {
                     foreach (var choice in question.Choices)
                     {
                         choice.QuestionId = question.Id;
-                        //_context.Choices.Add(choice);
                     }
                 }
             }
@@ -114,9 +146,7 @@ namespace Teststation.Controllers
                 .ToList())
             {
                 question.TestId = test.Id;
-                //_context.Questions.Add(question);
             }
-
 
             _context.Update(test);
             _context.SaveChanges();
@@ -462,9 +492,9 @@ namespace Teststation.Controllers
                 return NotFound();
             }
 
-            if (TestIsNotValid(test))
+            if (ErrorsOfTest(test).Count > 0)
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", new { errorTestId = test.Id });
             }
             test.ReleaseStatus = TestStatus.Public;
             _context.Tests.Update(test);
@@ -510,19 +540,20 @@ namespace Teststation.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TestIsNotValid(Test test)
+        private List<string> ErrorsOfTest(Test test)
         {
+            var errors = new List<string>();
             if (_context.Tests.Any(x => x.Id != test.Id && x.Topic == test.Topic && x.ReleaseStatus == TestStatus.Public))
             {
-                return true;//Ein öffentlicher Test mit dem gleichen Namen existiert schon.
+                errors.Add("Ungültiges Themengebiet!");//Ein öffentlicher Test mit dem gleichen Namen existiert schon.
             }
             if (test.Topic == Consts.fillerNameForNewTest)
             {
-                return true;//Der Name wurde nicht verändert.
+                errors.Add("Ungültiges Themengebiet!");//Der Name wurde nicht verändert.
             }
             if (test.Topic == null)
             {
-                return true;//Der Name ist leer.
+                errors.Add("Ungültiges Themengebiet!");//Der Name ist leer.
             }
 
             var allQuestions = _context.Questions
@@ -531,15 +562,15 @@ namespace Teststation.Controllers
 
             if (allQuestions.Count == 0)
             {
-                return true;//Der Test hat keine Fragen.
+                errors.Add("Der Test hat keine Fragen!");//Der Test hat keine Fragen.
             }
             if (allQuestions.Any(x => x.Text == null))
             {
-                return true;//Die Frage hat keinen Text.
+                errors.Add("Eine Frage hat einen Fehler!");//Die Frage hat keinen Text.
             }
             if (allQuestions.Any(x => x.Points == 0))
             {
-                return true;//Die Frage gibt keine Punkte.
+                errors.Add("Eine Frage hat einen Fehler!");//Die Frage gibt keine Punkte.
             }
 
             var mathQuestions = _context.MathQuestions
@@ -548,7 +579,7 @@ namespace Teststation.Controllers
 
             if (mathQuestions.Any(x => x.CorrectAnswer == null))
             {
-                return true;//Die Frage hat keine richtige Antwort.
+                errors.Add("Eine Frage hat keine richtige Antwort!");//Die Frage hat keine richtige Antwort.
             }
 
             var multipleChoiceQuestions = _context.MultipleChoiceQuestions
@@ -558,15 +589,15 @@ namespace Teststation.Controllers
 
             if (multipleChoiceQuestions.Any(x => x.Choices.Count == 0))
             {
-                return true;//Die Frage hat keine Antwortmöglichkeiten.
+                errors.Add("Eine Frage hat keine Antwortmöglichkeiten!");//Die Frage hat keine Antwortmöglichkeiten.
             }
 
             if (multipleChoiceQuestions.Any(x => x.Choices.Any(y => y.Text == null)))
             {
-                return true;//Die Antwortmöglichkeit hat keinen Text.
+                errors.Add("Eine Antwortmöglichkeit hat keinen Text!");//Die Antwortmöglichkeit hat keinen Text.
             }
 
-            return false;
+            return errors;
         }
     }
 }

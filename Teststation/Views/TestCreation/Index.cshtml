@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Test>
+﻿@model List<TestEntryViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tests";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -10,10 +10,10 @@
     <thead>
         <tr>
             <th width="35%">
-                @Html.DisplayNameFor(model => model.Topic)
+                Themengebiet
             </th>
             <th width="20%">
-                @Html.DisplayNameFor(model => model.ReleaseStatus)
+                Veröffentlichungsstatus
             </th>
             <th width="15%"></th>
             <th width="15%"></th>
@@ -25,9 +25,22 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => test.Topic)
+                    @Html.DisplayFor(modelItem => test.Test.Topic)
+
+                    @if (test.Errors != null)
+                    {
+                        <br />
+                        <ul class="errorList">
+                            @foreach (var error in test.Errors)
+                            {
+                                <li>
+                                    @error
+                                </li>
+                            }
+                        </ul>
+                    }
                 </td>
-                @switch (test.ReleaseStatus)
+                @switch (test.Test.ReleaseStatus)
                 {
                     case TestStatus.InProgress:
                         <td>In Bearbeitung</td>
@@ -43,16 +56,16 @@
                         break;
                 }
 
-                @switch (test.ReleaseStatus)
+                @switch (test.Test.ReleaseStatus)
                 {
                     case TestStatus.InProgress:
                         <td>
-                            <a asp-action="ReleaseTest" asp-route-id="@test.Id" class="btn btn-success buttonInMainList" onclick="return ConfirmReleaseTest('@test.Topic')">Veröffentlichen</a>
+                            <a asp-action="ReleaseTest" asp-route-id="@test.Test.Id" class="btn btn-success buttonInMainList" onclick="return ConfirmReleaseTest('@test.Test.Topic')">Veröffentlichen</a>
                         </td>
                         break;
                     case TestStatus.Public:
                         <td>
-                            <a asp-action="CloseTest" asp-route-id="@test.Id" class="btn btn-warning buttonInMainList" onclick="return ConfirmCloseTest('@test.Topic')">Sperren</a>
+                            <a asp-action="CloseTest" asp-route-id="@test.Test.Id" class="btn btn-warning buttonInMainList" onclick="return ConfirmCloseTest('@test.Test.Topic')">Sperren</a>
                         </td>
                         break;
                     case TestStatus.Closed:
@@ -68,9 +81,9 @@
                 }
 
                 <td>
-                    @if (test.ReleaseStatus == TestStatus.InProgress)
+                    @if (test.Test.ReleaseStatus == TestStatus.InProgress)
                     {
-                        <a asp-action="Edit" asp-route-id="@test.Id" class="btn btn-info buttonInMainList">Bearbeiten</a>
+                        <a asp-action="Edit" asp-route-id="@test.Test.Id" class="btn btn-info buttonInMainList">Bearbeiten</a>
                     }
                     else
                     {
@@ -78,10 +91,10 @@
                     }
                 </td>
                 <td>
-                    @if (test.ReleaseStatus == TestStatus.InProgress || test.ReleaseStatus == TestStatus.Closed)
+                    @if (test.Test.ReleaseStatus == TestStatus.InProgress || test.Test.ReleaseStatus == TestStatus.Closed)
                     {
-                        <a asp-action="Delete" asp-route-id="@test.Id"
-                           class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteTest('@test.Topic');">Löschen</a>
+                        <a asp-action="Delete" asp-route-id="@test.Test.Id"
+                           class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteTest('@test.Test.Topic');">Löschen</a>
                     }
                     else
                     {
