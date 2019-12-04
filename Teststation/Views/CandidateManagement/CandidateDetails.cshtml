@@ -14,7 +14,7 @@
     {
         resultText = Consts.goodGrade;
     }
-    ViewData["Title"] = "CandidateDetails";
+    ViewData["Title"] = "Testkandidat " + Model.UserInformation.User.UserName;
 }
 
 <h1>Details zu @Model.UserInformation.User.UserName</h1>
@@ -36,7 +36,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var test in Model.Tests)
+        @foreach (var test in Model.Tests.Where(x => x.Completed))
         {
             <tr>
                 <td>

@@ -23,30 +23,59 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> Index(long? testId)
         {
-            if (testId == null)
+            if (!_signManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (!TestIsValid(testId))
             {
                 return RedirectToAction("Index", "Home", 0);
             }
+            if (!UserIsValid())
+            {
+                return RedirectToAction("Index", "Home", 0);
+            }
+
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
             var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
-            var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == user.Id);
 
-            if (test.ReleaseStatus == TestStatus.InProgress)
+            if (!SessionIsValid(testId, user.Id))
             {
                 return RedirectToAction("Index", "Home", 0);
             }
-            if (session != null)
-            {
-                if (session.Completed)
-                {
-                    return RedirectToAction("Index", "Home", 0);
-                }
-            }
 
+            var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == user.Id);
             StartTime = DateTime.Now;
             return View(GetViewModel(test, session));
         }
 
+        private bool TestIsValid(long? testId)
+        {
+            if (_context.Tests.Any(x => x.Id == testId))
+            {
+                return _context.Tests.First(x => x.Id == testId).ReleaseStatus == TestStatus.Public;
+            }
+            return true;
+        }
+        private bool UserIsValid()
+        {
+            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
+            {
+                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role == UserRole.Candidate;
+            }
+            return true;
+        }
+        private bool SessionIsValid(long? testId, long? userId)
+        {
+            if (_context.Sessions.Any(x => x.TestId == testId && x.CandidateId == userId))
+            {
+                if(_context.Sessions.First(x => x.TestId == testId && x.CandidateId == userId).Completed)
+                {
+                    return false;
+                }                
+            }
+            return true;
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -151,7 +180,7 @@ namespace Teststation.Controllers
                                    x.TestId == model.TestId);
             if (session == null)
             {
-                _context.Sessions.Add(new Session { CandidateId = user.Id, TestId = model.TestId, Completed = Completed, Duration = new System.TimeSpan() });
+                _context.Sessions.Add(new Session { CandidateId = user.Id, TestId = model.TestId, Completed = Completed, Duration = (DateTime.Now - StartTime) });
             }
             else
             {

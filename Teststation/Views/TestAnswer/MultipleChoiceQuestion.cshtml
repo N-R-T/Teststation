@@ -8,13 +8,12 @@
 
 @for (int i = 0; i < Model.Choices.Count; i++)
 {
-
     <input name="model.Questions[@(Model.Position)].Choices[@(i)].Id" type="text" class="form-control" value="@Model.Choices[i].Id" hidden />
     <input name="model.Questions[@(Model.Position)].Choices[@(i)].QuestionId" type="text" class="form-control" value="@Model.Choices[i].QuestionId" hidden />
     <div class="row">
         <div class="col-sm-1">
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-5">
             <div class="questionText form-control"> @Model.Choices[i].Text</div>
         </div>
         <div class="col-sm-2">

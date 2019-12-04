@@ -23,6 +23,10 @@ namespace Teststation.Controllers
         }
         public IActionResult CandidateList()
         {
+            if (!_signManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var candidates = _context.UserInformation
                 .Where(x => x.Role == UserRole.Candidate)
                 .ToList();
@@ -43,6 +47,14 @@ namespace Teststation.Controllers
 
         public IActionResult CandidateDetails(string id)
         {
+            if (!_signManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (!_context.Users.Any(x=>x.Id == id))
+            {
+                return RedirectToAction("CandidateList");
+            }
             var viewModel = new CandidateSessionViewModel();
             var testList = new List<TestCandidateViewModel>();
             var tests = _context.Tests.Where(x => x.ReleaseStatus == TestStatus.Public).ToList();

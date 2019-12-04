@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Test>
+﻿@model List<TestEntryViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tests";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -10,10 +10,10 @@
     <thead>
         <tr>
             <th width="35%">
-                @Html.DisplayNameFor(model => model.Topic)
+                Themengebiet
             </th>
             <th width="20%">
-                @Html.DisplayNameFor(model => model.ReleaseStatus)
+                Veröffentlichungsstatus
             </th>
             <th width="15%"></th>
             <th width="15%"></th>
@@ -21,63 +21,87 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var test in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Topic)
-            </td>
-            @switch (item.ReleaseStatus)
-            {
-                case TestStatus.InProgress:
-                    <td>In Bearbeitung</td>
-                    break;
-                case TestStatus.Public:
-                    <td>Öffentlich</td>
-                    break;
-                default:
-                    <td>Fehler</td>
-                    break;
-            }
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => test.Test.Topic)
 
+                    @if (test.Errors != null)
+                    {
+                        <br />
+                        <ul class="errorList">
+                            @foreach (var error in test.Errors)
+                            {
+                                <li>
+                                    @error
+                                </li>
+                            }
+                        </ul>
+                    }
+                </td>
+                @switch (test.Test.ReleaseStatus)
+                {
+                    case TestStatus.InProgress:
+                        <td>In Bearbeitung</td>
+                        break;
+                    case TestStatus.Public:
+                        <td>Öffentlich</td>
+                        break;
+                    case TestStatus.Closed:
+                        <td>Gesperrt</td>
+                        break;
+                    default:
+                        <td>Fehler</td>
+                        break;
+                }
 
-            <td>
-                @if (item.ReleaseStatus == TestStatus.InProgress)
+                @switch (test.Test.ReleaseStatus)
                 {
-                    <a asp-action="Release" asp-route-id="@item.Id" class="btn btn-success buttonInMainList" onclick="return ConfirmReleaseTest('@item.Topic')">Veröffentlichen</a>
+                    case TestStatus.InProgress:
+                        <td>
+                            <a asp-action="ReleaseTest" asp-route-id="@test.Test.Id" class="btn btn-success buttonInMainList" onclick="return ConfirmReleaseTest('@test.Test.Topic')">Veröffentlichen</a>
+                        </td>
+                        break;
+                    case TestStatus.Public:
+                        <td>
+                            <a asp-action="CloseTest" asp-route-id="@test.Test.Id" class="btn btn-warning buttonInMainList" onclick="return ConfirmCloseTest('@test.Test.Topic')">Sperren</a>
+                        </td>
+                        break;
+                    case TestStatus.Closed:
+                        <td>
+                            <button class="btn btn-warning buttonInMainList" disabled>Sperren</button>
+                        </td>
+                        break;
+                    default:
+                        <td>
+                            Fehler
+                        </td>
+                        break;
                 }
-                else
-                {
-                    <environment include="Development">
-                        <a asp-action="Regress" asp-route-id="@item.Id" class="btn btn-success buttonInMainList">Privatisieren</a>
-                    </environment>
-                    <environment exclude="Development">
-                        <button class="btn btn-success buttonInMainList" disabled>Veröffentlichen</button>
-                    </environment>
-                }
-            </td>
-            <td>
-                @if (item.ReleaseStatus == TestStatus.InProgress)
-                {
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info buttonInMainList">Bearbeiten</a>
-                }
-                else
-                {
-                    <button class="btn btn-info buttonInMainList" disabled>Bearbeiten</button>
-                }
-            </td>
-            <td>
-                @if (item.ReleaseStatus == TestStatus.InProgress)
-                {
-                    <a asp-action="Delete" asp-route-id="@item.Id"
-                       class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteTest('@item.Topic');">Löschen</a>
-                }
-                else
-                {
-                    <button class="btn btn-danger buttonInMainList" disabled>Löschen</button>
-                }
-            </td>
-        </tr>
+
+                <td>
+                    @if (test.Test.ReleaseStatus == TestStatus.InProgress)
+                    {
+                        <a asp-action="Edit" asp-route-id="@test.Test.Id" class="btn btn-info buttonInMainList">Bearbeiten</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-info buttonInMainList" disabled>Bearbeiten</button>
+                    }
+                </td>
+                <td>
+                    @if (test.Test.ReleaseStatus == TestStatus.InProgress || test.Test.ReleaseStatus == TestStatus.Closed)
+                    {
+                        <a asp-action="Delete" asp-route-id="@test.Test.Id"
+                           class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteTest('@test.Test.Topic');">Löschen</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-danger buttonInMainList" disabled>Löschen</button>
+                    }
+                </td>
+            </tr>
         }
         <tr>
             <td colspan="5">

@@ -23,7 +23,7 @@
     </div>
     <div class="row">
         <div class="col-sm-6">
-            <div class="questionText form-control">@Model.Text</div>
+            <textarea class="questionText form-control" readonly>@Model.Text</textarea>
         </div>
         <div class="col-sm-3">
             @if (Model.Type == "MathQuestion")

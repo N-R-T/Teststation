@@ -1,0 +1,37 @@
+﻿@model Teststation.Models.EvaluationViewModel
+
+@foreach (var question in Model.Questions)
+{
+    <div class="questionBlock">
+        <div class="row">
+            <div class="col-sm-1">
+                <div class="questionText form-control">@(question.Position + 1).</div>
+            </div>
+            <div class="col-sm-3">
+
+            </div>
+            <div class="col-sm-2">
+                <div class="questionText form-control answerTextInEvaluation questionPointsText">@Model.GetPointsOfQuestion(question) / @question.Points</div>
+            </div>
+        </div>
+        @if (question is MathQuestion)
+        {
+            Answer mathAnswer = Model.Answers
+        .SingleOrDefault(x => x.GetQuestion().Id == question.Id) as MathAnswer;
+            <partial name="MathQuestion" model="@mathAnswer" />
+        }
+        else
+        {
+            var viewModel = new MultipleChoiceEvalutionViewModel();
+            viewModel.GivenAnswers = Model.Answers
+                .Where(x => x is MultipleChoiceAnswer)
+                .Select(y => y as MultipleChoiceAnswer)
+                .Where(z => z.GetQuestion().Id == question.Id)
+                .ToList();
+            viewModel.Question = question as MultipleChoiceQuestion;
+
+            <partial name="MultipleChoiceQuestion" model="@viewModel" />
+        }
+    </div>
+    <hr />
+}
