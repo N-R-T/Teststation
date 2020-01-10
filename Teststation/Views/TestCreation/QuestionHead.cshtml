@@ -38,7 +38,7 @@
                 <div class="input-group-prepend">
                     <span class="btn btn-info input-group-text item-info">Punktzahl:</span>
                 </div>
-                <input name="model.Questions[@(Model.Position)].Points" type="text" class="btn btn-info form-control inline-buttons input-info" value="@Model.Points" />
+                <input name="model.Questions[@(Model.Position)].Points" type="text" class="btn btn-info form-control inline-buttons input-info numInputJS" value="@Model.Points" />
             </div>
         </div>
         <div class="col-sm-2">
@@ -52,7 +52,7 @@
         <div class="col-sm-3">
             @if (Model.Type == "MathQuestion")
             {
-                <input name="model.Questions[@(Model.Position)].CorrectAnswer" type="text" class="form-control" value="@Model.CorrectAnswer" placeholder="Korrekte Antwort" required />
+                <input name="model.Questions[@(Model.Position)].CorrectAnswer" type="text" class="form-control numInputJS" value="@Model.CorrectAnswer" placeholder="Korrekte Antwort" required />
             }
         </div>
     </div>

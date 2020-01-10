@@ -23,9 +23,9 @@ namespace Teststation.Controllers
         }
         public IActionResult CandidateList()
         {
-            if (!_signManager.IsSignedIn(User))
+            if (IsNotAdmin())
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Home");
             }
             var candidates = _context.UserInformation
                 .Where(x => x.Role == UserRole.Candidate)
@@ -47,9 +47,9 @@ namespace Teststation.Controllers
 
         public IActionResult CandidateDetails(string id)
         {
-            if (!_signManager.IsSignedIn(User))
+            if (IsNotAdmin())
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Home");
             }
             if (!_context.Users.Any(x=>x.Id == id))
             {
@@ -97,6 +97,10 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> DeleteCandidate(string id)
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             var user = _context.Users.FirstOrDefault(x => x.Id == id);
             user.UserName =
                 user.NormalizedUserName =
@@ -115,6 +119,10 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> DeleteSession(long testId, string userId)
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             var user = _context.UserInformation.FirstOrDefault(x => x.UserId == userId);
             var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == user.Id);
             var mathAnswers = _context.MathAnswers.Where(x => x.CandidateId == user.Id && x.Question.TestId == testId);
@@ -125,6 +133,19 @@ namespace Teststation.Controllers
             _context.Sessions.Remove(session);
             _context.SaveChanges();
             return RedirectToAction("CandidateDetails", new { id = userId });
+        }
+
+        private bool IsNotAdmin()
+        {
+            if (!_signManager.IsSignedIn(User))
+            {
+                return true;
+            }
+            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
+            {
+                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role != UserRole.Admin;
+            }
+            return false;
         }
     }
 }

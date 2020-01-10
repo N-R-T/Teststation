@@ -24,8 +24,12 @@ namespace Teststation.Controllers
         }
 
         [HttpGet]
-        public ViewResult Register()
+        public IActionResult Register()
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
@@ -90,6 +94,19 @@ namespace Teststation.Controllers
             }
             ModelState.AddModelError("", "Invalid login attempt");
             return View(model);
+        }
+
+        private bool IsNotAdmin()
+        {
+            if (!_signManager.IsSignedIn(User))
+            {
+                return true;
+            }
+            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
+            {
+                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role != UserRole.Admin;
+            }
+            return false;
         }
     }
 }

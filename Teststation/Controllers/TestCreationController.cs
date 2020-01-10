@@ -22,9 +22,9 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> Index(long? errorTestId)
         {
-            if (!_signManager.IsSignedIn(User))
+            if (IsNotAdmin())
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Home");
             }
             var viewModel = new List<TestEntryViewModel>();
             var tests = await _context.Tests.ToListAsync();
@@ -43,6 +43,10 @@ namespace Teststation.Controllers
         #region Neuen Test erstellen
         public async Task<IActionResult> Create()
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             var test = new Test { Topic = Consts.fillerNameForNewTest };
             _context.Add(test);
             await _context.SaveChangesAsync();
@@ -53,9 +57,9 @@ namespace Teststation.Controllers
         #region Test bearbeiten
         public async Task<IActionResult> Edit(long? id)
         {
-            if (!_signManager.IsSignedIn(User))
+            if (IsNotAdmin())
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Home");
             }
             if (id == null)
             {
@@ -330,14 +334,27 @@ namespace Teststation.Controllers
         public async Task<IActionResult> AddMultipleChoiceQuestion(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
             SaveTest(TestCreationTransformer.TransformToTest(model));
-            var newQuestion = new MultipleChoiceQuestion();
-
-            newQuestion.TestId = Consts.backUpTestId;
-            newQuestion.Position = _context.Questions.Where(x => x.TestId == Consts.backUpTestId).Count();
-            newQuestion.Points = 1;
+            var newQuestion = new MultipleChoiceQuestion
+            {
+                TestId = Consts.backUpTestId,
+                Position = _context.Questions.Where(x => x.TestId == Consts.backUpTestId).Count(),
+                Points = 1
+            };
 
             _context.Add(newQuestion);
             await _context.SaveChangesAsync();
+
+            newQuestion = _context.Questions.FirstOrDefault(x => x.Id == newQuestion.Id) as MultipleChoiceQuestion;
+            _context.Add(new Choice
+            {
+                QuestionId = newQuestion.Id
+            });
+            _context.Add(new Choice
+            {
+                QuestionId = newQuestion.Id
+            });
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Edit", new { id });
         }
 
@@ -413,6 +430,10 @@ namespace Teststation.Controllers
         #region Löschen
         public async Task<IActionResult> Delete(long? id)
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             if (id == null)
             {
                 return NotFound();
@@ -480,6 +501,10 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> ReleaseTest(long? id)
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             if (id == null)
             {
                 return NotFound();
@@ -504,6 +529,10 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> CloseTest(long? id)
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             if (id == null)
             {
                 return NotFound();
@@ -523,6 +552,10 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> Regress(long? id)
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             if (id == null)
             {
                 return NotFound();
@@ -598,6 +631,19 @@ namespace Teststation.Controllers
             }
 
             return errors;
+        }
+
+        private bool IsNotAdmin()
+        {
+            if (!_signManager.IsSignedIn(User))
+            {
+                return true;
+            }
+            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
+            {
+                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role != UserRole.Admin;
+            }
+            return false;
         }
     }
 }
