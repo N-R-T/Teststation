@@ -76,7 +76,12 @@ namespace Teststation.Controllers
                     testRow.Result = Consts.resultIfEvaluationHasErrors;
                     if (evaluation.Answers != null && evaluation.Answers.Count != 0)
                     {
-                        testRow.Result = evaluation.GetPercentage();
+                        try
+                        {
+                            testRow.Result = evaluation.GetPercentage();
+                        }
+                        catch
+                        {}                        
                     }
                     testRow.Duration = session.Duration;
                     testRow.Completed = session.Completed;

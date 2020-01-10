@@ -5,17 +5,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teststation.Models;
+using User = Microsoft.AspNetCore.Identity.IdentityUser;
 
 namespace Teststation.Controllers
 {
     public class TestCreationController : Controller
     {
-        private SignInManager<IdentityUser> _signManager;
+        private UserManager<User> _userManager;
+        private SignInManager<User> _signManager;
         private readonly Database _context;
         private static long originalTestId;
 
-        public TestCreationController(Database context, SignInManager<IdentityUser> signManager)
+        public TestCreationController(Database context, UserManager<User> userManager, SignInManager<User> signManager)
         {
+            _userManager = userManager;
             _signManager = signManager;
             _context = context;
         }
