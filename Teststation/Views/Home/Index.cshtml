@@ -6,4 +6,4 @@
     ViewData["Title"] = "Startseite";
 }
 
-<h2>Hallo @UserManager.GetUserName(User)!</h2>
+<h2>Hallo @StringReplacer.ConvertFromDatabase(UserManager.GetUserName(User))!</h2>

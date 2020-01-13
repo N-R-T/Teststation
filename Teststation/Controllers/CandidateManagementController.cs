@@ -39,7 +39,7 @@ namespace Teststation.Controllers
                 {
                     UserInformation = candidate,
                     UserId = candidate.User.Id,
-                    Name = candidate.User.UserName,
+                    Name = StringReplacer.ConvertFromDatabase(candidate.User.UserName),
                 });
             }
             return View(candidateList);
@@ -60,6 +60,8 @@ namespace Teststation.Controllers
             var tests = _context.Tests.Where(x => x.ReleaseStatus == TestStatus.Public).ToList();
             viewModel.UserInformation = _context.UserInformation.FirstOrDefault(x => x.UserId == id);
             viewModel.UserInformation.User = _context.Users.FirstOrDefault(x => x.Id == id);
+            viewModel.UserInformation.User.UserName = StringReplacer.ConvertFromDatabase(viewModel.UserInformation.User.UserName);
+
 
             foreach (var test in tests)
             {

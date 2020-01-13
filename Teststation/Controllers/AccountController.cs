@@ -42,7 +42,8 @@ namespace Teststation.Controllers
                 {
                     return View();
                 }
-                var user = new User { UserName = model.Username, Email = model.Username };
+                var userName = StringReplacer.ConvertToDatabase(model.Username);
+                var user = new User { UserName = userName, Email = model.Username };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -81,11 +82,12 @@ namespace Teststation.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signManager.PasswordSignInAsync(model.Username,
+                var userName = StringReplacer.ConvertToDatabase(model.Username);
+                var result = await _signManager.PasswordSignInAsync(userName,
                            model.Password, true, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
-                    var userInformation = _context.UserInformation.FirstOrDefault(x => x.User.UserName == model.Username);
+                    var userInformation = _context.UserInformation.FirstOrDefault(x => x.User.UserName == userName);
                     userInformation.DayOfLastActivity = DateTime.Now;
                     _context.UserInformation.Update(userInformation);
                     _context.SaveChanges();

@@ -19,7 +19,14 @@
                     <input class="form-check-input inline-buttons form-control choiceCheckbox" asp-for="Choices[i].Correct" name="model.Questions[@(Model.Position)].Choices[@(i)].Correct" />
                 </div>
                 <div class="col-sm-1">
-                    <button type="submit" class="btn btn-danger glyphicon glyphicon-remove inline-buttons" asp-action="DeleteChoice" asp-route-id="@Model.Choices[i].Id" formnovalidate onclick="Leaving();"></button>
+                    @if (Model.Choices.Count > 2)
+                    {
+                        <button type="submit" class="btn btn-danger glyphicon glyphicon-remove inline-buttons" asp-action="DeleteChoice" asp-route-id="@Model.Choices[i].Id" formnovalidate onclick="Leaving();"></button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-danger glyphicon glyphicon-remove inline-buttons" disabled></button>
+                    }
                 </div>
             </div>
         </div>

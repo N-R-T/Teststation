@@ -37,6 +37,7 @@ namespace Teststation.Controllers
             }
 
             var viewModel = new EvaluationViewModel(test, user.Id, _context);
+            viewModel.UserName = StringReplacer.ConvertFromDatabase(viewModel.UserName);
             return View(viewModel);
         }
 
@@ -50,6 +51,7 @@ namespace Teststation.Controllers
             var user = _context.UserInformation.FirstOrDefault(x => x.Id == userId);
 
             var viewModel = new EvaluationViewModel(test, user.Id, _context);
+            viewModel.UserName = StringReplacer.ConvertFromDatabase(viewModel.UserName);
             return View(viewModel);
         }
 
