@@ -24,8 +24,12 @@ namespace Teststation.Controllers
         }
 
         [HttpGet]
-        public ViewResult Register()
+        public IActionResult Register()
         {
+            if (IsNotAdmin())
+            {
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
@@ -38,7 +42,8 @@ namespace Teststation.Controllers
                 {
                     return View();
                 }
-                var user = new User { UserName = model.Username, Email = model.Username };
+                var userName = StringReplacer.ConvertToDatabase(model.Username);
+                var user = new User { UserName = userName, Email = model.Username };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -77,11 +82,12 @@ namespace Teststation.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signManager.PasswordSignInAsync(model.Username,
+                var userName = StringReplacer.ConvertToDatabase(model.Username);
+                var result = await _signManager.PasswordSignInAsync(userName,
                            model.Password, true, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
-                    var userInformation = _context.UserInformation.FirstOrDefault(x => x.User.UserName == model.Username);
+                    var userInformation = _context.UserInformation.FirstOrDefault(x => x.User.UserName == userName);
                     userInformation.DayOfLastActivity = DateTime.Now;
                     _context.UserInformation.Update(userInformation);
                     _context.SaveChanges();
@@ -90,6 +96,19 @@ namespace Teststation.Controllers
             }
             ModelState.AddModelError("", "Invalid login attempt");
             return View(model);
+        }
+
+        private bool IsNotAdmin()
+        {
+            if (!_signManager.IsSignedIn(User))
+            {
+                return true;
+            }
+            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
+            {
+                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role != UserRole.Admin;
+            }
+            return false;
         }
     }
 }

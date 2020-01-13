@@ -1,4 +1,6 @@
-﻿namespace Teststation.Models
+﻿using System;
+
+namespace Teststation.Models
 {
     public class MathAnswer : Answer
     {
@@ -8,7 +10,7 @@
 
         public override bool IsCorrect()
         {
-            return GivenAnswer == Question.CorrectAnswer;
+            return Convert.ToDouble(GivenAnswer) == Convert.ToDouble(Question.CorrectAnswer);
         }
 
         public override Question GetQuestion()

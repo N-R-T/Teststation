@@ -22,21 +22,22 @@ namespace Teststation.Controllers
         {
             if (!_signManager.IsSignedIn(User))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Home");
             }
             if (!TestIsValid(testId))
             {
-                return RedirectToAction("Index", "Home", 0);
+                return RedirectToAction("Index", "Home");
             }
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
             var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
 
             if (!SessionIsValid(testId, user.Id))
             {
-                return RedirectToAction("Index", "Home", 0);
+                return RedirectToAction("Index", "Home");
             }
 
             var viewModel = new EvaluationViewModel(test, user.Id, _context);
+            viewModel.UserName = StringReplacer.ConvertFromDatabase(viewModel.UserName);
             return View(viewModel);
         }
 
@@ -44,12 +45,13 @@ namespace Teststation.Controllers
         {
             if (!ParametersAreValid(testId, userId))
             {
-                return RedirectToAction("Index", "Home", 0);
+                return RedirectToAction("Index", "Home");
             }
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
             var user = _context.UserInformation.FirstOrDefault(x => x.Id == userId);
 
             var viewModel = new EvaluationViewModel(test, user.Id, _context);
+            viewModel.UserName = StringReplacer.ConvertFromDatabase(viewModel.UserName);
             return View(viewModel);
         }
 
@@ -77,6 +79,10 @@ namespace Teststation.Controllers
             {
                 return false;
             }
+            if (_context.Tests.Any(x => x.Id == testId))
+            {
+                return _context.Tests.First(x => x.Id == testId).ReleaseStatus != TestStatus.InProgress;
+            }
             return _context.Tests.Any(x => x.Id == testId);
         }
 
@@ -91,7 +97,7 @@ namespace Teststation.Controllers
             {
                 return _context.Sessions.First(x => x.TestId == testId && x.CandidateId == userId).Completed;
             }
-            return true;
+            return _context.Sessions.Any(x => x.TestId == testId && x.CandidateId == userId);
         }
 
         public PartialViewResult QuestionHead(Answer answer)

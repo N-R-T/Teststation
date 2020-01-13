@@ -33,7 +33,7 @@ namespace Teststation.Controllers
             }
             if (!UserIsValid())
             {
-                return RedirectToAction("Index", "Home", 0);
+                return RedirectToAction("Index", "Home");
             }
 
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
@@ -41,7 +41,7 @@ namespace Teststation.Controllers
 
             if (!SessionIsValid(testId, user.Id))
             {
-                return RedirectToAction("Index", "Home", 0);
+                return RedirectToAction("Index", "Home");
             }
 
             var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == user.Id);
@@ -82,7 +82,7 @@ namespace Teststation.Controllers
         public async Task<IActionResult> Break(long id, [Bind("TestId,SessionId,Questions")] TestAnswerViewModel model)
         {
             SaveSession(model, false);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
