@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@model Teststation.Models.ViewModels.QuoteViewModel
+
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
@@ -6,4 +8,10 @@
     ViewData["Title"] = "Startseite";
 }
 
-<h2>Hallo @StringReplacer.ConvertFromDatabase(UserManager.GetUserName(User))!</h2>
+<h2>Hallo @UserManager.GetUserName(User)!</h2>
+<br />
+<br />
+<h4>Zitat:</h4>
+<label>@Model.Quote</label>
+<br />
+<label style="margin-left:10px"> ~ @Model.Person</label>

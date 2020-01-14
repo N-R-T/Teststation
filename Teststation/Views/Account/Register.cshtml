@@ -16,7 +16,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Password"></label>
-                <input asp-for="Password"  class="form-control" required/>
+                <input asp-for="Password"  class="form-control" type="text" required minlength="@Consts.minimalPasswordLength"/>
                 <span asp-validation-for="Password"></span>
             </div>
 

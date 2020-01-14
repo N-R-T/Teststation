@@ -39,7 +39,7 @@ namespace Teststation.Controllers
                 {
                     UserInformation = candidate,
                     UserId = candidate.User.Id,
-                    Name = StringReplacer.ConvertFromDatabase(candidate.User.UserName),
+                    Name = candidate.User.UserName,
                 });
             }
             return View(candidateList);
@@ -55,50 +55,7 @@ namespace Teststation.Controllers
             {
                 return RedirectToAction("CandidateList");
             }
-            var viewModel = new CandidateSessionViewModel();
-            var testList = new List<TestCandidateViewModel>();
-            var tests = _context.Tests.Where(x => x.ReleaseStatus == TestStatus.Public).ToList();
-            viewModel.UserInformation = _context.UserInformation.FirstOrDefault(x => x.UserId == id);
-            viewModel.UserInformation.User = _context.Users.FirstOrDefault(x => x.Id == id);
-            viewModel.UserInformation.User.UserName = StringReplacer.ConvertFromDatabase(viewModel.UserInformation.User.UserName);
-
-
-            foreach (var test in tests)
-            {
-                var session = _context.Sessions.FirstOrDefault(x => x.TestId == test.Id && x.CandidateId == viewModel.UserInformation.Id);
-                var testRow = new TestCandidateViewModel();
-
-                testRow.Test = test;
-                testRow.IsStarted = session != null;
-
-
-                if (testRow.IsStarted)
-                {
-                    var evaluation = new EvaluationViewModel(test, viewModel.UserInformation.Id, _context);
-                    testRow.Result = Consts.resultIfEvaluationHasErrors;
-                    if (evaluation.Answers != null && evaluation.Answers.Count != 0)
-                    {
-                        try
-                        {
-                            testRow.Result = evaluation.GetPercentage();
-                        }
-                        catch
-                        {}                        
-                    }
-                    testRow.Duration = session.Duration;
-                    testRow.Completed = session.Completed;
-                }
-                else
-                {
-                    testRow.Duration = new TimeSpan();
-                    testRow.Result = 0;
-                    testRow.Completed = false;
-                }
-
-                testList.Add(testRow);
-            }
-
-            viewModel.Tests = testList;
+            var viewModel = new CandidateSessionViewModel(_context, id);           
             return View(viewModel);
         }
 

@@ -1,20 +1,4 @@
-﻿@model IEnumerable<Teststation.Models.TestCandidateViewModel>
-@{
-    var finishedTests = Model.Where(x => x.Completed).ToList();
-    var ammountTests = finishedTests.Count;
-    double resultSum = 0;
-    foreach (var finishedTest in finishedTests)
-    {
-        resultSum += finishedTest.Result;
-    }
-    var wholeResult = resultSum / ammountTests;
-
-    var resultText = Consts.badGrade;
-    if (wholeResult * 100 >= Consts.neededPercentage)
-    {
-        resultText = Consts.goodGrade;
-    }
-}
+﻿@model Teststation.Models.CandidateSessionViewModel
 
 <table class="table">
     <thead>
@@ -25,7 +9,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var test in Model)
+        @foreach (var test in Model.Tests)
         {
             <tr>
                 <td>
@@ -68,12 +52,12 @@
                     <label>Gesamtpunktzahl:</label>
                 </h5>
                 <h4>
-                    <label>@resultText</label>
+                    <label>@Model.ResultText</label>
                 </h4>
             </td>
             <td>
                 <h5>
-                    <label>@(wholeResult.ToString("P"))</label>
+                    <label>@Model.WholeResult</label>
                 </h5>
             </td>
         </tr>

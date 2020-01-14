@@ -1,19 +1,5 @@
 ﻿@model Teststation.Models.CandidateSessionViewModel
-@{
-    var finishedTests = Model.Tests.Where(x => x.Completed).ToList();
-    var ammountTests = finishedTests.Count;
-    double resultSum = 0;
-    foreach (var finishedTest in finishedTests)
-    {
-        resultSum += finishedTest.Result;
-    }
-    var wholeResult = (double)resultSum / (double)ammountTests;
-
-    var resultText = Consts.badGrade;
-    if (wholeResult * 100 >= Consts.neededPercentage)
-    {
-        resultText = Consts.goodGrade;
-    }
+@{    
     ViewData["Title"] = "Testkandidat " + Model.UserInformation.User.UserName;
 }
 
@@ -73,20 +59,17 @@
             </tr>
         }
     </tbody>
-    <tfoot>
-        @if (!Model.Tests.Any(x => x.Result == Consts.resultIfEvaluationHasErrors))
-        {
+    <tfoot>        
             <tr>
                 <td colspan="4">
                     <h5>
-                        <label>Gesamtpunktzahl: @(wholeResult.ToString("P"))</label>
+                        <label>Gesamtpunktzahl: @Model.WholeResult</label>
                     </h5>
                     <h4>
-                        <label>@resultText</label>
+                        <label>@Model.ResultText</label>
                     </h4>
                 </td>
-            </tr>
-        }
+            </tr>        
     </tfoot>
 </table>
 

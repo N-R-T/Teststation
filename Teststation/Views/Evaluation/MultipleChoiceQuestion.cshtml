@@ -26,20 +26,20 @@
 
 <div class="choiceBlock">
     <div class="row ">
-        <div class="col-sm-2"></div>
+        <div class="col-sm-1"></div>
 
-        <div class="col-sm-4">
+        <div class="col-sm-5">
             @if (userChecked && choice.Correct)
             {
-                <div class="questionText form-control correctAnswer"> @choice.Text</div>
+                <textarea class="questionText form-control correctAnswer">@choice.Text</textarea>
             }
             else if (!userChecked && choice.Correct || userChecked && !choice.Correct)
             {
-                <div class="questionText form-control falseAnswer"> @choice.Text</div>
+                <textarea class="questionText form-control falseAnswer">@choice.Text</textarea>
             }
             else if (!userChecked && !choice.Correct)
             {
-                <div class="questionText form-control nonRelevantAnswer"> @choice.Text</div>
+                <textarea class="questionText form-control nonRelevantAnswer">@choice.Text</textarea>
             }
         </div>
         <div class="col-sm-1"></div>

@@ -29,7 +29,7 @@ namespace Teststation.Controllers
             }
             if (!TestIsValid(testId))
             {
-                return RedirectToAction("Index", "Home", 0);
+                return RedirectToAction("Index", "Home");
             }
             if (!UserIsValid())
             {
@@ -112,7 +112,15 @@ namespace Teststation.Controllers
                       .Where(x => x.Type == "MathQuestion")
                       .ToList())
                 {
-                    question.GivenAnswer = _context.MathAnswers.FirstOrDefault(x => x.QuestionId == question.Id && x.CandidateId == user.Id).GivenAnswer;
+                    var answer = _context.MathAnswers.FirstOrDefault(x => x.QuestionId == question.Id && x.CandidateId == user.Id);
+                    if (answer != null)
+                    {
+                        question.GivenAnswer = answer.GivenAnswer;
+                    }
+                    else
+                    {
+                        question.GivenAnswer = String.Empty;
+                    }
                 }
 
                 foreach (var question in viewModel.Questions

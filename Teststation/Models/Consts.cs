@@ -10,6 +10,7 @@ namespace Teststation.Models
         public const long backUpTestId = 10;
         public const string fillerNameForNewTest = "Neuer Test";
         public const double resultIfEvaluationHasErrors = 666.66;
-        public const int minimalPasswordLength = 4;
+        public const int minimalPasswordLength = 5;
+        public const string quoteUserName = "@@@";
     }
 }

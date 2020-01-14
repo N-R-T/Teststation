@@ -37,13 +37,18 @@ namespace Teststation
                 options.Password.RequiredUniqueChars = 1;
 
                 // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+                options.Lockout.MaxFailedAccessAttempts = 50;
                 options.Lockout.AllowedForNewUsers = true;
 
                 // User settings.
                 options.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                "abcdefghijklmnopqrstuvwxyz" +
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+                "áéíóúýâêîôûàèìòù" +
+                "ÁÉÍÓÚÝÂÊÎÔÛÀÈÌÒÙ" +
+                "´`^?!ß<>,;:*~(){}[]§$-._@+" +
+                "0123456789";
                 options.User.RequireUniqueEmail = false;
             });
 
@@ -51,11 +56,17 @@ namespace Teststation
             {
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(600);                
 
                 options.LoginPath = "/Identity/Account/Login";
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
+            });
+
+            services.AddSession(options =>
+            {
+                options.Cookie.Expiration = TimeSpan.FromMinutes(600);
+                options.IdleTimeout = TimeSpan.FromMinutes(600);
             });
         }
 
@@ -85,6 +96,7 @@ namespace Teststation
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
+            
         }
     }
 }

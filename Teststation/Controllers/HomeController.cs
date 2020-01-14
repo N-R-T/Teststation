@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using Teststation.Models;
+using Teststation.Models.ViewModels;
 using User = Microsoft.AspNetCore.Identity.IdentityUser;
 
 
@@ -28,7 +29,8 @@ namespace Teststation.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            return View();
+            Quotes.SetRandomQoute(_userManager.GetUserName(User));
+            return View(Quotes.currentQuote);
         }
 
         public IActionResult Privacy()
