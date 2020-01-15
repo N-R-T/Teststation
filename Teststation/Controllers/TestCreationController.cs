@@ -15,6 +15,7 @@ namespace Teststation.Controllers
         private SignInManager<User> _signManager;
         private readonly Database _context;
         private static long originalTestId;
+        private static string lastChangedQuestion;
 
         public TestCreationController(Database context, UserManager<User> userManager, SignInManager<User> signManager)
         {
@@ -83,11 +84,13 @@ namespace Teststation.Controllers
             if (id != Consts.backUpTestId)
             {
                 originalTestId = (long)id;
-                return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+                return RedirectToAction("Edit", "TestCreation", new { id = Consts.backUpTestId }, lastChangedQuestion);
             }
 
             var backUpTest = CreateBackUp();
-            return View(TestCreationTransformer.TransformToTestCreationViewModel(backUpTest));
+            var viewModel = TestCreationTransformer.TransformToTestCreationViewModel(backUpTest);
+            viewModel.LastChangedQuestion = lastChangedQuestion;            
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -332,7 +335,8 @@ namespace Teststation.Controllers
 
             _context.Add(newQuestion);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id });
+
+            return RedirectToAction("Edit", "TestCreation", new { id }, newQuestion.Id.ToString());
         }
         public async Task<IActionResult> AddMultipleChoiceQuestion(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
@@ -358,7 +362,7 @@ namespace Teststation.Controllers
             });
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Edit", new { id });
+            return RedirectToAction("Edit", "TestCreation", new { id }, newQuestion.Id.ToString());
         }
 
         public async Task<IActionResult> AddChoice(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
@@ -370,7 +374,8 @@ namespace Teststation.Controllers
             await _context.SaveChangesAsync();
 
             var question = await _context.Questions.FirstOrDefaultAsync(x => x.Id == id);
-            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+
+            return RedirectToAction("Edit", "TestCreation", new { id = Consts.backUpTestId }, id.ToString());
         }
 
         public async Task<IActionResult> PushQuestionUp(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
@@ -383,7 +388,7 @@ namespace Teststation.Controllers
             _context.Update(question);
             _context.Update(otherQuestion);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+            return RedirectToAction("Edit", "TestCreation", new { id = Consts.backUpTestId }, id.ToString());
         }
 
         public async Task<IActionResult> PushQuestionDown(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
@@ -396,7 +401,7 @@ namespace Teststation.Controllers
             _context.Update(question);
             _context.Update(otherQuestion);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+            return RedirectToAction("Edit", "TestCreation", new { id = Consts.backUpTestId }, id.ToString());
         }
 
         public async Task<IActionResult> DeleteQuestion(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
@@ -417,16 +422,18 @@ namespace Teststation.Controllers
 
             _context.Remove(oldQuestion);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+            return RedirectToAction("Edit", "TestCreation", new { id = Consts.backUpTestId }, id.ToString());
         }
 
         public async Task<IActionResult> DeleteChoice(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
             SaveTest(TestCreationTransformer.TransformToTest(model));
+            
             var oldChoice = await _context.Choices.FindAsync(id);
+            var question = await _context.Questions.FindAsync(oldChoice.QuestionId);
             _context.Remove(oldChoice);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", new { id = Consts.backUpTestId });
+            return RedirectToAction("Edit", "TestCreation", new { id = Consts.backUpTestId }, question.Id.ToString());
         }
         #endregion
 
@@ -631,6 +638,11 @@ namespace Teststation.Controllers
             if (multipleChoiceQuestions.Any(x => x.Choices.Any(y => y.Text == null)))
             {
                 errors.Add("Eine Antwortmöglichkeit hat keinen Text!");//Die Antwortmöglichkeit hat keinen Text.
+            }
+
+            if (multipleChoiceQuestions.Any(x => x.Choices.All(y => !y.Correct)))
+            {
+                errors.Add("Eine Frage hat keine richtige Antwortmöglichkeit!");//Die Frage hat 0 richtige Antwortmöglichkeit.
             }
 
             return errors;

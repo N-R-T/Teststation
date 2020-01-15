@@ -11,13 +11,23 @@
 
             <div class="form-group">
                 <label asp-for="Username"></label>
-                <input asp-for="Username" class="form-control" required/>
-                <span asp-validation-for="Username"></span>
+                <input asp-for="Username" class="form-control" required />
+                <ul asp-validation-for="Username">
+                    @foreach (var error in Model.UsernameErrors)
+                    {
+                        <li class="error">@error</li>
+                    }
+                </ul>
             </div>
             <div class="form-group">
                 <label asp-for="Password"></label>
                 <input asp-for="Password"  class="form-control" type="text" required minlength="@Consts.minimalPasswordLength"/>
-                <span asp-validation-for="Password"></span>
+                <ul asp-validation-for="Password" class="error">
+                    @foreach (var error in Model.PasswordErrors)
+                    {
+                        <li class="error">@error</li>
+                    }
+                </ul>
             </div>
 
             <div class="form-group">

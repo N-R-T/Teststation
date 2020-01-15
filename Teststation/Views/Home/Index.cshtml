@@ -9,9 +9,8 @@
 }
 
 <h2>Hallo @UserManager.GetUserName(User)!</h2>
-<br />
-<br />
-<h4>Zitat:</h4>
-<label>@Model.Quote</label>
-<br />
-<label style="margin-left:10px"> ~ @Model.Person</label>
+<div class="quoteArea">
+    <h4>Zitat:</h4>
+    <div class="rowQuote">@Model.Quote</div>
+    <div class="rowPerson"> ~ @Model.Person</div>
+</div>

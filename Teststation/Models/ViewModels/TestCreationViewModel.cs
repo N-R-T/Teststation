@@ -11,5 +11,7 @@ namespace Teststation.Models
         public string Topic { get; set; }
 
         public List<QuestionCreationViewModel> Questions { get; set; }
+
+        public string LastChangedQuestion { get; set; }
     }
 }

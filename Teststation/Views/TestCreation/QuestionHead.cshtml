@@ -1,5 +1,5 @@
 ﻿@model QuestionCreationViewModel
-<div class="questionBlock">
+<div class="questionBlock" id="@Model.Id">
     <input name="model.Questions[@(Model.Position)].Id" type="text" value="@Model.Id" hidden />
     <input name="model.Questions[@(Model.Position)].Type" type="text" value="@Model.Type" hidden />
     <input name="model.Questions[@(Model.Position)].Position" type="text" value="@Model.Position" hidden />

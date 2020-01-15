@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teststation.Models;
@@ -30,18 +31,14 @@ namespace Teststation.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
-            return View();
+            return View(new RegisterViewModel());
         }
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                if (_context.Users.Any(x => x.UserName == model.Username))
-                {
-                    return View();
-                }
+            if (ModelState.IsValid && !_context.Users.Any(x => x.UserName == model.Username))
+            {   
                 var user = new User { UserName = model.Username, Email = model.Username };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
@@ -57,7 +54,8 @@ namespace Teststation.Controllers
                     return RedirectToAction("CandidateList", "CandidateManagement");
                 }
             }
-            return View();
+            model.RegisterErrors(_context);
+            return View(model);
         }
 
 
@@ -93,6 +91,7 @@ namespace Teststation.Controllers
                 }
             }
             ModelState.AddModelError("", "Invalid login attempt");
+            model.LoginErrors(_context);
             return View(model);
         }
 
@@ -108,5 +107,7 @@ namespace Teststation.Controllers
             }
             return false;
         }
+
+        
     }
 }

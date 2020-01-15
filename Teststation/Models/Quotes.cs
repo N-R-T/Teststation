@@ -7,7 +7,7 @@ namespace Teststation.Models
 {
     public static class Quotes
     {
-        public static QuoteViewModel currentQuote;
+        private static QuoteViewModel currentQuote;
         private static DateTime lastRolled = DateTime.Now;
         private static readonly Dictionary<string, List<string>> quotes = new Dictionary<string, List<string>>
         {
@@ -21,7 +21,9 @@ namespace Teststation.Models
                 "Aus großer Macht, folgt große Verantwortung!",
                 "Houston, wir haben ein Problem!",
                 "Heute ist nicht alle Tage, ich komm' wieder, keine Frage!",
-                "Ich mache ihm ein Angebot, das er nicht ablehnen kann.",
+            }},
+            { "Lobbyist zu Angela Merkel",new List<string>{                
+                "Ich mache ihr ein Angebot, das sie nicht ablehnen kann.",
             }},
             { "Barrack Obama",new List<string>{
                 "Yes, we can.",
@@ -47,7 +49,7 @@ namespace Teststation.Models
             } },
             { "Darth Vader",new List<string>{
                 Consts.quoteUserName + ". Ich bin dein Vater.",
-                "Ich bin mit dir Verwandt, Louis.",
+                "Ich bin mit dir verwandt, Louis.",
                 "Ich stehe deutlich über dir.",
                 "I have the high ground.",
                 "Möge die Macht mit dir sein.",
@@ -58,7 +60,7 @@ namespace Teststation.Models
                 "Mist",
                 "Möge die Macht mit dir sein.",
                 "All I have are negative thoughts.",
-                "Ich bin mit dir Verwandt, Louis.",
+                "Ich bin mit dir verwandt, Louis.",
             }},
             { "Martin Luther King",new List<string>{
                 "I have a dream.",
@@ -95,28 +97,49 @@ namespace Teststation.Models
                 "Aus großer Macht, folgt große Verantwortung!",
             }},
         };
+        private static void SetRandomQoute(string username)
+        {
+            Random random = new Random();
+            var person = quotes.Select(x => x.Key).ToList()[random.Next(0, quotes.Count)];
+            var quote = quotes[person][random.Next(0, quotes[person].Count)];
 
-        public static void SetRandomQoute(string username)
+            currentQuote = new QuoteViewModel(quote, person, username);
+
+            lastRolled = DateTime.Now;
+        }
+        public static QuoteViewModel GetCurrentQoute(string username)
         {
             if (currentQuote == null || DateTime.Now >= lastRolled.AddMinutes(30))
             {
-                Random random = new Random();
-                var person = quotes.Select(x => x.Key).ToList()[random.Next(0, quotes.Count)];
-                var quote = quotes[person][random.Next(0, quotes[person].Count)];
-
-                currentQuote = new QuoteViewModel
-                {
-                    Person = person.Replace(Consts.quoteUserName, username),
-                    Quote = quote.Replace(Consts.quoteUserName, username)
-                };
-
-                lastRolled = DateTime.Now;
+                SetRandomQoute(username);
             }
+            return currentQuote;
+        }
+
+        public static List<QuoteViewModel> GetAllQuotes(string username)
+        {
+            var allQuotes = new List<QuoteViewModel>();
+            foreach (var person in quotes.Keys)
+            {
+                foreach (var quote in quotes[person])
+                {
+                    allQuotes.Add(new QuoteViewModel(quote, person, username));
+                }
+            }
+
+            return allQuotes;
         }
     }
+
     public class QuoteViewModel
     {
         public string Quote { get; set; }
-        public string Person { get; set; }        
+        public string Person { get; set; }       
+        
+        public QuoteViewModel(string quote, string person, string username)
+        {
+            Quote = quote.Replace(Consts.quoteUserName, username);
+            Person = person.Replace(Consts.quoteUserName, username);
+        }
     }
 }

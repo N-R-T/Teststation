@@ -29,8 +29,8 @@ namespace Teststation.Controllers
             {
                 return RedirectToAction("Login", "Account");
             }
-            Quotes.SetRandomQoute(_userManager.GetUserName(User));
-            return View(Quotes.currentQuote);
+            var viewModel = Quotes.GetCurrentQoute(_userManager.GetUserName(User));
+            return View(viewModel);
         }
 
         public IActionResult Privacy()
@@ -40,7 +40,8 @@ namespace Teststation.Controllers
 
         public IActionResult EasterEggs()
         {
-            return View();
+            var viewModel = Quotes.GetAllQuotes(_userManager.GetUserName(User));
+            return View(viewModel);
         }
 
         private void DeleteBackUpTest()

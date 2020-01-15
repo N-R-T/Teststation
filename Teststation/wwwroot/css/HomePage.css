@@ -1,0 +1,14 @@
+﻿.quoteArea{
+    margin-top: 50px;
+}
+
+.rowQuote {
+    margin-top: 10px;
+    font-size: larger;
+}
+
+.rowPerson {
+    font-size: medium;
+    font-weight: bold;
+    margin-left: 25px;
+}
