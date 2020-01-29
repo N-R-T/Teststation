@@ -6,6 +6,8 @@
     }
 }
 
+<input type="text" group="@(Model.Position)_Text" value="9ub" hidden/>
+
 @for (int i = 0; i < Model.Choices.Count; i++)
 {
     <input name="model.Questions[@(Model.Position)].Choices[@(i)].Id" type="text" class="form-control" value="@Model.Choices[i].Id" hidden />
@@ -17,7 +19,11 @@
             <textarea class="questionText form-control" readonly>@Model.Choices[i].Text</textarea>
         </div>
         <div class="col-sm-2">
-            <input asp-for="Choices[i].Correct" name="model.Questions[@(Model.Position)].Choices[@(i)].Correct" class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS" type="checkbox" />
+            <input asp-for="Choices[i].Correct" 
+                   name="model.Questions[@(Model.Position)].Choices[@(i)].Correct" 
+                   class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS" 
+                   type="checkbox"
+                   group="@(Model.Position)_Check"/>
         </div>
     </div>
 }    

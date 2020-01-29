@@ -18,7 +18,7 @@
         </div>
         <div class="col-sm-6">
             <div class="form-group">
-                <input asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate onclick="if (ConfirmFinishTestAnswer()) { Leaving(); return true; } else { return false; }" />
+                <input id="leavingButton" asp-action="Finish" type="submit" value="Abschließen" class="btn btn-primary" formnovalidate onclick="if (ConfirmFinishTestAnswer()) { Leaving(); return true; } else { return false; }" />
             </div>
         </div>
     </div>
@@ -52,6 +52,35 @@
                 });
         }
     };
+
+    $(document).ready(function () {
+        $('#leavingButton').click(function () {
+            var checked = true;
+            for (var i = 0; i < @(Model.Questions.Count); i++) {
+                if (!$("input[group=" + i + "_Check]:checked").length) {
+                    checked = false;
+                }
+            }  
+            if(!checked) {
+                alert("Du musst pro Frage mindestens eine Antwortmöglichkeit auswählen.");
+                return false;
+            }
+
+            checked = true;
+            for (var i = 0; i < @(Model.Questions.Count); i++) {
+                if (!$("input[group=" + i + "_Text]").value && !$("input[group=" + i + "_Text]")) {
+                    checked = false;
+                }
+            }     
+            if(!checked) {
+                alert("Du hast bei einer Frage keine Antwort eingetragen.");
+                return false;
+            }
+      
+
+    });
+});
+
 </script>
 <script src="~/js/ResizeTextareas.js" asp-append-version="true"></script>
 <script src="~/js/InputRestriction.js" asp-append-version="true"></script>

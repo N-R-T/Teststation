@@ -28,7 +28,14 @@
         <div class="col-sm-3">
             @if (Model.Type == "MathQuestion")
             {
-                <input name="model.Questions[@(Model.Position)].GivenAnswer" type="text" class="questionText form-control numInputJS" value="@Model.GivenAnswer" placeholder="Deine Antwort" required />
+                <input name="model.Questions[@(Model.Position)].GivenAnswer" 
+                       type="text" 
+                       class="questionText form-control numInputJS" 
+                       value="@Model.GivenAnswer" 
+                       placeholder="Deine Antwort" 
+                       required 
+                       group="@(Model.Position)_Text"/>
+                <input type="checkbox" checked group="@(Model.Position)_Check" hidden/>
             }
         </div>
     </div>
