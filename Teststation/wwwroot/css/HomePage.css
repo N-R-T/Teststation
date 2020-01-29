@@ -5,10 +5,13 @@
 .rowQuote {
     margin-top: 10px;
     font-size: larger;
+    max-width:30em;
+    overflow:visible;
 }
 
 .rowPerson {
-    font-size: medium;
+    font-size: large;
     font-weight: bold;
     margin-left: 25px;
+    margin-bottom:20px;
 }

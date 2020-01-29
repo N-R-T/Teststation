@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Teststation.Models
 {
@@ -10,7 +11,15 @@ namespace Teststation.Models
 
         public override bool IsCorrect()
         {
-            return Convert.ToDouble(GivenAnswer) == Convert.ToDouble(Question.CorrectAnswer);
+            double filler = new double();
+            if(double.TryParse(GivenAnswer, out filler) &&
+               double.TryParse(Question.CorrectAnswer, out filler))
+            {
+                return Convert.ToDouble(GivenAnswer) 
+                    == Convert.ToDouble(Question.CorrectAnswer);
+            }
+            return int.Parse(GivenAnswer, NumberStyles.HexNumber)
+                == int.Parse(Question.CorrectAnswer, NumberStyles.HexNumber);
         }
 
         public override Question GetQuestion()

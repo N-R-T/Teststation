@@ -17,7 +17,7 @@
 
 $(".numInputJS").each(function () {
     setInputFilter(this, function (value) {
-        return /^-?\d*[.,]?\d*$/.test(value);
+        return /(^-?\d*[.,]?\d*$)|(^[0-9A-F]+$)/.test(value);
     });
 });
 

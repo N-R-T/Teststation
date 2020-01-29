@@ -40,6 +40,7 @@
 
 .answerTextInEvaluation {
     text-align: right;
+    overflow: hidden;
 }
 
 .checkBoxColumn {
