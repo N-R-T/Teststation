@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teststation.Models;
@@ -97,6 +98,7 @@ namespace Teststation.Controllers
         {
             var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
             test.Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
+
             foreach (var question in test.Questions
                .Where(x => x is MultipleChoiceQuestion)
                .Select(x => x as MultipleChoiceQuestion)
@@ -104,6 +106,7 @@ namespace Teststation.Controllers
             {
                 question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
             }
+
             var viewModel = TestAnswerTransformer.TransformToTestAnswerViewModel(test, session);
 
             if (viewModel.IsStarted)
@@ -129,8 +132,17 @@ namespace Teststation.Controllers
                 {
                     foreach (var answer in question.Choices)
                     {
-                        var answerDB = _context.MultipleChoiceAnswers.FirstOrDefault(x => x.ChoiceId == answer.Id && x.CandidateId == user.Id);
-                        answer.Correct = answerDB != null;
+                        var answerDB = _context.MultipleChoiceAnswers
+                            .FirstOrDefault(x => x.ChoiceId == answer.Id && 
+                                            x.CandidateId == user.Id);
+                        if(answerDB != null)
+                        {
+                            answer.Correct = true;
+                        }
+                        else
+                        {
+                            answer.Correct = false;
+                        }
                     }
                 }
             }
@@ -141,9 +153,37 @@ namespace Teststation.Controllers
         private void SaveSession(TestAnswerViewModel model, bool Completed)
         {
             var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
-            foreach (var question in model.Questions
+            var mathAnswers = model.Questions
                   .Where(x => x.Type == "MathQuestion")
-                  .ToList())
+                  .ToList();
+
+            var multipleChoiceAnswers = model.Questions
+               .Where(x => x.Type == "MultipleChoiceQuestion")
+               .ToList();
+
+            SaveResultsOfMathQuestions(mathAnswers, user);
+            SaveResultsOfMultipleChoiceQuestions(multipleChoiceAnswers, user);
+            _context.SaveChanges();
+
+            var session = _context.Sessions
+                              .FirstOrDefault(x => x.CandidateId == user.Id &&
+                                   x.TestId == model.TestId);
+            if (session == null)
+            {
+                _context.Sessions.Add(new Session { CandidateId = user.Id, TestId = model.TestId, Completed = Completed, Duration = (DateTime.Now - StartTime) });
+            }
+            else
+            {
+                session.Completed = Completed;
+                session.Duration += (DateTime.Now - StartTime);
+            }
+
+            _context.SaveChanges();
+        }
+
+        private void SaveResultsOfMathQuestions(List<QuestionAnswerViewModel> questions, UserInformation user)
+        {
+            foreach (var question in questions)
             {
                 var answerDB = _context.MathAnswers
                               .FirstOrDefault(x => x.CandidateId == user.Id &&
@@ -158,9 +198,11 @@ namespace Teststation.Controllers
                     _context.MathAnswers.Update(answerDB);
                 }
             }
-            foreach (var question in model.Questions
-               .Where(x => x.Type == "MultipleChoiceQuestion")
-               .ToList())
+        }
+
+        private void SaveResultsOfMultipleChoiceQuestions(List<QuestionAnswerViewModel> questions, UserInformation user)
+        {
+            foreach (var question in questions)
             {
                 foreach (var answer in question.Choices)
                 {
@@ -183,22 +225,7 @@ namespace Teststation.Controllers
                     }
                 }
             }
-            var session = _context.Sessions
-                              .FirstOrDefault(x => x.CandidateId == user.Id &&
-                                   x.TestId == model.TestId);
-            if (session == null)
-            {
-                _context.Sessions.Add(new Session { CandidateId = user.Id, TestId = model.TestId, Completed = Completed, Duration = (DateTime.Now - StartTime) });
-            }
-            else
-            {
-                session.Completed = Completed;
-                session.Duration += (DateTime.Now - StartTime);
-            }
-
-            _context.SaveChanges();
         }
-
 
         public PartialViewResult QuestionHead(QuestionAnswerViewModel question)
         {

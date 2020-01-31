@@ -41,7 +41,7 @@ namespace Teststation.Models
                     TestId = question.TestId,
                     Position = question.Position,
                     Points = question.Points,
-                    Choices = question.Choices,
+                    Choices = Choices(question.Choices),
                     Type = "MultipleChoiceQuestion"
                 });
             }
@@ -49,6 +49,22 @@ namespace Teststation.Models
             viewModel.Questions = viewModel.Questions.OrderBy(x => x.Position).ToList();
 
             return viewModel;
+        }
+
+        private static List<ChoiceAnswerViewModel> Choices(List<Choice> choices)
+        {
+            var list = new List<ChoiceAnswerViewModel>();
+            foreach (var choice in choices)
+            {
+                list.Add(new ChoiceAnswerViewModel
+                {
+                    Id = choice.Id,
+                    QuestionId = choice.QuestionId,
+                    Correct = choice.Correct,
+                    Text = choice.Text,                   
+                });
+            }
+            return list;
         }
     }
 }

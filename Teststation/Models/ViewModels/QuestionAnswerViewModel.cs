@@ -14,7 +14,7 @@ namespace Teststation.Models
         [Display(Name = "Punktzahl")]
         public int Points { get; set; }
         public long TestId { get; set; }
-        public List<Choice> Choices { get; set; }
+        public List<ChoiceAnswerViewModel> Choices { get; set; }
         public string Type { get; set; }
         public string GivenAnswer { get; set; }
     }
