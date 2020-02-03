@@ -44,6 +44,98 @@ namespace Teststation.Controllers
             return View(viewModel);
         }
 
+        #region Test kopieren
+
+        public async Task<IActionResult> CopyTest(long? id)
+        {
+            var originalTest = GetOriginalTest(id);
+
+            var copiedTest = new Test();
+            copiedTest.Topic = CopiedTestName(originalTest.Topic);
+            _context.Tests.Add(copiedTest);
+            _context.SaveChanges();
+            copiedTest = _context.Tests.FirstOrDefault(x => x.Id == copiedTest.Id);
+
+            if (originalTest.Questions != null)
+            {
+                CopyMathQuestions(originalTest, copiedTest.Id);
+                CopyMultipleChoiceQuestions(originalTest, copiedTest.Id);
+            }
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void CopyMathQuestions(Test originalTest, long copiedTestId)
+        {
+            foreach (var originalQuestion in originalTest.Questions.Where(x => x is MathQuestion).Select(x => x as MathQuestion))
+            {
+                var copiedQuestion = new MathQuestion
+                {
+                    CorrectAnswer = originalQuestion.CorrectAnswer,
+                    Points = originalQuestion.Points,
+                    Position = originalQuestion.Position,
+                    TestId = copiedTestId,
+                    Text = originalQuestion.Text,
+                };
+                _context.Add(copiedQuestion);
+            }
+        }
+
+        private void CopyMultipleChoiceQuestions(Test originalTest, long copiedTestId)
+        {
+            foreach (var originalQuestion in originalTest.Questions.Where(x => x is MultipleChoiceQuestion).Select(x => x as MultipleChoiceQuestion))
+            {
+                var copiedQuestion = new MultipleChoiceQuestion
+                {
+                    Points = originalQuestion.Points,
+                    Position = originalQuestion.Position,
+                    TestId = copiedTestId,
+                    Text = originalQuestion.Text,
+                };
+                _context.Add(copiedQuestion);
+                _context.SaveChanges();
+
+                foreach (var originalChoice in originalQuestion.Choices)
+                {
+                    var copiedChoice = new Choice
+                    {
+                        Correct = originalChoice.Correct,
+                        QuestionId = copiedQuestion.Id,
+                        Text = originalChoice.Text,
+                    };
+                    _context.Add(copiedChoice);
+                }
+            }
+        }
+
+        private Test GetOriginalTest(long? id)
+        {
+            var originalTest = _context.Tests.FirstOrDefault(x => x.Id == id);
+            originalTest.Questions = _context.Questions.Where(x => x.TestId == originalTest.Id).ToList();
+            foreach (var question in originalTest.Questions
+                .Where(x=>x is MultipleChoiceQuestion)
+                .Select(x=>x as MultipleChoiceQuestion))
+            {
+                question.Choices = _context.Choices.Where(x=>x.QuestionId == question.Id).ToList();
+            }
+
+            return originalTest;
+        }
+
+        private string CopiedTestName(string originalName)
+        {
+            var newName = "Kopie von " + originalName;
+            var existingNames = _context.Tests.Select(x => x.Topic);
+            var counter = 1;
+            while (existingNames.Any(x => x == newName))
+            {
+                newName = "Kopie von " + originalName + " (" + counter + ")";
+                counter++;
+            }
+            return newName;
+        }
+        #endregion
+
         #region Neuen Test erstellen
         public async Task<IActionResult> Create()
         {
@@ -193,8 +285,10 @@ namespace Teststation.Controllers
             else
             {
                 var test = _context.Tests.FirstOrDefault(x => x.Id == originalTestId);
-                backUpTest = new Test(test);
-                backUpTest.Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
+                backUpTest = new Test(test)
+                {
+                    Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList()
+                };
                 if (backUpTest.Questions == null)
                 {
                     backUpTest.Questions = new List<Question>();
