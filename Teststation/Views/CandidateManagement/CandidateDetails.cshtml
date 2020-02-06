@@ -59,17 +59,20 @@
             </tr>
         }
     </tbody>
-    <tfoot>        
-            <tr>
-                <td colspan="4">
-                    <h5>
-                        <label>Gesamtpunktzahl: @Model.WholeResult</label>
-                    </h5>
-                    <h4>
-                        <label>@Model.ResultText</label>
-                    </h4>
-                </td>
-            </tr>        
+    <tfoot>
+        <tr>
+            <td colspan="3">
+                <h5>
+                    <label>Gesamtpunktzahl: @Model.WholeResult</label>
+                </h5>
+                <h4>
+                    <label>@Model.ResultText</label>
+                </h4>
+            </td>
+            <td>
+                <a class="btn btn-info buttonInMainList" asp-action="ExportResults" asp-controller="CandidateManagement" asp-route-id="@Model.UserInformation.Id">Auswertung als Formular exportieren</a>
+            </td>
+        </tr>
     </tfoot>
 </table>
 
