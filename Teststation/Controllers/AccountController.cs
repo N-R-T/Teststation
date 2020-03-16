@@ -38,7 +38,7 @@ namespace Teststation.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid && !_context.Users.Any(x => x.UserName == model.Username))
-            {   
+            {
                 var user = new User { UserName = model.Username, Email = model.Username };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
