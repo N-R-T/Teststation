@@ -7,14 +7,8 @@
         public UserInformation Candidate { get; set; }
 
 
-        public virtual bool IsCorrect()
-        {
-            return true;
-        }
+        public abstract bool IsCorrect();
 
-        public virtual Question GetQuestion()
-        {
-            return null;
-        }
+        public abstract Question GetQuestion();
     }
 }

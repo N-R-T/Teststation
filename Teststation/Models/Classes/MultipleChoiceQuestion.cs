@@ -2,7 +2,7 @@
 
 namespace Teststation.Models
 {
-    public class MultipleChoiceQuestion : Question
+    public sealed class MultipleChoiceQuestion : Question
     {
         public List<Choice> Choices { get; set; }
     }

@@ -1,6 +1,6 @@
 ﻿namespace Teststation.Models
 {
-    public class Choice
+    public sealed class Choice
     {
         public long Id { get; set; }
         public string Text { get; set; }

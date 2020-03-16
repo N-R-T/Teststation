@@ -1,6 +1,6 @@
 ﻿namespace Teststation.Models
 {
-    public class MultipleChoiceAnswer : Answer
+    public sealed class MultipleChoiceAnswer : Answer
     {
         public long ChoiceId { get; set; }
         public Choice Choice { get; set; }

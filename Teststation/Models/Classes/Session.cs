@@ -2,7 +2,7 @@
 
 namespace Teststation.Models
 {
-    public class Session
+    public sealed class Session
     {
         public long Id { get; set; }
         public long TestId { get; set; }

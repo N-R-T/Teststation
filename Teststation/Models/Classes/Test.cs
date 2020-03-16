@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Teststation.Models
 {
-    public class Test
+    public sealed class Test
     {
         public long Id { get; set; }
 
