@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Teststation.Models
 {
-    public class MathAnswer : Answer
+    public sealed class MathAnswer : Answer
     {
         public long QuestionId { get; set; }
         public MathQuestion Question { get; set; }

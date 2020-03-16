@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Teststation.Models
 {
-    public class UserInformation
+    public sealed class UserInformation
     {
         public long Id { get; set; }
         public string UserId { get; set; }
