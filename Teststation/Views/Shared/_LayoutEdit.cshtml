@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/css/sideNav.css" />
     <link rel="stylesheet" href="~/css/TestCreation.css" />
+    <link rel="stylesheet" href="~/css/CircuitQuestion.css" />
 </head>
 <body>
     <header>
@@ -52,8 +53,17 @@
             <div class="form-group text-center">
                 <button asp-action="AddMultipleChoiceQuestion" asp-route-id="@Model.Id" form="editForm" class="btn btn-primary w-75" formnovalidate onclick="Leaving();">Neue Multiple-Choice-Frage</button>
             </div>
-            <br /><br /><br /><br />
             <div class="form-group text-center">
+                <button asp-action="AddCircuitQuestionEasy" asp-route-id="@Model.Id" form="editForm" class="btn btn-primary w-75" formnovalidate onclick="Leaving();">Neue Schaltkreis-Frage (Einfach)</button>
+            </div>
+            <div class="form-group text-center">
+                <button asp-action="AddCircuitQuestionMiddle" asp-route-id="@Model.Id" form="editForm" class="btn btn-primary w-75" formnovalidate onclick="Leaving();">Neue Schaltkreis-Frage (Mittel)</button>
+            </div>
+            <div class="form-group text-center">
+                <button asp-action="AddCircuitQuestionDifficult" asp-route-id="@Model.Id" form="editForm" class="btn btn-primary w-75" formnovalidate onclick="Leaving();">Neue Schaltkreis-Frage (Schwer)</button>
+            </div>
+            <br /><br /><br /><br />
+            <div id="SavingButton" class="form-group text-center">
                 <input asp-action="SaveChanges" form="editForm" type="submit" value="Speichern" class="btn btn-primary w-75" onclick="Leaving();" />
             </div>
             <div class="form-group text-center">

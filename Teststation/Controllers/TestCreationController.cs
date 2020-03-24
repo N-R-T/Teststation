@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -113,10 +114,10 @@ namespace Teststation.Controllers
             var originalTest = _context.Tests.FirstOrDefault(x => x.Id == id);
             originalTest.Questions = _context.Questions.Where(x => x.TestId == originalTest.Id).ToList();
             foreach (var question in originalTest.Questions
-                .Where(x=>x is MultipleChoiceQuestion)
-                .Select(x=>x as MultipleChoiceQuestion))
+                .Where(x => x is MultipleChoiceQuestion)
+                .Select(x => x as MultipleChoiceQuestion))
             {
-                question.Choices = _context.Choices.Where(x=>x.QuestionId == question.Id).ToList();
+                question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
             }
 
             return originalTest;
@@ -181,7 +182,7 @@ namespace Teststation.Controllers
 
             var backUpTest = CreateBackUp();
             var viewModel = TestCreationTransformer.TransformToTestCreationViewModel(backUpTest);
-            viewModel.LastChangedQuestion = lastChangedQuestion;            
+            viewModel.LastChangedQuestion = lastChangedQuestion;
             return View(viewModel);
         }
 
@@ -222,11 +223,31 @@ namespace Teststation.Controllers
         {
             var test = TestCreationTransformer.TransformToTest(model);
             test.Id = originalTestId;
+            model = null;
+
+            #region Remove original Test
+            foreach (var question in _context.CircuitQuestions.Include(x => x.Parts).Where(x => x.TestId == originalTestId))
+            {
+                foreach (var part in question.Parts)
+                {
+                    _context.Resistors.Remove(_context.Resistors
+                        .First(x => x.Id == part.Resistor1Id));
+                    _context.Resistors.Remove(_context.Resistors
+                        .First(x => x.Id == part.Resistor2Id));
+                    _context.Resistors.Remove(_context.Resistors
+                        .First(x => x.Id == part.Resistor3Id));
+                }
+            }
             _context.Questions.RemoveRange(_context.Questions.Where(x => x.TestId == originalTestId));
             _context.Choices.RemoveRange(_context.Choices
                 .Include(x => x.Question)
                 .Where(x => x.Question.TestId == originalTestId));
+            _context.CircuitParts.RemoveRange(_context.CircuitParts
+                .Include(x => x.Question)
+                .Where(x => x.Question.TestId == originalTestId));
+            #endregion
 
+            #region Give Elements of new Test fitting Ids
             foreach (var question in test.Questions
                 .Where(x => x is MultipleChoiceQuestion)
                 .Select(x => x as MultipleChoiceQuestion)
@@ -241,7 +262,23 @@ namespace Teststation.Controllers
                     }
                 }
             }
-
+            foreach (var question in test.Questions
+               .Where(x => x is CircuitQuestion)
+               .Select(x => x as CircuitQuestion)
+               .ToList())
+            {
+                question.TestId = test.Id;
+                if (question.Parts != null)
+                {
+                    foreach (var part in question.Parts)
+                    {
+                        part.QuestionId = question.Id;
+                        part.Resistor1Id = part.Resistor1.Id;
+                        part.Resistor2Id = part.Resistor2.Id;
+                        part.Resistor3Id = part.Resistor3.Id;
+                    }
+                }
+            }
             foreach (var question in test.Questions
                 .Where(x => x is MathQuestion)
                 .Select(x => x as MathQuestion)
@@ -249,10 +286,25 @@ namespace Teststation.Controllers
             {
                 question.TestId = test.Id;
             }
+            #endregion
+
+            foreach (var question in test.Questions
+                .Where(x => x is CircuitQuestion)
+               .Select(x => x as CircuitQuestion)
+               .ToList())
+            {
+                foreach (var part in question.Parts)
+                {
+                    _context.Update(part.Resistor1);
+                    _context.Update(part.Resistor2);
+                    _context.Update(part.Resistor3);
+                }
+            }
 
             _context.Update(test);
             _context.SaveChanges();
             DeleteBackUp();
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -277,6 +329,16 @@ namespace Teststation.Controllers
                 {
                     question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
                 }
+                foreach (CircuitQuestion question in backUpTest.Questions.Where(x => x is CircuitQuestion))
+                {
+                    question.Parts = _context.CircuitParts.Where(x => x.QuestionId == question.Id).ToList();
+                    foreach (CircuitPart part in question.Parts)
+                    {
+                        part.Resistor1 = _context.Resistors.First(x => x.Id == part.Resistor1Id);
+                        part.Resistor2 = _context.Resistors.First(x => x.Id == part.Resistor2Id);
+                        part.Resistor3 = _context.Resistors.First(x => x.Id == part.Resistor3Id);
+                    }
+                }
                 if (backUpTest.Questions == null)
                 {
                     backUpTest.Questions = new List<Question>();
@@ -297,6 +359,16 @@ namespace Teststation.Controllers
                 {
                     question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
                 }
+                foreach (CircuitQuestion question in backUpTest.Questions.Where(x => x is CircuitQuestion))
+                {
+                    question.Parts = _context.CircuitParts.Where(x => x.QuestionId == question.Id).ToList();
+                    foreach (CircuitPart part in question.Parts)
+                    {
+                        part.Resistor1 = _context.Resistors.First(x => x.Id == part.Resistor1Id);
+                        part.Resistor2 = _context.Resistors.First(x => x.Id == part.Resistor2Id);
+                        part.Resistor3 = _context.Resistors.First(x => x.Id == part.Resistor3Id);
+                    }
+                }
                 if (backUpTest.Questions == null)
                 {
                     backUpTest.Questions = new List<Question>();
@@ -310,8 +382,24 @@ namespace Teststation.Controllers
         {
             if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
             {
+                foreach (var question in _context.CircuitQuestions.Where(x => x.TestId == Consts.backUpTestId))
+                {
+                    foreach (var part in question.Parts)
+                    {
+                        _context.Resistors.Remove(_context.Resistors
+                            .First(x => x.Id == part.Resistor1Id));
+                        _context.Resistors.Remove(_context.Resistors
+                            .First(x => x.Id == part.Resistor2Id));
+                        _context.Resistors.Remove(_context.Resistors
+                            .First(x => x.Id == part.Resistor3Id));
+                    }
+                }
+
                 _context.Questions.RemoveRange(_context.Questions.Where(x => x.TestId == Consts.backUpTestId));
                 _context.Choices.RemoveRange(_context.Choices
+                    .Include(x => x.Question)
+                    .Where(x => x.Question.TestId == Consts.backUpTestId));
+                _context.CircuitParts.RemoveRange(_context.CircuitParts
                     .Include(x => x.Question)
                     .Where(x => x.Question.TestId == Consts.backUpTestId));
                 _context.Tests.Remove(_context.Tests.FirstOrDefault(x => x.Id == Consts.backUpTestId));
@@ -369,6 +457,54 @@ namespace Teststation.Controllers
                     };
                     _context.Questions.Add(backUpQuestion);
                 }
+
+                var circuitQuestions = backUpTest.Questions
+                    .Where(x => x is CircuitQuestion)
+                    .Select(x => x as CircuitQuestion)
+                   .ToList();
+                foreach (var question in circuitQuestions)
+                {
+                    var backUpQuestion = new CircuitQuestion
+                    {
+                        Text = question.Text,
+                        Points = question.Points,
+                        Position = question.Position,
+                        TestId = originalTestId,
+                        CircuitType = question.CircuitType,
+                        Amperage = question.Amperage,
+                        InitialCurrent = question.InitialCurrent,
+                        Parts = null
+                    };
+                    _context.Questions.Add(backUpQuestion);
+
+                    var parts = question.Parts.ToList();
+                    foreach (var part in parts)
+                    {
+                        var newPart = new CircuitPart
+                        {
+                            Position = part.Position,
+                            Resistance = part.Resistance,
+                            NeededCurrent = part.NeededCurrent,
+                            Resistor1 = part.Resistor1,
+                            Resistor2 = part.Resistor2,
+                            Resistor3 = part.Resistor3,
+                            Resistor1Id = part.Resistor1.Id,
+                            Resistor2Id = part.Resistor2.Id,
+                            Resistor3Id = part.Resistor3.Id,
+                            QuestionId = backUpQuestion.Id
+                        };
+                        _context.CircuitParts.Add(newPart);
+                        foreach (var resistor in part.Resistors())
+                        {
+                            _context.Resistors.Add(new Resistor
+                            {
+                                //CircuitPartId = newPart.Id,
+                                Visible = resistor.Visible,
+                                CorrectResistance = resistor.CorrectResistance
+                            });
+                        }
+                    }
+                }
             }
             else
             {
@@ -389,10 +525,23 @@ namespace Teststation.Controllers
                 {
                     _context.Update(question);
                 }
+                foreach (var question in backUpTest.Questions
+                    .Where(x => x is CircuitQuestion)
+                    .Select(x => x as CircuitQuestion))
+                {
+                    _context.Update(question);
+                    foreach (var part in question.Parts)
+                    {
+                        _context.Update(part);
+                        foreach (var resistor in part.Resistors())
+                        {
+                            _context.Update(resistor);
+                        }
+                    }
+                }
             }
             _context.SaveChanges();
         }
-
         public async void SaveTest(Test test)
         {
             _context.Update(test);
@@ -406,6 +555,26 @@ namespace Teststation.Controllers
                     foreach (var choice in question.Choices)
                     {
                         _context.Update(choice);
+                    }
+                }
+            }
+            foreach (var question in test.Questions
+                .Where(x => x is CircuitQuestion)
+                .Select(x => x as CircuitQuestion))
+            {
+                _context.Update(question);
+                if (question.Parts != null)
+                {
+                    foreach (var part in question.Parts)
+                    {
+                        _context.Update(part);
+                        if (part.Resistors() != null)
+                        {
+                            foreach (var resistor in part.Resistors())
+                            {
+                                _context.Update(resistor);
+                            }
+                        }
                     }
                 }
             }
@@ -472,6 +641,65 @@ namespace Teststation.Controllers
             return RedirectToAction("Edit", "TestCreation", new { id = Consts.backUpTestId }, id.ToString());
         }
 
+        public async Task<IActionResult> AddCircuitQuestionEasy(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
+        {
+            var newQuestion = AddCircuitQuestion(model, CircuitType.Simple, 1);
+            return RedirectToAction("Edit", "TestCreation", new { id }, newQuestion.Id.ToString());
+        }
+        public async Task<IActionResult> AddCircuitQuestionMiddle(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
+        {
+            var newQuestion = AddCircuitQuestion(model, CircuitType.Middle, 2);
+            return RedirectToAction("Edit", "TestCreation", new { id }, newQuestion.Id.ToString());
+        }
+        public async Task<IActionResult> AddCircuitQuestionDifficult(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
+        {
+            var newQuestion = AddCircuitQuestion(model, CircuitType.Difficult, 3);
+            return RedirectToAction("Edit", "TestCreation", new { id }, newQuestion.Id.ToString());
+        }
+        private CircuitQuestion AddCircuitQuestion([Bind("Id,Topic,Questions")] TestCreationViewModel model, CircuitType type, int countParts)
+        {
+            SaveTest(TestCreationTransformer.TransformToTest(model));
+            var newQuestion = new CircuitQuestion
+            {
+                TestId = Consts.backUpTestId,
+                Position = _context.Questions.Where(x => x.TestId == Consts.backUpTestId).Count(),
+                Points = 1,
+                CircuitType = type,
+                Text = "Weisen Sie den leeren Widerständen einen passenden Widerstand zu, damit die benötigte Spannung an der Lampe anliegt."
+            };
+
+            _context.Add(newQuestion);
+            _context.SaveChanges();
+
+            newQuestion = _context.Questions.FirstOrDefault(x => x.Id == newQuestion.Id) as CircuitQuestion;
+
+            for (int i = 0; i < countParts; i++)
+            {
+                var newResistor1 = new Resistor { Visible = false };
+                _context.Add(newResistor1);
+                var newResistor2 = new Resistor { Visible = true };
+                _context.Add(newResistor2);
+                var newResistor3 = new Resistor { Visible = true };
+                _context.Add(newResistor3);
+                _context.SaveChanges();
+
+                var circuitPart = new CircuitPart
+                {
+                    QuestionId = newQuestion.Id,
+                    Position = i,
+                    Resistor1 = newResistor1,
+                    Resistor1Id = newResistor1.Id,
+                    Resistor2 = newResistor2,
+                    Resistor2Id = newResistor2.Id,
+                    Resistor3 = newResistor3,
+                    Resistor3Id = newResistor3.Id,
+                };
+                _context.Add(circuitPart);
+                _context.SaveChanges();
+            }
+            return newQuestion;
+        }
+
         public async Task<IActionResult> PushQuestionUp(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
             SaveTest(TestCreationTransformer.TransformToTest(model));
@@ -522,7 +750,7 @@ namespace Teststation.Controllers
         public async Task<IActionResult> DeleteChoice(long id, [Bind("Id,Topic,Questions")] TestCreationViewModel model)
         {
             SaveTest(TestCreationTransformer.TransformToTest(model));
-            
+
             var oldChoice = await _context.Choices.FindAsync(id);
             var question = await _context.Questions.FindAsync(oldChoice.QuestionId);
             _context.Remove(oldChoice);
@@ -556,31 +784,44 @@ namespace Teststation.Controllers
                 .Where(x => x.TestId == test.Id)
                 .Include(x => x.Choices)
                 .ToList();
+            var circuitQuestions = _context.CircuitQuestions
+                .Where(x => x.TestId == test.Id)
+                .Include(x => x.Parts)
+                .ToList();
             var mathAnswers = _context.MathAnswers
                 .Where(x => x.Question.TestId == test.Id)
                 .ToList();
             var multipleChoiceAnswers = _context.MultipleChoiceAnswers
                 .Where(x => x.Choice.Question.TestId == test.Id)
                 .ToList();
+            var circuitAnswers = _context.CircuitAnswers
+                .Where(x => x.Resistor.CircuitPart.Question.TestId == test.Id)
+                .ToList();
 
             if (mathQuestions.Count != 0)
             {
                 _context.MathQuestions.RemoveRange(mathQuestions);
             }
-
             if (multipleChoiceQuestions.Count != 0)
             {
                 _context.MultipleChoiceQuestions.RemoveRange(multipleChoiceQuestions);
+            }
+            if (circuitQuestions.Count != 0)
+            {
+                _context.CircuitQuestions.RemoveRange(circuitQuestions);
             }
 
             if (mathAnswers.Count != 0)
             {
                 _context.MathAnswers.RemoveRange(mathAnswers);
             }
-
             if (multipleChoiceAnswers.Count != 0)
             {
                 _context.MultipleChoiceAnswers.RemoveRange(multipleChoiceAnswers);
+            }
+            if (circuitAnswers.Count != 0)
+            {
+                _context.CircuitAnswers.RemoveRange(circuitAnswers);
             }
 
             _context.Tests.Remove(test);
@@ -599,6 +840,10 @@ namespace Teststation.Controllers
             return PartialView(question);
         }
         public PartialViewResult MultipleChoiceQuestion(QuestionCreationViewModel question)
+        {
+            return PartialView(question);
+        }
+        public PartialViewResult CircuitQuestion(QuestionCreationViewModel question)
         {
             return PartialView(question);
         }

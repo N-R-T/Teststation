@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Teststation.Models.Classes
+namespace Teststation.Models
 {
     public sealed class CircuitQuestion : Question
     {

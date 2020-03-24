@@ -3,6 +3,42 @@
     max-width: 50px;
 }
 
+.circuit-fields-resistance {
+    display: inline !important;
+    max-width: 80px !important;
+}
+
+.circuit-fields-heads {
+    display: inline !important;
+    max-width: 100px !important;
+}
+
+.circuit-row {
+    margin: 0px !important;
+    margin-top: 0.5em !important;
+    text-align: center;
+    align-self:center;
+    width:100%;
+}
+.visibility-button {
+    width: 42px !important;
+    margin-left: 39px !important;
+}
+
+.red-color {
+    border-color: #dc3545 !important;
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    box-shadow: none;
+}
+
+.green-color {
+    border-color: #28a745 !important;
+    background-color: #28a745 !important;
+    color: #fff !important;
+    box-shadow: none;
+}
+
 .questionBlock, .choicesBlock {
     width: 80%;
     margin: 2%;
@@ -43,6 +79,30 @@
     background-color: #fff !important;
     color: black !important;
 }
+
+.btn-calculate-current {
+    width: auto;
+    float:right;
+}
+
+
+.item-no-input, .item-no-input:hover, .item-no-input:focus, .item-no-input:active, .item-no-input:target {
+    width: 100%;
+    cursor: default !important;
+    border-color: #007bff !important;
+    background-color: #007bff !important;
+    color: #fff !important;
+    box-shadow: none;
+}
+
+.input-no-input, .input-no-input:hover, .input-no-input:focus, .input-no-input:active, .input-no-input:target {
+    width: 100%;
+    cursor: default !important;
+    border-color: #007bff !important;
+    background-color: #fff !important;
+    color: black !important;
+}
+
 
 .choiceBlock {
     margin-bottom: 5px;

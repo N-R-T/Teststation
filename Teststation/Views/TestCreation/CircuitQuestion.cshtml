@@ -1,0 +1,68 @@
+﻿@model QuestionCreationViewModel
+<button id="CircuitQuestionCalulate@(Model.Position)"
+        type="button"
+        class="btn btn-primary btn-calculate-current" hidden>
+    Berechnen
+</button>
+
+<div class="row" style="margin-top:20px;">
+    <div class="col-sm-4">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="btn btn-info input-group-text item-info">Stromstärke:</span>
+            </div>
+            <input id="Questions@(Model.Position)Amperage"
+                   name="model.Questions[@(Model.Position)].Amperage"
+                   type="text"
+                   class="btn btn-info form-control inline-buttons input-info onlyNumbersInputJS circuit-fields-heads calculateValuesAfterInput@(Model.Position)"
+                   value="@Model.Amperage"
+                   required />
+            <div class="input-group-append">
+                <span class="btn btn-info input-group-text item-info">A</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-4">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="btn btn-success input-group-text item-no-input">Stromspannung:</span>
+            </div>
+            <input id="Questions@(Model.Position)InitialCurrent"
+                   name="model.Questions[@(Model.Position)].InitialCurrent"
+                   type="text"
+                   class="btn btn-success form-control inline-buttons input-no-input circuit-fields-heads"
+                   value="@Model.InitialCurrent"
+                   readonly />
+            <div class="input-group-append">
+                <span class="btn btn-success input-group-text item-no-input">V</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="circuitBlock">
+    @switch (Model.CircuitType)
+    {
+        case CircuitType.Simple:
+            <partial name="_PartialSimpleCircuit" model="@Model" />
+            break;
+        case CircuitType.Middle:
+            <partial name="_PartialMiddleCircuit" model="@Model" />
+            break;
+        case CircuitType.Difficult:
+            <partial name="_PartialDifficultCircuit" model="@Model" />
+            break;
+    }
+</div>
+
+
+<script>
+    $(".calculateValuesAfterInput@(Model.Position)").keyup(function () {
+        $("#CircuitQuestionCalulate@(Model.Position)").click();
+    });
+    $("#SavingButton").click(function () {
+        $("#CircuitQuestionCalulate@(Model.Position)").click();
+    });
+</script>

@@ -54,11 +54,20 @@
             {
                 <input name="model.Questions[@(Model.Position)].CorrectAnswer" type="text" class="form-control numInputJS" value="@Model.CorrectAnswer" placeholder="Korrekte Antwort" required />
             }
+            @if (Model.Type == "CircuitQuestion")
+            {
+                <input name="model.Questions[@(Model.Position)].CircuitType"
+                       value="@Model.CircuitType" hidden />
+            }
         </div>
     </div>
     @if (Model.Type == "MultipleChoiceQuestion")
     {
         <partial name="MultipleChoiceQuestion" model="@Model" />
+    }
+    @if (Model.Type == "CircuitQuestion")
+    {
+        <partial name="CircuitQuestion" model="@Model" />
     }
 </div>
 <hr />

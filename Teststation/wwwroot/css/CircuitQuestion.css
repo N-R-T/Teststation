@@ -1,0 +1,65 @@
+﻿.corner_TopLeft, .corner_BottomLeft, .corner_TopRight, .corner_BottomRight,
+.CircuitSource, .line_Horizontal, .line_Vertical, .resistorSymbol, .lampSymbol, .SplitLeft, .SplitRight {
+    background-color: #cccccc; /* Used if the image is unavailable */
+    height: 120px;
+    width: 120px;
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    background-size: cover; /* Resize the background image to cover the entire container */
+}
+
+.corner_TopLeft, .corner_BottomLeft, .corner_TopRight, .corner_BottomRight, .line_Horizontal, .line_Vertical {
+    width: 50px;
+}
+
+.corner_TopLeft {
+    background-image: url(/images/corner_TopLeft.png);
+}
+
+.corner_BottomLeft {
+    background-image: url(/images/corner_BottomLeft.png);
+}
+.corner_TopRight {
+    background-image: url(/images/corner_TopRight.png);
+}
+.corner_BottomRight {
+    background-image: url(/images/corner_BottomRight.png);
+}
+.line_Horizontal {
+    background-image: url(/images/line_Horizontal.png);
+}
+.line_Vertical {
+    background-image: url(/images/line_Vertical.png);
+}
+.CircuitSource {
+    background-image: url(/images/CircuitSource.png);
+}
+.resistorSymbol {
+    background-image: url(/images/Resistor.png);
+}
+.lampSymbol {
+    background-image: url(/images/Lamp.png);
+}
+
+.SplitLeft {
+    background-image: url(/images/SplitLeft.png);
+}
+
+.SplitRight {
+    background-image: url(/images/SplitRight.png);
+}
+
+.partOfCircuit {
+    width: 100px;
+    height: 100px;    
+}
+
+.partOfCircuitInput {
+    max-width: 100px;
+    text-align:center;
+}
+
+.circuitBlock{
+    width: 100%;
+}
+

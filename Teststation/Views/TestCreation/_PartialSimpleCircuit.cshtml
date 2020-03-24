@@ -1,0 +1,137 @@
+﻿@model QuestionCreationViewModel
+
+
+<input name="model.Questions[@(Model.Position)].CircuitParts[0].Id"
+       value="@Model.CircuitParts[0].Id" hidden />
+<input name="model.Questions[@(Model.Position)].CircuitParts[0].Position"
+       value="@Model.CircuitParts[0].Position" hidden />
+<table>
+    <tr>
+        <td class="corner_TopLeft">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="resistorSymbol">
+            </td>
+            <td class="line_Horizontal">
+            </td>
+        }
+        <td class="lampSymbol">
+        </td>
+        <td class="corner_TopRight">
+        </td>
+    </tr>
+    <tr>
+        <td class="line_Vertical">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="partOfCircuit">
+                <div class="input-group mb-3 circuit-row">
+                    <input id="Questions@(Model.Position)CircuitParts0Resistor@(i+1)CorrectResistance"
+                           class="partOfCircuitInput form-control inline-buttons input-info onlyNumbersInputJS circuit-fields-resistance calculateValuesAfterInput@(Model.Position)"
+                           name="model.Questions[@(Model.Position)].CircuitParts[0].Resistor@(i+1).CorrectResistance"
+                           value="@Model.CircuitParts[0].Resistors()[i].CorrectResistance"
+                           maxlength="6" />
+                    <div class="input-group-append">
+                        <span class="btn btn-info input-group-text item-info">Ω</span>
+                    </div>
+                </div>
+                @if (Model.CircuitParts[0].Resistors()[i].Visible)
+                {
+                    <button id="Question@(Model.Position)CircuitParts0Resistor@(i + 1)VisibilityButton"
+                            type="button"
+                            onclick="ChangeVisibility('@(Model.Position)','@(i + 1)', '0');"
+                            class="btn input-group-text glyphicon glyphicon-eye-open circuit-row visibility-button green-color"></button>
+                }
+                else
+                {
+                    <button id="Question@(Model.Position)CircuitParts0Resistor@(i + 1)VisibilityButton"
+                            type="button"
+                            onclick="ChangeVisibility('@(Model.Position)','@(i + 1)', '0');"
+                            class="btn input-group-text glyphicon glyphicon-eye-close circuit-row visibility-button red-color"></button>
+                }
+                <input id="Question@(Model.Position)CircuitParts0Resistor@(i+1)Visibility"
+                       type="checkbox"
+                       name="model.Questions[@(Model.Position)].CircuitParts[0].Resistor@(i+1).Visible"
+                       asp-for="@Model.CircuitParts[0].Resistors()[i].Visible" hidden/>
+
+                <input name="model.Questions[@(Model.Position)].CircuitParts[0].Resistor@(i+1).Id"
+                       value="@Model.CircuitParts[0].Resistors()[i].Id" hidden />
+                <input name="model.Questions[@(Model.Position)].CircuitParts[0].Resistor@(i+1)Id"
+                       value="@Model.CircuitParts[0].Resistors()[i].Id" hidden />
+            </td>
+            <td></td>
+        }
+        <td class="partOfCircuit">
+            <div class="input-group mb-3 circuit-row">
+                <input id="Questions@(Model.Position)CircuitParts0Resistance"
+                       class="partOfCircuitInput form-control inline-buttons input-info onlyNumbersInputJS circuit-fields-resistance calculateValuesAfterInput@(Model.Position)"
+                       name="model.Questions[@(Model.Position)].CircuitParts[0].Resistance"
+                       value="@Model.CircuitParts[0].Resistance"
+                       maxlength="6" />
+                <div class="input-group-append">
+                    <span class="btn btn-info input-group-text item-info">Ω</span>
+                </div>
+            </div>
+            <div class="input-group mb-3 circuit-row">
+                <input id="Questions@(Model.Position)CircuitParts0NeededCurrent"
+                       class="partOfCircuitInput form-control inline-buttons input-no-input circuit-fields-resistance"
+                       name="model.Questions[@(Model.Position)].CircuitParts[0].NeededCurrent"
+                       value="@Model.CircuitParts[0].NeededCurrent" readonly />
+                <div class="input-group-append">
+                    <span class="btn btn-info input-group-text item-no-input">V</span>
+                </div>
+            </div>
+        </td>
+        <td class="line_Vertical">
+        </td>
+    </tr>
+
+    <tr>
+        <td class="CircuitSource">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td></td>
+            <td></td>
+        }
+        <td></td>
+        <td class="line_Vertical">
+        </td>
+    </tr>
+    <tr>
+        <td class="corner_BottomLeft">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="line_Horizontal">
+            </td>
+            <td class="line_Horizontal">
+            </td>
+        }
+        <td class="line_Horizontal">
+        </td>
+        <td class="corner_BottomRight">
+        </td>
+    </tr>
+</table>
+
+<script>
+    $("#CircuitQuestionCalulate@(Model.Position)").click(function () {
+        var quesNum = @(Model.Position);
+        var outputField = $('#Questions' + quesNum + 'CircuitParts0NeededCurrent');
+        var res1 = $('#Questions' + quesNum + 'CircuitParts0Resistor1CorrectResistance').val().replace(',', '.');
+        var res2 = $('#Questions' + quesNum + 'CircuitParts0Resistor2CorrectResistance').val().replace(',', '.');
+        var res3 = $('#Questions' + quesNum + 'CircuitParts0Resistor3CorrectResistance').val().replace(',', '.');
+        var res4 = $('#Questions' + quesNum + 'CircuitParts0Resistance').val().replace(',', '.');
+        var initialCurrentField = $('#Questions' + quesNum + 'InitialCurrent');
+        var amperage = $('#Questions' + quesNum + 'Amperage').val().replace(',', '.');
+
+        var wholeResistance = parseFloat(res1) + parseFloat(res2) + parseFloat(res3) + parseFloat(res4);
+        var endCurrent = parseFloat(wholeResistance) * parseFloat(amperage);
+        outputField.prop("value", endCurrent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
+        initialCurrentField.prop("value", endCurrent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
+    });
+ 
+</script>

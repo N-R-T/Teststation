@@ -21,3 +21,9 @@ $(".numInputJS").each(function () {
     });
 });
 
+$(".onlyNumbersInputJS").each(function () {
+    setInputFilter(this, function (value) {
+        return /(^\d*[.,]?\d*$)|(^[0-9]+$)/.test(value);
+    });
+});
+

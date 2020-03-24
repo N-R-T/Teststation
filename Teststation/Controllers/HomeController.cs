@@ -23,7 +23,10 @@ namespace Teststation.Controllers
 
         public IActionResult Index()
         {
+            CreateAdmin();
+
             DeleteBackUpTest();
+            DeleteUnusedResistors();
             DeleteOldAccounts();
             if (!_signManager.IsSignedIn(User))
             {
@@ -52,6 +55,20 @@ namespace Teststation.Controllers
             }
             _context.SaveChanges();
         }
+        private void DeleteUnusedResistors()
+        {            
+            foreach (var resistor in _context.Resistors)
+            {
+                if (!_context.CircuitParts.Any(x=>
+                x.Resistor1Id == resistor.Id ||
+                x.Resistor2Id == resistor.Id ||
+                x.Resistor3Id == resistor.Id ))
+                {
+                    _context.Resistors.Remove(resistor);
+                }
+            }
+            _context.SaveChanges();
+        }
         private void DeleteOldAccounts()
         {
             var oldAccounts = _context.UserInformation.Where(x => x.Role == UserRole.Candidate && x.DayOfLastActivity.AddYears(1) <= DateTime.Now);
@@ -68,6 +85,26 @@ namespace Teststation.Controllers
                 _context.UserInformation.Update(userInformation);
             }
             _context.SaveChanges();
+        }
+
+        public async void CreateAdmin()
+        {
+            if (!_context.Users.Any(x => x.UserName == "Admin"))
+            {
+                var user = new User { UserName = "Admin", Email = "Admin" };
+                var result = await _userManager.CreateAsync(user, "123456");
+                if (result.Succeeded)
+                {
+                    var userInformation = new UserInformation
+                    {
+                        Role = UserRole.Admin,
+                        UserId = user.Id,
+                        DayOfLastActivity = DateTime.Now,
+                    };
+                    _context.UserInformation.Add(userInformation);
+                    _context.SaveChanges();
+                }
+            }
         }
     }
 }
