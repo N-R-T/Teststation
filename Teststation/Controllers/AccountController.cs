@@ -58,28 +58,6 @@ namespace Teststation.Controllers
             return View(model);
         }
 
-
-        public async void CreateAdmin()
-        {
-            if (!_context.Users.Any(x => x.UserName == "Admin"))
-            {
-                var user = new User { UserName = "Admin", Email = "Admin" };
-                var result = await _userManager.CreateAsync(user, "123456");
-                if (result.Succeeded)
-                {
-                    var userInformation = new UserInformation
-                    {
-                        Role = UserRole.Admin,
-                        UserId = user.Id,
-                        DayOfLastActivity = DateTime.Now,
-                    };
-                    _context.UserInformation.Add(userInformation);
-                    _context.SaveChanges();                    
-                }
-            }
-        }
-
-
         public async Task<IActionResult> Logout()
         {
             await _signManager.SignOutAsync();
@@ -89,7 +67,6 @@ namespace Teststation.Controllers
         [HttpGet]
         public IActionResult Login(string returnUrl = "")
         {
-            CreateAdmin();
             var model = new LoginViewModel { ReturnUrl = returnUrl };
             return View(model);
         }

@@ -4,3 +4,43 @@
     resize: none;
     height: calc(1.5em + 0.75rem + 2px) !important;
 }
+
+.circuit-select-resistance {
+    width: 100%;
+    /*border-color: #dc3545 !important;
+    border-width: 2px;*/
+}
+
+.circuitQuestionGivenValues {
+    width: 50px !important;
+    text-align: left;
+}
+
+.resistanceValues {
+    margin-top: 0px !important;
+}
+
+.halfHeight {
+    height: 55px !important;
+    max-height: 55px !important;
+    width: 100%;
+    top:0;    
+    margin-top:5px;
+}
+
+.Value_correctCircuitAnswer, .Symbol_correctCircuitAnswer {
+    border-color: #28a745;
+}
+.Symbol_correctCircuitAnswer {
+    background-color: #28a745;
+}
+.Value_falseCircuitAnswer, .Symbol_falseCircuitAnswer {
+    border-color: #dc3545;
+}
+.Symbol_falseCircuitAnswer {
+    background-color: #dc3545;
+}
+
+.Symbol_falseCircuitAnswer, .Symbol_correctCircuitAnswer {
+    color: #fff;
+}

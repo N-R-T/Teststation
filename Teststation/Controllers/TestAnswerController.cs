@@ -70,10 +70,10 @@ namespace Teststation.Controllers
         {
             if (_context.Sessions.Any(x => x.TestId == testId && x.CandidateId == userId))
             {
-                if(_context.Sessions.First(x => x.TestId == testId && x.CandidateId == userId).Completed)
+                if (_context.Sessions.First(x => x.TestId == testId && x.CandidateId == userId).Completed)
                 {
                     return false;
-                }                
+                }
             }
             return true;
         }
@@ -107,6 +107,20 @@ namespace Teststation.Controllers
                 question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
             }
 
+            foreach (var question in test.Questions
+               .Where(x => x is CircuitQuestion)
+               .Select(x => x as CircuitQuestion)
+               .ToList())
+            {
+                question.Parts = _context.CircuitParts.Where(x => x.QuestionId == question.Id).ToList();
+                foreach (var part in question.Parts)
+                {
+                    part.Resistor1 = _context.Resistors.First(x => x.Id == part.Resistor1Id);
+                    part.Resistor2 = _context.Resistors.First(x => x.Id == part.Resistor2Id);
+                    part.Resistor3 = _context.Resistors.First(x => x.Id == part.Resistor3Id);
+                }
+            }
+
             var viewModel = TestAnswerTransformer.TransformToTestAnswerViewModel(test, session);
 
             if (viewModel.IsStarted)
@@ -133,15 +147,34 @@ namespace Teststation.Controllers
                     foreach (var answer in question.Choices)
                     {
                         var answerDB = _context.MultipleChoiceAnswers
-                            .FirstOrDefault(x => x.ChoiceId == answer.Id && 
+                            .FirstOrDefault(x => x.ChoiceId == answer.Id &&
                                             x.CandidateId == user.Id);
-                        if(answerDB != null)
+                        if (answerDB != null)
                         {
                             answer.Correct = true;
                         }
                         else
                         {
                             answer.Correct = false;
+                        }
+                    }
+                }
+
+                foreach (var question in viewModel.Questions
+                     .Where(x => x.Type == "CircuitQuestion")
+                     .ToList())
+                {
+                    foreach (var part in question.CircuitParts)
+                    {
+                        var resistorId = part.Resistors().First(x => x.Visible == false).Id;
+                        var answer = _context.CircuitAnswers.FirstOrDefault(x => x.ResistorId == resistorId && x.CandidateId == user.Id);
+                        if (answer != null)
+                        {
+                            part.GivenResistance = answer.GivenResistance;
+                        }
+                        else
+                        {
+                            part.GivenResistance = 0;
                         }
                     }
                 }
@@ -161,8 +194,13 @@ namespace Teststation.Controllers
                .Where(x => x.Type == "MultipleChoiceQuestion")
                .ToList();
 
+            var circuitAnswers = model.Questions
+               .Where(x => x.Type == "CircuitQuestion")
+               .ToList();
+
             SaveResultsOfMathQuestions(mathAnswers, user);
             SaveResultsOfMultipleChoiceQuestions(multipleChoiceAnswers, user);
+            SaveResultsOfCircuitQuestions(circuitAnswers, user);
             _context.SaveChanges();
 
             var session = _context.Sessions
@@ -224,6 +262,30 @@ namespace Teststation.Controllers
                         }
                     }
                 }
+            }
+        }
+
+        private void SaveResultsOfCircuitQuestions(List<QuestionAnswerViewModel> questions, UserInformation user)
+        {
+            foreach (var question in questions)
+            {
+                foreach (var part in question.CircuitParts)
+                {
+                    var resistorId = part.Resistors().First(x => x.Visible == false).Id;
+                    var answerDB = _context.CircuitAnswers
+                             .FirstOrDefault(x => x.CandidateId == user.Id &&
+                                  x.ResistorId == resistorId);
+                    if (answerDB == null)
+                    {
+                        _context.Answers.Add(new CircuitAnswer { CandidateId = user.Id, ResistorId = resistorId, GivenResistance = part.GivenResistance });
+                    }
+                    else
+                    {
+                        answerDB.GivenResistance = part.GivenResistance;
+                        _context.CircuitAnswers.Update(answerDB);
+                    }
+                }
+
             }
         }
 

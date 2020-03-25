@@ -1,47 +1,99 @@
 ﻿@model QuestionAnswerViewModel
-<div class="questionBlock">
-    <input name="model.Questions[@(Model.Position)].Id" type="text" value="@Model.Id" hidden />
-    <input name="model.Questions[@(Model.Position)].Type" type="text" value="@Model.Type" hidden />
-    <input name="model.Questions[@(Model.Position)].Position" type="text" value="@Model.Position" hidden />
+    <div class="questionBlock">
+        <input name="model.Questions[@(Model.Position)].Id" type="text" value="@Model.Id" hidden />
+        <input name="model.Questions[@(Model.Position)].Type" type="text" value="@Model.Type" hidden />
+        <input name="model.Questions[@(Model.Position)].Position" type="text" value="@Model.Position" hidden />
 
-    <div class="row">
-        <div class="col-sm-1">
-            <div class="questionText form-control">@(Model.Position + 1).</div>
+        <div class="row">
+            <div class="col-sm-1">
+                <div class="questionText form-control">@(Model.Position + 1).</div>
+            </div>
+            <div class="col-sm-3">
+            </div>
+            <div class="col-sm-2">
+                @if (Model.Points == 1)
+                {
+                    <div class="questionText form-control">@Model.Points Punkt</div>
+                }
+                else
+                {
+                    <div class="questionText form-control">@Model.Points Punkte</div>
+                }
+            </div>
         </div>
-        <div class="col-sm-3">
-        </div>
-        <div class="col-sm-2">
-            @if (Model.Points == 1)
-            {
-                <div class="questionText form-control">@Model.Points Punkt</div>
-            }
-            else
-            {
-                <div class="questionText form-control">@Model.Points Punkte</div>
-            }
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6">
-            <textarea class="questionText form-control" readonly>@Model.Text</textarea>
-        </div>
-        <div class="col-sm-3">
+        <div class="row">
+            <div class="col-sm-6">
+                <textarea class="questionText form-control" readonly>@Model.Text</textarea>
+            </div>
+
             @if (Model.Type == "MathQuestion")
             {
-                <input name="model.Questions[@(Model.Position)].GivenAnswer" 
-                       type="text" 
-                       class="questionText form-control numInputJS" 
-                       value="@Model.GivenAnswer" 
-                       placeholder="Deine Antwort" 
-                       required 
-                       group="@(Model.Position)_Text"/>
-                <input type="checkbox" checked group="@(Model.Position)_Check" hidden/>
+                <div class="col-sm-4">
+                    <input name="model.Questions[@(Model.Position)].GivenAnswer"
+                           type="text"
+                           class="questionText form-control numInputJS"
+                           value="@Model.GivenAnswer"
+                           placeholder="Deine Antwort"
+                           required
+                           group="@(Model.Position)_Text" />
+                    <input type="checkbox" checked group="@(Model.Position)_Check" hidden />
+                </div>
             }
+
+            @if (Model.Type == "CircuitQuestion")
+            {
+                <div class="col-sm-4">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text item-info" style="width:150px">Stromstärke:</span>
+                        </div>
+                        <div name="model.Questions[@(Model.Position)].Amperage"
+                             class="form-control input-info questionText circuitQuestionGivenValues">
+                            @Model.Amperage.ToString("F2")
+                        </div>
+                        <div class="input-group-append">
+                            <span class="input-group-text item-info">A</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text item-info" style="width:150px">Stromspannung:</span>
+                        </div>
+                        <div name="model.Questions[@(Model.Position)].InitialCurrent"
+                             class="form-control input-info questionText circuitQuestionGivenValues">
+                            @Model.InitialCurrent.ToString("F2")
+                        </div>
+                        <div class="input-group-append">
+                            <span class="input-group-text item-info">V</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
         </div>
+        @if (Model.Type == "MultipleChoiceQuestion")
+        {
+            <partial name="MultipleChoiceQuestion" model="@Model" />
+        }
+        @if (Model.Type == "CircuitQuestion")
+        {
+            <input type="text" group="@(Model.Position)_Text" value="9ub" hidden />
+            <input type="checkbox" group="@(Model.Position)_Check" checked hidden />
+            <div class="circuitBlock">
+                @switch (Model.CircuitType)
+                {
+                    case CircuitType.Simple:
+                        <partial name="_PartialSimpleCircuit" model="@Model" />
+                        break;
+                    case CircuitType.Middle:
+                        <partial name="_PartialMiddleCircuit" model="@Model" />
+                        break;
+                    case CircuitType.Difficult:
+                        <partial name="_PartialDifficultCircuit" model="@Model" />
+                        break;
+                }
+            </div>
+        }
     </div>
-    @if (Model.Type == "MultipleChoiceQuestion")
-    {
-        <partial name="MultipleChoiceQuestion" model="@Model" />
-    }
-</div>
 <hr />

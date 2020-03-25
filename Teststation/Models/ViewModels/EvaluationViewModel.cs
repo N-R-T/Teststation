@@ -30,12 +30,31 @@ namespace Teststation.Models
             {
                 question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
             }
+            foreach (var question in Questions
+                .Where(x => x is CircuitQuestion)
+                .Select(x => x as CircuitQuestion)
+                .ToList())
+            {
+                question.Parts = _context.CircuitParts.Where(x => x.QuestionId == question.Id).ToList();
+                foreach (var part in question.Parts)
+                {
+                    part.Resistor1 = _context.Resistors.First(x => x.Id == part.Resistor1Id);
+                    part.Resistor2 = _context.Resistors.First(x => x.Id == part.Resistor2Id);
+                    part.Resistor3 = _context.Resistors.First(x => x.Id == part.Resistor3Id);
+                }
+            }
 
             Answers = new List<Answer>();
-            var mathAnswers = _context.MathAnswers
+            var mathAnswers = _context.MathAnswers                
                 .Where(x => x.CandidateId == userId &&
                 x.Question.TestId == test.Id)
                 .ToList();
+            foreach (var answer in mathAnswers)
+            {
+                answer.Question = _context.MathQuestions
+                    .First(x => x.Id == answer.QuestionId);
+            }
+
             var multipleChoiceAnswers = _context.MultipleChoiceAnswers
                 .Where(x => x.CandidateId == userId &&
                 x.Choice.Question.TestId == test.Id)
@@ -44,9 +63,31 @@ namespace Teststation.Models
             {
                 answer.Choice = _context.Choices.FirstOrDefault(x => x.Id == answer.ChoiceId);
             }
+            var circuitAnswers = _context.CircuitAnswers
+                .Where(x => x.CandidateId == userId &&
+                Questions.Where(q => q is CircuitQuestion)
+                         .Select(q => q as CircuitQuestion)
+                            .Any(y => y.Parts
+                                .Any(z =>
+                                    z.Resistor1Id == x.ResistorId ||
+                                    z.Resistor2Id == x.ResistorId ||
+                                    z.Resistor3Id == x.ResistorId)
+                                )
+                            )
+                .ToList();
+            foreach (var answer in circuitAnswers)
+            {
+                answer.Resistor = _context.Resistors.FirstOrDefault(x => x.Id == answer.ResistorId);
+                answer.Resistor.CircuitPart = _context.CircuitParts.FirstOrDefault(x =>
+                x.Resistor1Id == answer.ResistorId ||
+                x.Resistor2Id == answer.ResistorId ||
+                x.Resistor3Id == answer.ResistorId);
+                answer.Resistor.CircuitPart.Question = _context.CircuitQuestions.FirstOrDefault(x => x.Id == answer.Resistor.CircuitPart.QuestionId);
+            }
 
             Answers.AddRange(mathAnswers);
             Answers.AddRange(multipleChoiceAnswers);
+            Answers.AddRange(circuitAnswers);
         }
 
         public EvaluationViewModel()
@@ -90,7 +131,11 @@ namespace Teststation.Models
             {
                 return GetPointsOfMathQuestion(question as MathQuestion);
             }
-            return GetPointsOfMultipleChoiceQuestion(question as MultipleChoiceQuestion);
+            else if (question is MultipleChoiceQuestion)
+            {
+                return GetPointsOfMultipleChoiceQuestion(question as MultipleChoiceQuestion);
+            }
+            return GetPointsOfCircuitQuestion(question as CircuitQuestion);
         }
 
         private double GetPointsOfMathQuestion(MathQuestion question)
@@ -114,10 +159,21 @@ namespace Teststation.Models
            .Select(y => y as MultipleChoiceAnswer)
            .Where(z => z.GetQuestion().Id == question.Id)
            .ToList();
-            return CalculatePointsExactly(question, answers);       
+            return CalculatePointsFromChoices(question, answers);
         }
 
-        private double CalculatePointsExactly(MultipleChoiceQuestion question, List<MultipleChoiceAnswer> answers)
+        private double GetPointsOfCircuitQuestion(CircuitQuestion question)
+        {
+            var answers = Answers
+           .Where(x => x is CircuitAnswer)
+           .Select(y => y as CircuitAnswer)
+           .Where(z => z.GetQuestion().Id == question.Id)
+           .ToList();
+
+            return CalculatePointsFromResistors(question, answers);
+        }
+
+        private double CalculatePointsFromChoices(MultipleChoiceQuestion question, List<MultipleChoiceAnswer> answers)
         {
             var rightUserChoices = 0;
             var correctChoices = question.Choices.Where(x => x.Correct);
@@ -158,5 +214,43 @@ namespace Teststation.Models
             }
             return points;
         }
-}
+
+        private double CalculatePointsFromResistors(CircuitQuestion question, List<CircuitAnswer> answers)
+        {
+            var rightUserAnswers = 0;
+
+            foreach (var answer in answers)
+            {
+                if(answer.IsCorrect())
+                {
+                    rightUserAnswers++;
+                }
+            }
+
+            double pointsPerRightChoice = (double)question.Points / (double)question.Parts.Count();
+            double allPoints = (double)rightUserAnswers * (double)pointsPerRightChoice;
+            double wholePoints = Math.Floor(allPoints);
+            double commaPortion = allPoints - wholePoints;
+            double points = wholePoints;
+
+            if (commaPortion > 0 && commaPortion <= 0.5)
+            {
+                points += 0.5;
+            }
+            else if (commaPortion > 0.5 && commaPortion <= 1.0)
+            {
+                points += 1.0;
+            }
+
+            if (points > question.Points)
+            {
+                return question.Points;
+            }
+            if (points < 0)
+            {
+                return 0;
+            }
+            return points;
+        }
+    }
 }

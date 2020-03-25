@@ -294,6 +294,9 @@
         var endCurrent_1and2 =  (parseFloat(wholeResistance_1) * parseFloat(wholeResistance_2)) /
                                 (parseFloat(wholeResistance_1) + parseFloat(wholeResistance_2))
             * parseFloat(amperage);
+        if (isNaN(endCurrent_1and2)) {
+            endCurrent_1and2 = 0;
+        }
 
         outputField_1.prop("value", endCurrent_1and2.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
         outputField_2.prop("value", endCurrent_1and2.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
@@ -308,9 +311,16 @@
 
         var wholeResistance_3 = parseFloat(res1_3) + parseFloat(res2_3) + parseFloat(res3_3) + parseFloat(res4_3) + resPartial;
         var endCurrent_3 = parseFloat(wholeResistance_3) * parseFloat(amperage);
+        if (isNaN(endCurrent_3)) {
+            endCurrent_3 = 0;
+        }
+
         outputField_3.prop("value", endCurrent_3.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
-        var wholeCurrent = endCurrent_1and2*2 + parseFloat(endCurrent_3);
+        var wholeCurrent = endCurrent_1and2 * 2 + parseFloat(endCurrent_3);
+        if (isNaN(wholeCurrent)) {
+            wholeCurrent = 0;
+        }
         initialCurrentField.prop("value", wholeCurrent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
     });
         

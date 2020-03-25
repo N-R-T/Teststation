@@ -16,7 +16,7 @@ namespace Teststation.Models
         }
         public override bool IsCorrect()
         {
-            return Resistor.CorrectResistance == GivenResistance;
+            return Resistor.CorrectResistance.ToString("F2") == GivenResistance.ToString("F2");
         }
     }
 }

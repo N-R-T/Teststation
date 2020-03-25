@@ -35,7 +35,31 @@ namespace Teststation.Models
 
             foreach (var test in allTests)
             {
-                var session = _context.Sessions.FirstOrDefault(x => x.TestId == test.Id && x.CandidateId == UserInformation.Id);
+                var session = _context.Sessions
+                    .FirstOrDefault(x => x.TestId == test.Id && x.CandidateId == UserInformation.Id);
+                if (session != null)
+                {
+                    session.Test = _context.Tests.FirstOrDefault(x => x.Id == session.TestId);
+                    session.Test.Questions = _context.Questions.Where(x => x.TestId == session.TestId).ToList();
+                    foreach (var question in session.Test.Questions
+                        .Where(x => x is MultipleChoiceQuestion)
+                        .Select(x => x as MultipleChoiceQuestion))
+                    {
+                        question.Choices = _context.Choices.Where(x => x.QuestionId == question.Id).ToList();
+                    }
+                    foreach (var question in session.Test.Questions
+                       .Where(x => x is CircuitQuestion)
+                       .Select(x => x as CircuitQuestion))
+                    {
+                        question.Parts = _context.CircuitParts.Where(x => x.QuestionId == question.Id).ToList();
+                        foreach (var part in question.Parts)
+                        {
+                            part.Resistor1 = _context.Resistors.First(x => x.Id == part.Resistor1Id);
+                            part.Resistor2 = _context.Resistors.First(x => x.Id == part.Resistor2Id);
+                            part.Resistor3 = _context.Resistors.First(x => x.Id == part.Resistor3Id);
+                        }
+                    }
+                }
                 var testRow = new TestCandidateViewModel
                 {
                     Test = test,
@@ -54,9 +78,9 @@ namespace Teststation.Models
                         }
                         catch
                         {
-                            session.Completed = false;
-                            _context.Update(session);
-                            _context.SaveChanges();
+                            //session.Completed = false;
+                            //_context.Update(session);
+                            //_context.SaveChanges();
                         }
                         
                     }

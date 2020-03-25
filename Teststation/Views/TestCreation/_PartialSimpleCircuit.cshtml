@@ -130,6 +130,9 @@
 
         var wholeResistance = parseFloat(res1) + parseFloat(res2) + parseFloat(res3) + parseFloat(res4);
         var endCurrent = parseFloat(wholeResistance) * parseFloat(amperage);
+           if (isNaN(endCurrent)) {
+            endCurrent = 0;
+        }
         outputField.prop("value", endCurrent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
         initialCurrentField.prop("value", endCurrent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
     });

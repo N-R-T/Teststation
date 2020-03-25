@@ -61,6 +61,7 @@ namespace Teststation.Controllers
             {
                 CopyMathQuestions(originalTest, copiedTest.Id);
                 CopyMultipleChoiceQuestions(originalTest, copiedTest.Id);
+                CopyCircuitQuestions(originalTest, copiedTest.Id);
             }
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
@@ -105,6 +106,66 @@ namespace Teststation.Controllers
                         Text = originalChoice.Text,
                     };
                     _context.Add(copiedChoice);
+                }
+            }
+        }
+
+        private void CopyCircuitQuestions(Test originalTest, long copiedTestId)
+        {
+            foreach (var originalQuestion in originalTest.Questions.Where(x => x is CircuitQuestion).Select(x => x as CircuitQuestion))
+            {
+                var copiedQuestion = new CircuitQuestion
+                {
+                    Points = originalQuestion.Points,
+                    Position = originalQuestion.Position,
+                    TestId = copiedTestId,
+                    Text = originalQuestion.Text,
+                    Amperage = originalQuestion.Amperage,
+                    InitialCurrent = originalQuestion.InitialCurrent,
+                    CircuitType = originalQuestion.CircuitType,
+                };
+                _context.Add(copiedQuestion);
+                _context.SaveChanges();
+                originalQuestion.Parts = _context.CircuitParts.Where(x => x.QuestionId == originalQuestion.Id).ToList();
+                
+                foreach (var originalPart in originalQuestion.Parts)
+                {
+                    originalPart.Resistor1 = _context.Resistors.First(x => x.Id == originalPart.Resistor1Id);
+                    originalPart.Resistor2 = _context.Resistors.First(x => x.Id == originalPart.Resistor2Id);
+                    originalPart.Resistor3 = _context.Resistors.First(x => x.Id == originalPart.Resistor3Id);
+
+                    var copiedResistor1 = new Resistor
+                    {
+                        CorrectResistance = originalPart.Resistor1.CorrectResistance,
+                        Visible = originalPart.Resistor1.Visible
+                    };                    
+                    var copiedResistor2 = new Resistor
+                    {
+                        CorrectResistance = originalPart.Resistor2.CorrectResistance,
+                        Visible = originalPart.Resistor2.Visible
+                    };                    
+                    var copiedResistor3 = new Resistor
+                    {
+                        CorrectResistance = originalPart.Resistor3.CorrectResistance,
+                        Visible = originalPart.Resistor3.Visible
+                    };
+                    _context.Add(copiedResistor1);
+                    _context.Add(copiedResistor2);
+                    _context.Add(copiedResistor3);
+                    _context.SaveChanges();
+
+                    var copiedPart = new CircuitPart
+                    {
+                        Position = originalPart.Position,
+                        NeededCurrent = originalPart.NeededCurrent,
+                        Resistance = originalPart.Resistance,
+                        QuestionId = copiedQuestion.Id,
+                        Resistor1Id = copiedResistor1.Id,
+                        Resistor2Id = copiedResistor2.Id,
+                        Resistor3Id = copiedResistor3.Id,
+                    };
+                    _context.Add(copiedPart);
+                    _context.SaveChanges();
                 }
             }
         }
@@ -337,6 +398,30 @@ namespace Teststation.Controllers
                         part.Resistor1 = _context.Resistors.First(x => x.Id == part.Resistor1Id);
                         part.Resistor2 = _context.Resistors.First(x => x.Id == part.Resistor2Id);
                         part.Resistor3 = _context.Resistors.First(x => x.Id == part.Resistor3Id);
+
+                        var copiedResistor1 = new Resistor
+                        {
+                            CorrectResistance = part.Resistor1.CorrectResistance,
+                            Visible = part.Resistor1.Visible
+                        };
+                        var copiedResistor2 = new Resistor
+                        {
+                            CorrectResistance = part.Resistor2.CorrectResistance,
+                            Visible = part.Resistor2.Visible
+                        };
+                        var copiedResistor3 = new Resistor
+                        {
+                            CorrectResistance = part.Resistor3.CorrectResistance,
+                            Visible = part.Resistor3.Visible
+                        };
+                        _context.Add(copiedResistor1);
+                        _context.Add(copiedResistor2);
+                        _context.Add(copiedResistor3);
+                        _context.SaveChanges();
+
+                        part.Resistor1Id = copiedResistor1.Id;
+                        part.Resistor2Id = copiedResistor2.Id;
+                        part.Resistor3Id = copiedResistor3.Id;
                     }
                 }
                 if (backUpTest.Questions == null)
@@ -367,6 +452,30 @@ namespace Teststation.Controllers
                         part.Resistor1 = _context.Resistors.First(x => x.Id == part.Resistor1Id);
                         part.Resistor2 = _context.Resistors.First(x => x.Id == part.Resistor2Id);
                         part.Resistor3 = _context.Resistors.First(x => x.Id == part.Resistor3Id);
+
+                        var copiedResistor1 = new Resistor
+                        {
+                            CorrectResistance = part.Resistor1.CorrectResistance,
+                            Visible = part.Resistor1.Visible
+                        };
+                        var copiedResistor2 = new Resistor
+                        {
+                            CorrectResistance = part.Resistor2.CorrectResistance,
+                            Visible = part.Resistor2.Visible
+                        };
+                        var copiedResistor3 = new Resistor
+                        {
+                            CorrectResistance = part.Resistor3.CorrectResistance,
+                            Visible = part.Resistor3.Visible
+                        };
+                        _context.Add(copiedResistor1);
+                        _context.Add(copiedResistor2);
+                        _context.Add(copiedResistor3);
+                        _context.SaveChanges();
+
+                        part.Resistor1Id = copiedResistor1.Id;
+                        part.Resistor2Id = copiedResistor2.Id;
+                        part.Resistor3Id = copiedResistor3.Id;
                     }
                 }
                 if (backUpTest.Questions == null)
@@ -382,7 +491,7 @@ namespace Teststation.Controllers
         {
             if (_context.Tests.Any(x => x.Id == Consts.backUpTestId))
             {
-                foreach (var question in _context.CircuitQuestions.Where(x => x.TestId == Consts.backUpTestId))
+                foreach (var question in _context.CircuitQuestions.Include(x=>x.Parts).Where(x => x.TestId == Consts.backUpTestId))
                 {
                     foreach (var part in question.Parts)
                     {
@@ -498,7 +607,6 @@ namespace Teststation.Controllers
                         {
                             _context.Resistors.Add(new Resistor
                             {
-                                //CircuitPartId = newPart.Id,
                                 Visible = resistor.Visible,
                                 CorrectResistance = resistor.CorrectResistance
                             });
@@ -795,6 +903,18 @@ namespace Teststation.Controllers
                 .Where(x => x.Choice.Question.TestId == test.Id)
                 .ToList();
             var circuitAnswers = _context.CircuitAnswers
+                .Include(x => x.Resistor)
+                .ToList();
+            foreach (var answer in circuitAnswers)
+            {
+                answer.Resistor.CircuitPart = _context.CircuitParts
+                    .Include(x => x.Question)
+                    .First(x =>
+                        x.Resistor1Id == answer.ResistorId ||
+                        x.Resistor2Id == answer.ResistorId ||
+                        x.Resistor3Id == answer.ResistorId);
+            }
+            circuitAnswers = circuitAnswers
                 .Where(x => x.Resistor.CircuitPart.Question.TestId == test.Id)
                 .ToList();
 

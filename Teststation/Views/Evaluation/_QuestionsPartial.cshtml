@@ -17,20 +17,34 @@
         @if (question is MathQuestion)
         {
             Answer mathAnswer = Model.Answers
-        .SingleOrDefault(x => x.GetQuestion().Id == question.Id) as MathAnswer;
+                .Where(x => x is MathAnswer)
+                .Select(x => x as MathAnswer)
+                .SingleOrDefault(x => x.QuestionId == question.Id) as MathAnswer;
             <partial name="MathQuestion" model="@mathAnswer" />
         }
-        else
+        else if (question is MultipleChoiceQuestion)
         {
             var viewModel = new MultipleChoiceEvalutionViewModel();
             viewModel.GivenAnswers = Model.Answers
-                .Where(x => x is MultipleChoiceAnswer)
-                .Select(y => y as MultipleChoiceAnswer)
-                .Where(z => z.GetQuestion().Id == question.Id)
-                .ToList();
+            .Where(x => x is MultipleChoiceAnswer)
+            .Select(y => y as MultipleChoiceAnswer)
+            .Where(z => z.GetQuestion().Id == question.Id)
+            .ToList();
             viewModel.Question = question as MultipleChoiceQuestion;
 
             <partial name="MultipleChoiceQuestion" model="@viewModel" />
+        }
+        else if (question is CircuitQuestion)
+        {
+            var viewModel = new CircuitEvalutionViewModel();
+            viewModel.GivenAnswers = Model.Answers
+            .Where(x => x is CircuitAnswer)
+            .Select(y => y as CircuitAnswer)
+            .Where(z => z.GetQuestion().Id == question.Id)
+            .ToList();
+            viewModel.Question = question as CircuitQuestion;
+
+            <partial name="CircuitQuestion" model="@viewModel" />
         }
     </div>
     <hr />

@@ -1,0 +1,305 @@
+﻿@model QuestionAnswerViewModel
+
+<input name="model.Questions[@(Model.Position)].CircuitParts[0].Id"
+       value="@Model.CircuitParts[0].Id" hidden />
+<input name="model.Questions[@(Model.Position)].CircuitParts[0].Position"
+       value="@Model.CircuitParts[0].Position" hidden />
+<input name="model.Questions[@(Model.Position)].CircuitParts[1].Id"
+       value="@Model.CircuitParts[1].Id" hidden />
+<input name="model.Questions[@(Model.Position)].CircuitParts[1].Position"
+       value="@Model.CircuitParts[1].Position" hidden />
+<input name="model.Questions[@(Model.Position)].CircuitParts[2].Id"
+       value="@Model.CircuitParts[2].Id" hidden />
+<input name="model.Questions[@(Model.Position)].CircuitParts[2].Position"
+       value="@Model.CircuitParts[2].Position" hidden />
+<table>
+    <tr>
+        <td class="corner_TopLeft">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="resistorSymbol">
+            </td>
+            <td class="line_Horizontal">
+            </td>
+        }
+        <td class="lampSymbol">
+        </td>
+        <td class="corner_TopRight">
+        </td>
+    </tr>
+    <tr>
+        <td class="line_Vertical">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="partOfCircuit">
+                <div class="halfHeight">
+                    @if (Model.CircuitParts[0].Resistors()[i].Visible)
+                    {
+                        <div class="input-group mb-3 circuit-row resistanceValues">
+                            <div class="form-control input-info questionText circuitQuestionGivenValues"
+                                 name="model.Questions[@(Model.Position)].CircuitParts[0].Resistance">
+                                @Model.CircuitParts[0].Resistors()[i].CorrectResistance.ToString("F2")
+                            </div>
+                            <div class="input-group-append">
+                                <span class="btn btn-info input-group-text item-info">Ω</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        var fillerValues = Model.CircuitParts[0].Resistors()[i].FillerValues(Model.CircuitParts[0].GivenResistance);
+                        <select id="Question@(Model.Position)Selector0"
+                                class="form-control input-info questionText resistanceValues circuit-select-resistance">
+                            @foreach (var value in fillerValues)
+                            {
+                                <option value="@value.ToString("F2")">@value.ToString("F2") Ω</option>
+                            }
+                        </select>
+                        <input id="Question@(Model.Position)CircuiPart0Resistor"
+                               name="model.Questions[@(Model.Position)].CircuitParts[0].GivenResistance"
+                               value="@Model.CircuitParts[0].GivenResistance" hidden />
+                    }
+                </div>
+                <div class="halfHeight">
+                    <input name="model.Questions[@(Model.Position)].CircuitParts[0].Resistor@(i+1).Id"
+                           value="@Model.CircuitParts[0].Resistors()[i].Id" hidden />
+                    <input name="model.Questions[@(Model.Position)].CircuitParts[0].Resistor@(i+1)Id"
+                           value="@Model.CircuitParts[0].Resistors()[i].Id" hidden />
+                    <input type="checkbox"
+                           name="model.Questions[@(Model.Position)].CircuitParts[0].Resistor@(i+1).Visible"
+                           asp-for="@Model.CircuitParts[0].Resistors()[i].Visible" hidden />
+                </div>
+            </td>
+            <td></td>
+        }
+        <td class="partOfCircuit">
+            <div class="halfHeight">
+                <div class="input-group mb-3 circuit-row resistanceValues">
+                    <div class="form-control input-info questionText circuitQuestionGivenValues"
+                         name="model.Questions[@(Model.Position)].CircuitParts[0].Resistance">
+                        @Model.CircuitParts[0].Resistance.ToString("F2")
+                    </div>
+                    <div class="input-group-append">
+                        <span class="btn btn-info input-group-text item-info">Ω</span>
+                    </div>
+                </div>
+            </div>
+            <div class="halfHeight">
+                <div class="input-group mb-3 circuit-row resistanceValues">
+                    <div class="form-control input-info questionText circuitQuestionGivenValues"
+                         name="model.Questions[@(Model.Position)].CircuitParts[0].NeededCurrent">
+                        @Model.CircuitParts[0].NeededCurrent.ToString("F2")
+                    </div>
+                    <div class="input-group-append">
+                        <span class="input-group-text item-info">V</span>
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td class="line_Vertical">
+        </td>
+    </tr>
+    <tr>
+        <td class="SplitLeft">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="resistorSymbol">
+            </td>
+            <td class="line_Horizontal">
+            </td>
+        }
+        <td class="lampSymbol">
+        </td>
+        <td class="SplitRight">
+        </td>
+    </tr>
+    <tr>
+        <td class="line_Vertical">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="partOfCircuit">
+                <div class="halfHeight">
+                    @if (Model.CircuitParts[1].Resistors()[i].Visible)
+                    {
+                        <div class="input-group mb-3 circuit-row resistanceValues">
+                            <div class="form-control input-info questionText circuitQuestionGivenValues"
+                                 name="model.Questions[@(Model.Position)].CircuitParts[1].Resistance">
+                                @Model.CircuitParts[1].Resistors()[i].CorrectResistance.ToString("F2")
+                            </div>
+                            <div class="input-group-append">
+                                <span class="btn btn-info input-group-text item-info">Ω</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        var fillerValues = Model.CircuitParts[1].Resistors()[i].FillerValues(Model.CircuitParts[1].GivenResistance);
+                        <select id="Question@(Model.Position)Selector1"
+                                class="form-control input-info questionText resistanceValues circuit-select-resistance">
+                            @foreach (var value in fillerValues)
+                            {
+                                <option value="@value.ToString("F2")">@value.ToString("F2") Ω</option>
+                            }
+                        </select>
+                        <input id="Question@(Model.Position)CircuiPart1Resistor"
+                               name="model.Questions[@(Model.Position)].CircuitParts[1].GivenResistance"
+                               value="@Model.CircuitParts[1].GivenResistance" hidden />
+                    }
+                </div>
+                <div class="halfHeight">
+                    <input name="model.Questions[@(Model.Position)].CircuitParts[1].Resistor@(i+1).Id"
+                           value="@Model.CircuitParts[1].Resistors()[i].Id" hidden />
+                    <input name="model.Questions[@(Model.Position)].CircuitParts[1].Resistor@(i+1)Id"
+                           value="@Model.CircuitParts[1].Resistors()[i].Id" hidden />
+                    <input type="checkbox"
+                           name="model.Questions[@(Model.Position)].CircuitParts[1].Resistor@(i+1).Visible"
+                           asp-for="@Model.CircuitParts[1].Resistors()[i].Visible" hidden />
+                </div>
+            </td>
+            <td></td>
+        }
+        <td class="partOfCircuit">
+            <div class="halfHeight">
+                <div class="input-group mb-3 circuit-row resistanceValues">
+                    <div class="form-control input-info questionText circuitQuestionGivenValues"
+                         name="model.Questions[@(Model.Position)].CircuitParts[1].Resistance">
+                        @Model.CircuitParts[1].Resistance.ToString("F2")
+                    </div>
+                    <div class="input-group-append">
+                        <span class="btn btn-info input-group-text item-info">Ω</span>
+                    </div>
+                </div>
+            </div>
+            <div class="halfHeight">
+                <div class="input-group mb-3 circuit-row resistanceValues">
+                    <div class="form-control input-info questionText circuitQuestionGivenValues"
+                         name="model.Questions[@(Model.Position)].CircuitParts[1].NeededCurrent">
+                        @Model.CircuitParts[1].NeededCurrent.ToString("F2")
+                    </div>
+                    <div class="input-group-append">
+                        <span class="input-group-text item-info">V</span>
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td class="line_Vertical">
+        </td>
+    </tr>
+
+    <tr>
+        <td class="CircuitSource">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td></td>
+            <td></td>
+        }
+        <td></td>
+        <td class="line_Vertical">
+        </td>
+    </tr>
+    <tr>
+        <td class="corner_BottomLeft">
+        </td>
+        <td class="lampSymbol">
+        </td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="line_Horizontal">
+            </td>
+            <td class="resistorSymbol">
+            </td>
+        }
+        <td class="corner_BottomRight">
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+
+        <td class="partOfCircuit">
+            <div class="halfHeight">
+                <div class="input-group mb-3 circuit-row resistanceValues">
+                    <div class="form-control input-info questionText circuitQuestionGivenValues"
+                         name="model.Questions[@(Model.Position)].CircuitParts[2].Resistance">
+                        @Model.CircuitParts[2].Resistance.ToString("F2")
+                    </div>
+                    <div class="input-group-append">
+                        <span class="btn btn-info input-group-text item-info">Ω</span>
+                    </div>
+                </div>
+            </div>
+            <div class="halfHeight">
+                <div class="input-group mb-3 circuit-row resistanceValues">
+                    <div class="form-control input-info questionText circuitQuestionGivenValues"
+                         name="model.Questions[@(Model.Position)].CircuitParts[2].NeededCurrent">
+                        @Model.CircuitParts[2].NeededCurrent.ToString("F2")
+                    </div>
+                    <div class="input-group-append">
+                        <span class="input-group-text item-info">V</span>
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td></td>
+        @for (int i = 0; i < 3; i++)
+        {
+            <td class="partOfCircuit">
+                <div class="halfHeight">
+                    @if (Model.CircuitParts[2].Resistors()[i].Visible)
+                    {
+                        <div class="input-group mb-3 circuit-row resistanceValues">
+                            <div class="form-control input-info questionText circuitQuestionGivenValues"
+                                 name="model.Questions[@(Model.Position)].CircuitParts[2].Resistance">
+                                @Model.CircuitParts[2].Resistors()[i].CorrectResistance.ToString("F2")
+                            </div>
+                            <div class="input-group-append">
+                                <span class="btn btn-info input-group-text item-info">Ω</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        var fillerValues = Model.CircuitParts[2].Resistors()[i].FillerValues(Model.CircuitParts[2].GivenResistance);
+                        <select id="Question@(Model.Position)Selector2"
+                                class="form-control input-info questionText resistanceValues circuit-select-resistance">
+                            @foreach (var value in fillerValues)
+                            {
+                                <option value="@value.ToString("F2")">@value.ToString("F2") Ω</option>
+                            }
+                        </select>
+                        <input id="Question@(Model.Position)CircuiPart2Resistor"
+                               name="model.Questions[@(Model.Position)].CircuitParts[2].GivenResistance"
+                               value="@Model.CircuitParts[2].GivenResistance" hidden />
+                    }
+                </div>
+                <div class="halfHeight">
+                    <input name="model.Questions[@(Model.Position)].CircuitParts[2].Resistor@(i+1).Id"
+                           value="@Model.CircuitParts[2].Resistors()[i].Id" hidden />
+                    <input name="model.Questions[@(Model.Position)].CircuitParts[2].Resistor@(i+1)Id"
+                           value="@Model.CircuitParts[2].Resistors()[i].Id" hidden />
+                    <input type="checkbox"
+                           name="model.Questions[@(Model.Position)].CircuitParts[2].Resistor@(i+1).Visible"
+                           asp-for="@Model.CircuitParts[2].Resistors()[i].Visible" hidden />
+                </div>
+            </td>
+            <td></td>
+        }
+
+        <td>
+        </td>
+    </tr>
+</table>
+
+<script>
+    $("#Question@(Model.Position)Selector0 option[value='@(Model.CircuitParts[0].GivenResistance.ToString("F2"))']").attr('selected',true);
+    $("#Question@(Model.Position)Selector1 option[value='@(Model.CircuitParts[1].GivenResistance.ToString("F2"))']").attr('selected',true);
+    $("#Question@(Model.Position)Selector2 option[value='@(Model.CircuitParts[2].GivenResistance.ToString("F2"))']").attr('selected',true);
+
+    $("#Question@(Model.Position)Selector0").change(function () { $("#Question@(Model.Position)CircuiPart0Resistor").prop("value", $("#Question@(Model.Position)Selector0").val());    });
+    $("#Question@(Model.Position)Selector1").change(function () { $("#Question@(Model.Position)CircuiPart1Resistor").prop("value", $("#Question@(Model.Position)Selector1").val());    });
+    $("#Question@(Model.Position)Selector2").change(function () { $("#Question@(Model.Position)CircuiPart2Resistor").prop("value", $("#Question@(Model.Position)Selector2").val());    });
+</script>

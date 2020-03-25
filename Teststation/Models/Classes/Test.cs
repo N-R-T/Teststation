@@ -27,11 +27,6 @@ namespace Teststation.Models
             Questions = new List<Question>();
         }
 
-        public List<Question> GetQuestions()
-        {
-            return new List<Question>();
-        }
-
         public int GetAllPoints()
         {
             var maxPoints = 0;

@@ -200,6 +200,9 @@
         var res4_1 = $('#Questions' + quesNum + 'CircuitParts0Resistance').val().replace(',', '.');
         var wholeResistance_1 = parseFloat(res1_1) + parseFloat(res2_1) + parseFloat(res3_1) + parseFloat(res4_1);
         var endCurrent_1 = parseFloat(wholeResistance_1) * parseFloat(amperage);
+           if (isNaN(endCurrent_1)) {
+            endCurrent_1 = 0;
+        }
         outputField_1.prop("value", endCurrent_1.toLocaleString(undefined,{ minimumFractionDigits: 2, maximumFractionDigits:2 }));
 
         var outputField_2 = $('#Questions' + quesNum + 'CircuitParts1NeededCurrent');
@@ -209,9 +212,15 @@
         var res4_2 = $('#Questions' + quesNum + 'CircuitParts1Resistance').val().replace(',', '.');
         var wholeResistance_2 = parseFloat(res1_2) + parseFloat(res2_2) + parseFloat(res3_2) + parseFloat(res4_2) + parseFloat(wholeResistance_1);
         var endCurrent_2 = parseFloat(wholeResistance_2) * parseFloat(amperage);
+           if (isNaN(endCurrent_2)) {
+            endCurrent_2 = 0;
+        }
         outputField_2.prop("value", endCurrent_2.toLocaleString(undefined, { minimumFractionDigits: 2 }));
 
         var wholeCurrent = parseFloat(endCurrent_1) + parseFloat(endCurrent_2)
+           if (isNaN(wholeCurrent)) {
+            wholeCurrent = 0;
+        }
         initialCurrentField.prop("value", wholeCurrent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits:2 }));
     });
 </script>

@@ -1,0 +1,107 @@
+﻿@model Teststation.Models.CircuitEvalutionViewModel
+<div class="row">
+    <div class="col-sm-6">
+        <textarea class="form-control questionText " readonly>@Model.Question.Text</textarea>
+    </div>
+    <div class="col-sm-4">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" style="width:150px">Stromstärke:</span>
+            </div>
+            <div class="form-control questionText circuitQuestionGivenValues">
+                @Model.Question.Amperage.ToString("F2")
+            </div>
+            <div class="input-group-append">
+                <span class="input-group-text">A</span>
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" style="width:150px">Stromspannung:</span>
+            </div>
+            <div class="form-control questionText circuitQuestionGivenValues">
+                @Model.Question.InitialCurrent.ToString("F2")
+            </div>
+            <div class="input-group-append">
+                <span class="input-group-text">V</span>
+            </div>
+        </div>
+    </div>
+</div>
+@switch (Model.Question.CircuitType)
+{
+    case CircuitType.Simple:
+        <partial name="_PartialSimpleCircuit" model="@Model" />
+        break;
+    case CircuitType.Middle:
+        <partial name="_PartialMiddleCircuit" model="@Model" />
+        break;
+    case CircuitType.Difficult:
+        <partial name="_PartialDifficultCircuit" model="@Model" />
+        break;
+}
+
+@*@foreach (var choice in Model.Question.Choices)
+    {
+        var userChecked = Model.GivenAnswers.Any(x => x.ChoiceId == choice.Id);
+        var styleOfRow = "nonRelevantAnswerRow";
+        @if (userChecked && choice.Correct)
+        {
+            styleOfRow = "correctAnswerRow";
+        }
+        else if(userChecked && !choice.Correct || !userChecked && choice.Correct)
+        {
+            styleOfRow = "falseAnswerRow";
+        }
+
+    <div class="choiceBlock">
+        <div class="row ">
+            <div class="col-sm-1"></div>
+
+            <div class="col-sm-5">
+                @if (userChecked && choice.Correct)
+                {
+                    <textarea class="questionText form-control correctAnswer">@choice.Text</textarea>
+                }
+                else if (!userChecked && choice.Correct || userChecked && !choice.Correct)
+                {
+                    <textarea class="questionText form-control falseAnswer">@choice.Text</textarea>
+                }
+                else if (!userChecked && !choice.Correct)
+                {
+                    <textarea class="questionText form-control nonRelevantAnswer">@choice.Text</textarea>
+                }
+            </div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1 @styleOfRow">
+                <div class="multipleChoiceCheckBox">
+                    @if (choice.Correct)
+                    {
+                        <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" checked="checked" />
+                    }
+                    else
+                    {
+                        <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" />
+                    }
+                </div>
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-1 @styleOfRow">
+                <div class="multipleChoiceCheckBox">
+                    @if (userChecked)
+                    {
+                        <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" checked="checked" />
+                    }
+                    else
+                    {
+                        <input class="form-check-input inline-buttons form-control choiceCheckbox checkboxAnswerJS choiceCheckboxEvaluation" type="checkbox" />
+                    }
+                </div>
+            </div>
+            <div class="col-sm-1"></div>
+
+        </div>
+
+    </div>
+    }*@

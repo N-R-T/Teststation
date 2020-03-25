@@ -12,8 +12,6 @@ namespace Teststation.Models
         public double CorrectResistance { get; set; }
         public bool Visible { get; set; }
 
-        //[ForeignKey("CircuitPart")]
-        //public long CircuitPartId { get; set; }
         [NotMapped]
         public CircuitPart CircuitPart { get; set; }
 
