@@ -24,7 +24,7 @@ namespace Teststation.Models
                     Position = question.Position,
                     Points = question.Points,
                     CorrectAnswer = question.CorrectAnswer,
-                    Type = "MathQuestion"
+                    Type = QuestionType.MathQuestion
                 });
             }
 
@@ -41,7 +41,7 @@ namespace Teststation.Models
                     Position = question.Position,
                     Points = question.Points,
                     Choices = question.Choices,
-                    Type = "MultipleChoiceQuestion"
+                    Type = QuestionType.MultipleChoiceQuestion
                 });
             }
 
@@ -77,7 +77,7 @@ namespace Teststation.Models
                     Amperage = question.Amperage,
                     InitialCurrent = question.InitialCurrent,
                     CircuitType = question.CircuitType,
-                    Type = "CircuitQuestion"
+                    Type = QuestionType.CircuitQuestion
                 });
             }
 
@@ -99,7 +99,7 @@ namespace Teststation.Models
             if (viewModel.Questions != null)
             {
                 foreach (var question in viewModel.Questions
-                  .Where(x => x.Type == "MathQuestion")
+                  .Where(x => x.Type == QuestionType.MathQuestion)
                   .ToList())
                 {
                     test.Questions.Add(new MathQuestion
@@ -114,7 +114,7 @@ namespace Teststation.Models
                 }
 
                 foreach (var question in viewModel.Questions
-                   .Where(x => x.Type == "MultipleChoiceQuestion")
+                   .Where(x => x.Type == QuestionType.MultipleChoiceQuestion)
                    .ToList())
                 {
                     test.Questions.Add(new MultipleChoiceQuestion
@@ -129,7 +129,7 @@ namespace Teststation.Models
                 }
 
                 foreach (var question in viewModel.Questions
-                   .Where(x => x.Type == "CircuitQuestion")
+                   .Where(x => x.Type == QuestionType.CircuitQuestion)
                    .ToList())
                 {
                     var parts = new List<CircuitPart>();

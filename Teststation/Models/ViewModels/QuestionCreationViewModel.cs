@@ -21,6 +21,6 @@ namespace Teststation.Models
         public CircuitType CircuitType { get; set; }
         public double Amperage { get; set; }
         public double InitialCurrent { get; set; }
-        public string Type { get; set; }
+        public QuestionType Type { get; set; }
     }
 }

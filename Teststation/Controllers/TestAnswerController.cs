@@ -126,7 +126,7 @@ namespace Teststation.Controllers
             if (viewModel.IsStarted)
             {
                 foreach (var question in viewModel.Questions
-                      .Where(x => x.Type == "MathQuestion")
+                      .Where(x => x.Type == QuestionType.MathQuestion)
                       .ToList())
                 {
                     var answer = _context.MathAnswers.FirstOrDefault(x => x.QuestionId == question.Id && x.CandidateId == user.Id);
@@ -141,7 +141,7 @@ namespace Teststation.Controllers
                 }
 
                 foreach (var question in viewModel.Questions
-                     .Where(x => x.Type == "MultipleChoiceQuestion")
+                     .Where(x => x.Type == QuestionType.MultipleChoiceQuestion)
                      .ToList())
                 {
                     foreach (var answer in question.Choices)
@@ -161,7 +161,7 @@ namespace Teststation.Controllers
                 }
 
                 foreach (var question in viewModel.Questions
-                     .Where(x => x.Type == "CircuitQuestion")
+                     .Where(x => x.Type == QuestionType.CircuitQuestion)
                      .ToList())
                 {
                     foreach (var part in question.CircuitParts)
@@ -187,15 +187,15 @@ namespace Teststation.Controllers
         {
             var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
             var mathAnswers = model.Questions
-                  .Where(x => x.Type == "MathQuestion")
+                  .Where(x => x.Type == QuestionType.MathQuestion)
                   .ToList();
 
             var multipleChoiceAnswers = model.Questions
-               .Where(x => x.Type == "MultipleChoiceQuestion")
+               .Where(x => x.Type == QuestionType.MultipleChoiceQuestion)
                .ToList();
 
             var circuitAnswers = model.Questions
-               .Where(x => x.Type == "CircuitQuestion")
+               .Where(x => x.Type == QuestionType.CircuitQuestion)
                .ToList();
 
             SaveResultsOfMathQuestions(mathAnswers, user);

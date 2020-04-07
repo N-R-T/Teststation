@@ -25,7 +25,7 @@ namespace Teststation.Models
                     TestId = question.TestId,
                     Position = question.Position,
                     Points = question.Points,
-                    Type = "MathQuestion"
+                    Type = QuestionType.MathQuestion
                 });
             }
 
@@ -42,7 +42,7 @@ namespace Teststation.Models
                     Position = question.Position,
                     Points = question.Points,
                     Choices = Choices(question.Choices),
-                    Type = "MultipleChoiceQuestion"
+                    Type = QuestionType.MultipleChoiceQuestion
                 });
             }
 
@@ -62,7 +62,7 @@ namespace Teststation.Models
                     Amperage = question.Amperage,
                     CircuitType = question.CircuitType,
                     InitialCurrent = question.InitialCurrent,
-                    Type = "CircuitQuestion"
+                    Type = QuestionType.CircuitQuestion
                 });
             }
 
