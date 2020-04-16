@@ -3,8 +3,8 @@
     public abstract class Answer
     {
         public long Id { get; set; }
-        public long CandidateId { get; set; }
-        public UserInformation Candidate { get; set; }
+        public string CandidateId { get; set; }
+        public User Candidate { get; set; }
 
 
         public abstract bool IsCorrect();

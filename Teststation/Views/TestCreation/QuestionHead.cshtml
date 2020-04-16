@@ -50,22 +50,22 @@
             <input name="model.Questions[@(Model.Position)].Text" type="text" class="form-control" value="@Model.Text" placeholder="Fragetext" required />
         </div>
         <div class="col-sm-3">
-            @if (Model.Type == "MathQuestion")
+            @if (Model.Type == QuestionType.MathQuestion)
             {
                 <input name="model.Questions[@(Model.Position)].CorrectAnswer" type="text" class="form-control numInputJS" value="@Model.CorrectAnswer" placeholder="Korrekte Antwort" required />
             }
-            @if (Model.Type == "CircuitQuestion")
+            @if (Model.Type == QuestionType.CircuitQuestion)
             {
                 <input name="model.Questions[@(Model.Position)].CircuitType"
                        value="@Model.CircuitType" hidden />
             }
         </div>
     </div>
-    @if (Model.Type == "MultipleChoiceQuestion")
+    @if (Model.Type == QuestionType.MultipleChoiceQuestion)
     {
         <partial name="MultipleChoiceQuestion" model="@Model" />
     }
-    @if (Model.Type == "CircuitQuestion")
+    @if (Model.Type == QuestionType.CircuitQuestion)
     {
         <partial name="CircuitQuestion" model="@Model" />
     }

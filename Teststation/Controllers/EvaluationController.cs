@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Teststation.Models;
@@ -7,17 +8,18 @@ namespace Teststation.Controllers
 {
     public class EvaluationController : Controller
     {
-        private UserManager<IdentityUser> _userManager;
-        private SignInManager<IdentityUser> _signManager;
+        private UserManager<User> _userManager;
+        private SignInManager<User> _signManager;
         private readonly Database _context;
 
-        public EvaluationController(Database context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signManager)
+        public EvaluationController(Database context, UserManager<User> userManager, SignInManager<User> signManager)
         {
             _userManager = userManager;
             _signManager = signManager;
             _context = context;
         }
 
+        [Authorize(Roles = Consts.Candidate)]
         public IActionResult Index(long? testId)
         {
             if (!_signManager.IsSignedIn(User))
@@ -29,7 +31,7 @@ namespace Teststation.Controllers
                 return RedirectToAction("Index", "Home");
             }
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
-            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
+            var user = _context.Users.FirstOrDefault(x => x.Id == _userManager.GetUserId(User));
 
             if (!SessionIsValid(testId, user.Id))
             {
@@ -40,20 +42,21 @@ namespace Teststation.Controllers
             return View(viewModel);
         }
 
-        public IActionResult IndexAdmin(long? testId, long? userId)
+        [Authorize(Roles = Consts.Admin)]
+        public IActionResult IndexAdmin(long? testId, string userId)
         {
             if (!ParametersAreValid(testId, userId))
             {
                 return RedirectToAction("Index", "Home");
             }
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
-            var user = _context.UserInformation.FirstOrDefault(x => x.Id == userId);
+            var user = _context.Users.FirstOrDefault(x => x.Id == userId);
 
             var viewModel = new EvaluationViewModel(test, user.Id, _context);
             return View(viewModel);
         }
 
-        private bool ParametersAreValid(long? testId, long? userId)
+        private bool ParametersAreValid(long? testId, string userId)
         {
             if (!TestIsValid(testId))
             {
@@ -84,12 +87,12 @@ namespace Teststation.Controllers
             return _context.Tests.Any(x => x.Id == testId);
         }
 
-        private bool UserIsValid(long? userId)
+        private bool UserIsValid(string userId)
         {
-            return _context.UserInformation.Any(x => x.Id == userId);
+            return _context.Users.Any(x => x.Id == userId);
         }
 
-        private bool SessionIsValid(long? testId, long? userId)
+        private bool SessionIsValid(long? testId, string userId)
         {
             if (_context.Sessions.Any(x => x.TestId == testId && x.CandidateId == userId))
             {

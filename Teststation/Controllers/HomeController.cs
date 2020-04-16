@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Teststation.Models;
 using Teststation.Models.ViewModels;
-using User = Microsoft.AspNetCore.Identity.IdentityUser;
 
 
 namespace Teststation.Controllers
@@ -23,15 +23,13 @@ namespace Teststation.Controllers
 
         public IActionResult Index()
         {
-            CreateAdmin();
-
-            DeleteBackUpTest();
-            DeleteUnusedResistors();
-            DeleteOldAccounts();
             if (!_signManager.IsSignedIn(User))
             {
                 return RedirectToAction("Login", "Account");
             }
+            DeleteBackUpTest();
+            DeleteUnusedResistors();
+            DeleteOldAccounts();
             var viewModel = Quotes.GetCurrentQoute(_userManager.GetUserName(User));
             return View(viewModel);
         }
@@ -71,40 +69,21 @@ namespace Teststation.Controllers
         }
         private void DeleteOldAccounts()
         {
-            var oldAccounts = _context.UserInformation.Where(x => x.Role == UserRole.Candidate && x.DayOfLastActivity.AddYears(1) <= DateTime.Now);
-            foreach (var userInformation in oldAccounts)
+            var oldAccounts = _userManager.GetUsersInRoleAsync(Consts.Candidate).Result.Where(x => x.DayOfLastActivity.AddYears(1) <= DateTime.Now);
+            foreach (var user in oldAccounts)
             {
-                userInformation.Role = UserRole.Deleted;
-                var user = _context.Users.FirstOrDefault(x => x.Id == userInformation.UserId);
+                
                 user.UserName =
                 user.NormalizedUserName =
                 user.Email =
                 user.NormalizedEmail =
                 user.PasswordHash = null;
+                user.IsDeleted = true;
+                _userManager.RemoveFromRolesAsync(user, new List<string>() { Consts.Admin, Consts.Candidate });
                 _context.Users.Update(user);
-                _context.UserInformation.Update(userInformation);
             }
             _context.SaveChanges();
         }
-
-        public async void CreateAdmin()
-        {
-            if (!_context.Users.Any(x => x.UserName == "Admin"))
-            {
-                var user = new User { UserName = "Admin", Email = "Admin" };
-                var result = await _userManager.CreateAsync(user, "123456");
-                if (result.Succeeded)
-                {
-                    var userInformation = new UserInformation
-                    {
-                        Role = UserRole.Admin,
-                        UserId = user.Id,
-                        DayOfLastActivity = DateTime.Now,
-                    };
-                    _context.UserInformation.Add(userInformation);
-                    _context.SaveChanges();
-                }
-            }
-        }
+                
     }
 }

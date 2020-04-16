@@ -10,7 +10,7 @@ namespace Teststation.Models
     public class CandidateSessionViewModel
     {
         public List<TestCandidateViewModel> Tests { get; set; }
-        public UserInformation UserInformation { get; set; }
+        public User User { get; set; }
         public string WholeResult { get; set; }
         public string ResultText { get; set; }
 
@@ -23,8 +23,7 @@ namespace Teststation.Models
 
         private void GetUser(Database _context, string userId)
         {
-            UserInformation = _context.UserInformation.FirstOrDefault(x => x.UserId == userId);
-            UserInformation.User = _context.Users.FirstOrDefault(x => x.Id == userId);
+            User = _context.Users.FirstOrDefault(x => x.Id == userId);            
         }
 
         private void GetTests(Database _context)
@@ -36,7 +35,7 @@ namespace Teststation.Models
             foreach (var test in allTests)
             {
                 var session = _context.Sessions
-                    .FirstOrDefault(x => x.TestId == test.Id && x.CandidateId == UserInformation.Id);
+                    .FirstOrDefault(x => x.TestId == test.Id && x.CandidateId == User.Id);
                 if (session != null)
                 {
                     session.Test = _context.Tests.FirstOrDefault(x => x.Id == session.TestId);
@@ -68,7 +67,7 @@ namespace Teststation.Models
 
                 if (testRow.IsStarted)
                 {
-                    var evaluation = new EvaluationViewModel(test, UserInformation.Id, _context);
+                    var evaluation = new EvaluationViewModel(test, User.Id, _context);
                     testRow.Result = Consts.resultIfEvaluationHasErrors;
                     if (evaluation.Answers != null && evaluation.Answers.Count != 0)
                     {

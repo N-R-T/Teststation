@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Teststation.Models;
 using Teststation.Models.ViewModels;
-using User = Microsoft.AspNetCore.Identity.IdentityUser;
 
 namespace Teststation.Controllers
 {
@@ -25,32 +24,26 @@ namespace Teststation.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = Consts.Admin)]
         public IActionResult Register()
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             return View(new RegisterViewModel());
         }
 
         [HttpPost]
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            //_userManager.IsInRoleAsync(_userManager.GetUserAsync(User).Result, Consts.Admin);
+
             if (ModelState.IsValid && !_context.Users.Any(x => x.UserName == model.Username))
             {
-                var user = new User { UserName = model.Username, Email = model.Username };
+                var user = new User { UserName = model.Username, Email = model.Username, DayOfLastActivity = DateTime.Now };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    var userInformation = new UserInformation
-                    {
-                        Role = UserRole.Candidate,
-                        UserId = user.Id,
-                        DayOfLastActivity = DateTime.Now,
-                    };
-                    _context.UserInformation.Add(userInformation);
-                    _context.SaveChanges();
+                    await _userManager.AddToRoleAsync(user, Consts.Candidate);
+                    await _context.SaveChangesAsync();
                     return RedirectToAction("CandidateList", "CandidateManagement");
                 }
             }
@@ -65,6 +58,7 @@ namespace Teststation.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login(string returnUrl = "")
         {
             var model = new LoginViewModel { ReturnUrl = returnUrl };
@@ -82,9 +76,9 @@ namespace Teststation.Controllers
                            model.Password, true, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
-                    var userInformation = _context.UserInformation.FirstOrDefault(x => x.User.UserName == model.Username);
-                    userInformation.DayOfLastActivity = DateTime.Now;
-                    _context.UserInformation.Update(userInformation);
+                    var user = _context.Users.First(x=>x.UserName == model.Username);
+                    user.DayOfLastActivity = DateTime.Now;
+                    _context.Update(user);
                     _context.SaveChanges();
                     return RedirectToAction("Index", "Home");
                 }
@@ -92,21 +86,6 @@ namespace Teststation.Controllers
             ModelState.AddModelError("", "Invalid login attempt");
             model.LoginErrors(_context);
             return View(model);
-        }
-
-        private bool IsNotAdmin()
-        {
-            if (!_signManager.IsSignedIn(User))
-            {
-                return true;
-            }
-            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
-            {
-                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role != UserRole.Admin;
-            }
-            return false;
-        }
-
-        
+        }        
     }
 }

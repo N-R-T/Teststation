@@ -3,13 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Teststation.Models
 {
-    public class Database : IdentityDbContext
+    public class Database : IdentityDbContext<User>
     {
         public Database(DbContextOptions<Database> options) : base(options)
         { }
 
         public DbSet<Test> Tests { get; set; }
-        public DbSet<UserInformation> UserInformation { get; set; }
         public DbSet<Session> Sessions { get; set; }
 
         public DbSet<Question> Questions { get; set; }

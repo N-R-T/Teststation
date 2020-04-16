@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,35 +11,28 @@ namespace Teststation.Controllers
 {
     public class TestAnswerController : Controller
     {
-        private SignInManager<IdentityUser> _signManager;
-        private UserManager<IdentityUser> _userManager;
+        private SignInManager<User> _signManager;
+        private UserManager<User> _userManager;
         private readonly Database _context;
         private static DateTime StartTime;
 
-        public TestAnswerController(Database context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signManager)
+        public TestAnswerController(Database context, UserManager<User> userManager, SignInManager<User> signManager)
         {
             _userManager = userManager;
             _signManager = signManager;
             _context = context;
         }
 
+        [Authorize(Roles = Consts.Candidate)]
         public async Task<IActionResult> Index(long? testId)
         {
-            if (!_signManager.IsSignedIn(User))
-            {
-                return RedirectToAction("Login", "Account");
-            }
             if (!TestIsValid(testId))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            if (!UserIsValid())
             {
                 return RedirectToAction("Index", "Home");
             }
 
             var test = _context.Tests.FirstOrDefault(x => x.Id == testId);
-            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
+            var user = await _userManager.GetUserAsync(User);
 
             if (!SessionIsValid(testId, user.Id))
             {
@@ -58,15 +52,7 @@ namespace Teststation.Controllers
             }
             return true;
         }
-        private bool UserIsValid()
-        {
-            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
-            {
-                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role == UserRole.Candidate;
-            }
-            return true;
-        }
-        private bool SessionIsValid(long? testId, long? userId)
+        private bool SessionIsValid(long? testId, string userId)
         {
             if (_context.Sessions.Any(x => x.TestId == testId && x.CandidateId == userId))
             {
@@ -91,12 +77,13 @@ namespace Teststation.Controllers
         public async Task<IActionResult> Finish(long id, [Bind("TestId,SessionId,Questions")] TestAnswerViewModel model)
         {
             SaveSession(model, true);
-            return RedirectToAction("Index", "Evaluation", new { testId = model.TestId });
+            return RedirectToAction("Index", "Home");
         }
 
+        [Authorize(Roles = Consts.Candidate)]
         private TestAnswerViewModel GetViewModel(Test test, Session session)
         {
-            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
+            var user = _userManager.GetUserAsync(User).Result;
             test.Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
 
             foreach (var question in test.Questions
@@ -183,9 +170,10 @@ namespace Teststation.Controllers
             return viewModel;
         }
 
+        [Authorize(Roles = Consts.Candidate)]
         private void SaveSession(TestAnswerViewModel model, bool Completed)
         {
-            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == _userManager.GetUserId(User));
+            var user = _userManager.GetUserAsync(User).Result;
             var mathAnswers = model.Questions
                   .Where(x => x.Type == QuestionType.MathQuestion)
                   .ToList();
@@ -219,7 +207,7 @@ namespace Teststation.Controllers
             _context.SaveChanges();
         }
 
-        private void SaveResultsOfMathQuestions(List<QuestionAnswerViewModel> questions, UserInformation user)
+        private void SaveResultsOfMathQuestions(List<QuestionAnswerViewModel> questions, User user)
         {
             foreach (var question in questions)
             {
@@ -238,7 +226,7 @@ namespace Teststation.Controllers
             }
         }
 
-        private void SaveResultsOfMultipleChoiceQuestions(List<QuestionAnswerViewModel> questions, UserInformation user)
+        private void SaveResultsOfMultipleChoiceQuestions(List<QuestionAnswerViewModel> questions, User user)
         {
             foreach (var question in questions)
             {
@@ -265,7 +253,7 @@ namespace Teststation.Controllers
             }
         }
 
-        private void SaveResultsOfCircuitQuestions(List<QuestionAnswerViewModel> questions, UserInformation user)
+        private void SaveResultsOfCircuitQuestions(List<QuestionAnswerViewModel> questions, User user)
         {
             foreach (var question in questions)
             {

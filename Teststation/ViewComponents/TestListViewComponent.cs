@@ -10,11 +10,11 @@ namespace Teststation.ViewComponents
 {
     public class TestListViewComponent : ViewComponent
     {
-        private SignInManager<IdentityUser> _signManager;
-        private UserManager<IdentityUser> _userManager;
+        private SignInManager<User> _signManager;
+        private UserManager<User> _userManager;
         private readonly Database _context;
 
-        public TestListViewComponent(Database context, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signManager)
+        public TestListViewComponent(Database context, UserManager<User> userManager, SignInManager<User> signManager)
         {
             _userManager = userManager;
             _signManager = signManager;

@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
+@inject SignInManager<User> SignInManager
 
 <footer class="border-top footer text-muted">
     @if (SignInManager.IsSignedIn(User))
