@@ -26,7 +26,7 @@
                 <textarea class="questionText form-control" readonly>@Model.Text</textarea>
             </div>
 
-            @if (Model.Type == "MathQuestion")
+            @if (Model.Type == QuestionType.MathQuestion)
             {
                 <div class="col-sm-4">
                     <input name="model.Questions[@(Model.Position)].GivenAnswer"
@@ -40,7 +40,7 @@
                 </div>
             }
 
-            @if (Model.Type == "CircuitQuestion")
+            @if (Model.Type == QuestionType.CircuitQuestion)
             {
                 <div class="col-sm-4">
                     <div class="input-group mb-3">
@@ -72,11 +72,11 @@
             }
 
         </div>
-        @if (Model.Type == "MultipleChoiceQuestion")
+        @if (Model.Type == QuestionType.MultipleChoiceQuestion)
         {
             <partial name="MultipleChoiceQuestion" model="@Model" />
         }
-        @if (Model.Type == "CircuitQuestion")
+        @if (Model.Type == QuestionType.CircuitQuestion)
         {
             <input type="text" group="@(Model.Position)_Text" value="9ub" hidden />
             <input type="checkbox" group="@(Model.Position)_Check" checked hidden />

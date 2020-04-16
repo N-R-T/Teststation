@@ -4,12 +4,9 @@ using System.Collections.Generic;
 
 namespace Teststation.Models
 {
-    public sealed class UserInformation
+    public sealed class User : IdentityUser
     {
-        public long Id { get; set; }
-        public string UserId { get; set; }
-        public IdentityUser User { get; set; }
-        public UserRole Role { get; set; }
+        public bool IsDeleted { get; set; }
         public List<Session> Sessions { get; set; }
         public DateTime DayOfLastActivity { get; set; }
     }

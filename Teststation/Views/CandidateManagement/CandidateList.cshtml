@@ -22,7 +22,7 @@
         <tbody>
             @foreach (var user in Model)
             {
-                var dateOfDeletion = user.UserInformation.DayOfLastActivity.AddYears(1);
+                var dateOfDeletion = user.User.DayOfLastActivity.AddYears(1);
 
                 <tr>
                     <td>
@@ -32,10 +32,10 @@
                         @dateOfDeletion.ToString("dd/MM/yyyy")
                     </td>
                     <td>
-                        <a href="/CandidateManagement/CandidateDetails?id=@user.UserId" class="btn btn-info buttonInMainList">Details</a>
+                        <a href="/CandidateManagement/CandidateDetails?id=@user.User.Id" class="btn btn-info buttonInMainList">Details</a>
                     </td>
                     <td>
-                        <button type="submit" asp-action="DeleteCandidate" asp-route-id="@user.UserId" class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteCandidate('@user.Name');">Löschen</button>
+                        <button type="submit" asp-action="DeleteCandidate" asp-route-id="@user.User.Id" class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteCandidate('@user.Name');">Löschen</button>
                     </td>
                 </tr>
             }

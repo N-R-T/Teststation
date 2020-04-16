@@ -1,9 +1,9 @@
 ﻿@model Teststation.Models.CandidateSessionViewModel
 @{    
-    ViewData["Title"] = "Testkandidat " + Model.UserInformation.User.UserName;
+    ViewData["Title"] = "Testkandidat " + Model.User.UserName;
 }
 
-<h1>Details zu @Model.UserInformation.User.UserName</h1>
+<h1>Details zu @Model.User.UserName</h1>
 <table class="table">
     <thead>
         <tr>
@@ -44,7 +44,7 @@
                 <td>
                     @if (test.Result == Consts.resultIfEvaluationHasErrors)
                     {
-                        <a href="/CandidateManagement/DeleteSession?testId=@test.Test.Id&userId=@Model.UserInformation.UserId"
+                        <a href="/CandidateManagement/DeleteSession?testId=@test.Test.Id&userId=@Model.User.Id"
                            class="btn btn-danger buttonInMainList" onclick="return ConfirmDeleteSession();">fehlerhafte Beantwortung löschen</a>
                     }
                     else if (!test.Completed)
@@ -53,7 +53,7 @@
                     }
                     else
                     {
-                        <a href="/Evaluation/IndexAdmin?testId=@test.Test.Id&userId=@Model.UserInformation.Id" class="btn btn-primary buttonInMainList">Auswerten</a>
+                        <a href="/Evaluation/IndexAdmin?testId=@test.Test.Id&userId=@Model.User.Id" class="btn btn-primary buttonInMainList">Auswerten</a>
                     }
                 </td>
             </tr>
@@ -70,7 +70,7 @@
                 </h4>
             </td>
             <td>
-                <a class="btn btn-info buttonInMainList" asp-action="ExportResults" asp-controller="CandidateManagement" asp-route-id="@Model.UserInformation.Id">Auswertung als Formular exportieren</a>
+                <a class="btn btn-info buttonInMainList" asp-action="ExportResults" asp-controller="CandidateManagement" asp-route-id="@Model.User.Id">Auswertung als Formular exportieren</a>
             </td>
         </tr>
     </tfoot>

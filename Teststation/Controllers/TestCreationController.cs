@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -6,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Teststation.Models;
-using User = Microsoft.AspNetCore.Identity.IdentityUser;
 
 namespace Teststation.Controllers
 {
@@ -25,12 +25,9 @@ namespace Teststation.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> Index(long? errorTestId)
-        {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
+        {            
             var viewModel = new List<TestEntryViewModel>();
             var tests = await _context.Tests.ToListAsync();
             foreach (var testItem in tests)
@@ -199,12 +196,9 @@ namespace Teststation.Controllers
         #endregion
 
         #region Neuen Test erstellen
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> Create()
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             var test = new Test { Topic = Consts.fillerNameForNewTest };
             _context.Add(test);
             await _context.SaveChangesAsync();
@@ -213,12 +207,9 @@ namespace Teststation.Controllers
         #endregion
 
         #region Test bearbeiten
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> Edit(long? id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             if (id == null)
             {
                 return NotFound();
@@ -868,12 +859,9 @@ namespace Teststation.Controllers
         #endregion
 
         #region Löschen
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> Delete(long? id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             if (id == null)
             {
                 return NotFound();
@@ -967,13 +955,9 @@ namespace Teststation.Controllers
         {
             return PartialView(question);
         }
-
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> ReleaseTest(long? id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             if (id == null)
             {
                 return NotFound();
@@ -995,13 +979,9 @@ namespace Teststation.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> CloseTest(long? id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             if (id == null)
             {
                 return NotFound();
@@ -1018,13 +998,9 @@ namespace Teststation.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
+        [Authorize(Roles = Consts.Admin)]
         public async Task<IActionResult> Regress(long? id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             if (id == null)
             {
                 return NotFound();
@@ -1105,19 +1081,6 @@ namespace Teststation.Controllers
             }
 
             return errors;
-        }
-
-        private bool IsNotAdmin()
-        {
-            if (!_signManager.IsSignedIn(User))
-            {
-                return true;
-            }
-            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
-            {
-                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role != UserRole.Admin;
-            }
-            return false;
         }
     }
 }

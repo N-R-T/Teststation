@@ -6,11 +6,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Teststation.Models;
 using Teststation.Models.ViewModels;
-using User = Microsoft.AspNetCore.Identity.IdentityUser;
 using Microsoft.Office.Interop.Word;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Teststation.Controllers
 {
+    [Authorize(Roles = Consts.Admin)]
     public class CandidateManagementController : Controller
     {
         private UserManager<User> _userManager;
@@ -24,23 +25,16 @@ namespace Teststation.Controllers
         }
         public IActionResult CandidateList()
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            var candidates = _context.UserInformation
-                .Where(x => x.Role == UserRole.Candidate)
-                .ToList();
+            var candidates = _userManager.GetUsersInRoleAsync(Consts.Candidate).Result.Where(x=>!x.IsDeleted);
 
             var candidateList = new List<CandidateListEntryViewModel>();
             foreach (var candidate in candidates)
-            {
-                candidate.User = _context.Users.FirstOrDefault(x => x.Id == candidate.UserId);
+            {                
                 candidateList.Add(new CandidateListEntryViewModel
                 {
-                    UserInformation = candidate,
-                    UserId = candidate.User.Id,
-                    Name = candidate.User.UserName,
+                    User = candidate,
+                    UserId = candidate.Id,
+                    Name = candidate.UserName,
                 });
             }
             return View(candidateList);
@@ -48,10 +42,6 @@ namespace Teststation.Controllers
 
         public IActionResult CandidateDetails(string id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             if (!_context.Users.Any(x=>x.Id == id))
             {
                 return RedirectToAction("CandidateList");
@@ -62,36 +52,26 @@ namespace Teststation.Controllers
 
         public async Task<IActionResult> DeleteCandidate(string id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
             var user = _context.Users.FirstOrDefault(x => x.Id == id);
             user.UserName =
                 user.NormalizedUserName =
                 user.Email =
                 user.NormalizedEmail =
                 user.PasswordHash = null;
+            user.IsDeleted = true;
+            await _userManager.RemoveFromRolesAsync(user, new List<string>() { Consts.Admin, Consts.Candidate });
             _context.Users.Update(user);
-
-            var userInformation = _context.UserInformation.FirstOrDefault(x => x.UserId == id);
-            userInformation.Role = UserRole.Deleted;
-            _context.UserInformation.Update(userInformation);
-
             _context.SaveChanges();
             return RedirectToAction(nameof(CandidateList));
         }
 
         public async Task<IActionResult> DeleteSession(long testId, string userId)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            var user = _context.UserInformation.FirstOrDefault(x => x.UserId == userId);
+            var user = _context.Users.FirstOrDefault(x => x.Id == userId);
             var session = _context.Sessions.FirstOrDefault(x => x.TestId == testId && x.CandidateId == user.Id);
             var mathAnswers = _context.MathAnswers.Where(x => x.CandidateId == user.Id && x.Question.TestId == testId);
             var multipleChoiceAnswers = _context.MultipleChoiceAnswers.Where(x => x.CandidateId == user.Id && x.Choice.Question.TestId == testId);
+            var circuitAnswers = _context.CircuitAnswers.Where(x => x.CandidateId == user.Id && x.Resistor.CircuitPart.Question.TestId == testId);
 
             _context.MathAnswers.RemoveRange(mathAnswers);
             _context.MultipleChoiceAnswers.RemoveRange(multipleChoiceAnswers);
@@ -100,31 +80,14 @@ namespace Teststation.Controllers
             return RedirectToAction("CandidateDetails", new { id = userId });
         }
 
-        private bool IsNotAdmin()
-        {
-            if (!_signManager.IsSignedIn(User))
-            {
-                return true;
-            }
-            if (_context.UserInformation.Any(x => x.UserId == _userManager.GetUserId(User)))
-            {
-                return _context.UserInformation.First(x => x.UserId == _userManager.GetUserId(User)).Role != UserRole.Admin;
-            }
-            return false;
-        }
-
         #region Word
 
-        public async Task<IActionResult> ExportResults(long id)
+        public IActionResult ExportResults(string id)
         {
-            if (IsNotAdmin())
-            {
-                return RedirectToAction("Index", "Home");
-            }
-            var userId = _context.UserInformation.FirstOrDefault(x=>x.Id == id).UserId;
+            var userId = id;
             var viewModel = new CandidateSessionViewModel(_context, userId);
 
-            object fileName = @"Beurteilung_Erprobung_"+ viewModel.UserInformation.User.UserName + ".docx";
+            object fileName = @"Beurteilung_Erprobung_"+ viewModel.User.UserName + ".docx";
             ApplicationClass app = new ApplicationClass();
             object missing = System.Reflection.Missing.Value;
             Document document = app.Application.Documents.Add();
@@ -134,9 +97,9 @@ namespace Teststation.Controllers
             document.Paragraphs.SpaceBefore = 0;
             document.Paragraphs.SpaceAfterAuto = 0;
             document.Paragraphs.SpaceBeforeAuto = 0;
-            AddFootRow(document, missing, viewModel.UserInformation.User.UserName);
+            AddFootRow(document, missing, viewModel.User.UserName);
             AddDateToDocument(document, missing);
-            AddHeadText(document, missing, viewModel.UserInformation.User.UserName);
+            AddHeadText(document, missing, viewModel.User.UserName);
             AddTable(document, missing, viewModel, app);
             AddTextAfterTable(document, missing);
             AddQualificationList(document, missing);
@@ -149,7 +112,7 @@ namespace Teststation.Controllers
                 ref missing, ref missing, ref missing, ref missing, ref missing);
             document.Close();
 
-            return RedirectToAction(nameof(CandidateDetails), id);
+            return RedirectToAction("CandidateDetails", new { id = userId });
         }
 
 
@@ -174,10 +137,17 @@ namespace Teststation.Controllers
         {
             Paragraph paragraph = StyleForNormalText(document, missing);            
             var table = paragraph.Range.Tables.Add(paragraph.Range, viewModel.Tests.Count + 3, 6);
-            SetTableStyle(table, app);
+            table.Columns[1].Width = app.Application.CentimetersToPoints(8.11f);
+            table.Columns[2].Width = app.Application.CentimetersToPoints(1.43f);
+            table.Columns[3].Width = app.Application.CentimetersToPoints(1.43f);
+            table.Columns[4].Width = app.Application.CentimetersToPoints(1.43f);
+            table.Columns[5].Width = app.Application.CentimetersToPoints(1.79f);
+            table.Columns[6].Width = app.Application.CentimetersToPoints(2.99f);
+
             TableHeader(table);
+            SetTableStyle(table, app);            
             TableTests(table, viewModel);
-            TableFooter(table, viewModel);
+            TableFooter(table, viewModel);            
         }
         private void TableHeader(Table table)
         {
@@ -200,29 +170,34 @@ namespace Teststation.Controllers
             table.Cell(1, 3).Merge(table.Cell(1, 4));
 
             table.Cell(2, 5).Range.Text = "in %";
-            table.Cell(2, 6).Range.Text = "Note IHK";           
+            table.Cell(2, 6).Range.Text = "Note IHK";
         }
+
         private void SetTableStyle(Table table, ApplicationClass app)
         {
             table.Range.Bold = 0;
             table.Range.Font.Size = 12;
             table.Spacing = 0;
-            
+
             for (int r = 0; r <= table.Rows.Count; r++)
             {
                 for (int c = 0; c <= table.Columns.Count; c++)
                 {
-                    table.Cell(r, c).Range.Borders[WdBorderType.wdBorderLeft].LineStyle = WdLineStyle.wdLineStyleSingle;
-                    table.Cell(r, c).Range.Borders[WdBorderType.wdBorderRight].LineStyle = WdLineStyle.wdLineStyleSingle;
-                    table.Cell(r, c).Range.Borders[WdBorderType.wdBorderTop].LineStyle = WdLineStyle.wdLineStyleSingle;
-                    table.Cell(r, c).Range.Borders[WdBorderType.wdBorderBottom].LineStyle = WdLineStyle.wdLineStyleSingle;
+                    try
+                    {
+                        table.Cell(r, c).Range.Borders[WdBorderType.wdBorderLeft].LineStyle = WdLineStyle.wdLineStyleSingle;
+                        table.Cell(r, c).Range.Borders[WdBorderType.wdBorderRight].LineStyle = WdLineStyle.wdLineStyleSingle;
+                        table.Cell(r, c).Range.Borders[WdBorderType.wdBorderTop].LineStyle = WdLineStyle.wdLineStyleSingle;
+                        table.Cell(r, c).Range.Borders[WdBorderType.wdBorderBottom].LineStyle = WdLineStyle.wdLineStyleSingle;
 
-                    table.Cell(r, c).HeightRule = WdRowHeightRule.wdRowHeightAuto;
-                    table.Cell(r, c).Range.Paragraphs.SpaceAfter = 0;
-                    table.Cell(r, c).Range.Paragraphs.SpaceBefore = 0;
-                    table.Cell(r, c).Range.Italic = 1;
-                    table.Cell(r, c).Range.Font.Name = "Frutiger 45 light";
-                    table.Cell(r, c).Range.Font.Size = 12;
+                        table.Cell(r, c).HeightRule = WdRowHeightRule.wdRowHeightAuto;
+                        table.Cell(r, c).Range.Paragraphs.SpaceAfter = 0;
+                        table.Cell(r, c).Range.Paragraphs.SpaceBefore = 0;
+                        table.Cell(r, c).Range.Italic = 1;
+                        table.Cell(r, c).Range.Font.Name = "Frutiger 45 light";
+                        table.Cell(r, c).Range.Font.Size = 12;
+                    }
+                    catch { }
                 }
             }
 
@@ -230,24 +205,27 @@ namespace Teststation.Controllers
             {
                 for (int c = 1; c <= 6; c++)
                 {
-                    table.Cell(r, c).Range.Shading.BackgroundPatternColor = WdColor.wdColorGray05;
+                    try
+                    {
+                        table.Cell(r, c).Range.Shading.BackgroundPatternColor = WdColor.wdColorGray05;
+                    }
+                    catch { }
                 }
             }
 
             for (int c = 1; c <= 6; c++)
             {
-                table.Cell(1, c).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
-                table.Cell(1, c).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
-                table.Cell(1, c).HeightRule = WdRowHeightRule.wdRowHeightExactly;
-                table.Cell(1, c).Height = app.Application.CentimetersToPoints(1.03f);
+                try
+                {
+                    table.Cell(1, c).Range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphLeft;
+                    table.Cell(1, c).VerticalAlignment = WdCellVerticalAlignment.wdCellAlignVerticalCenter;
+                    table.Cell(1, c).HeightRule = WdRowHeightRule.wdRowHeightExactly;
+                    table.Cell(1, c).Height = app.Application.CentimetersToPoints(1.03f);
+                }
+                catch { }
             }
 
-            table.Columns[1].Width = app.Application.CentimetersToPoints(8.11f);
-            table.Columns[2].Width = app.Application.CentimetersToPoints(1.43f);
-            table.Columns[3].Width = app.Application.CentimetersToPoints(1.43f);
-            table.Columns[4].Width = app.Application.CentimetersToPoints(1.43f);
-            table.Columns[5].Width = app.Application.CentimetersToPoints(1.79f);
-            table.Columns[6].Width = app.Application.CentimetersToPoints(2.99f);
+            
         }
         private void TableTests(Table table, CandidateSessionViewModel viewModel)
         {

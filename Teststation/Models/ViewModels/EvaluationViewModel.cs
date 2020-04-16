@@ -7,16 +7,16 @@ namespace Teststation.Models
     public class EvaluationViewModel
     {
         public Test Test;
-        public UserInformation User;
+        public User User;
         public List<Question> Questions;
         public List<Answer> Answers;
         public string UserName;
 
-        public EvaluationViewModel(Test test, long userId, Database _context)
+        public EvaluationViewModel(Test test, string userId, Database _context)
         {
-            User = _context.UserInformation.FirstOrDefault(x => x.Id == userId);
+            User = _context.Users.FirstOrDefault(x => x.Id == userId);
             Test = test;
-            UserName = _context.Users.FirstOrDefault(x => x.Id == User.UserId).UserName;
+            UserName = _context.Users.FirstOrDefault(x => x.Id == User.Id).UserName;
 
             Questions = _context.Questions.Where(x => x.TestId == test.Id).ToList();
             if (Questions == null)
